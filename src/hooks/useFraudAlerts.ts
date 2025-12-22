@@ -1,11 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { FraudAlert, FraudSeverity, FraudStatus } from '@/types/ai-modules';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Json } from '@/integrations/supabase/types';
+import { useCriticalAlertSound } from './useCriticalAlertSound';
+import { toast } from 'sonner';
 
 export function useFraudAlerts() {
   const queryClient = useQueryClient();
+  const { playAlertSound } = useCriticalAlertSound();
+  const isInitialLoad = useRef(true);
 
   const { data: alerts, isLoading, error } = useQuery({
     queryKey: ['fraud-alerts'],
@@ -17,18 +21,57 @@ export function useFraudAlerts() {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
+      isInitialLoad.current = false;
       return data as FraudAlert[];
     },
   });
 
-  // Real-time subscription
+  // Real-time subscription with sound notification for critical alerts
   useEffect(() => {
     const channel = supabase
       .channel('fraud-alerts-realtime')
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
+          schema: 'public',
+          table: 'fraud_alerts',
+        },
+        (payload) => {
+          const newAlert = payload.new as FraudAlert;
+          
+          // Play sound and show toast for critical alerts
+          if (newAlert.severity === 'CRITICAL' && !isInitialLoad.current) {
+            playAlertSound();
+            toast.error('🚨 CRITICAL FRAUD ALERT', {
+              description: `${newAlert.location}: ${newAlert.description}`,
+              duration: 10000,
+            });
+          } else if (newAlert.severity === 'HIGH' && !isInitialLoad.current) {
+            toast.warning('⚠️ High Priority Alert', {
+              description: `${newAlert.location}: ${newAlert.description}`,
+              duration: 5000,
+            });
+          }
+          
+          queryClient.invalidateQueries({ queryKey: ['fraud-alerts'] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'fraud_alerts',
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['fraud-alerts'] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
           schema: 'public',
           table: 'fraud_alerts',
         },
@@ -41,7 +84,7 @@ export function useFraudAlerts() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [queryClient, playAlertSound]);
 
   const createFraudAlert = useMutation({
     mutationFn: async (alert: {
