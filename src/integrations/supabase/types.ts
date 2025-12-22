@@ -128,6 +128,56 @@ export type Database = {
         }
         Relationships: []
       }
+      reservations: {
+        Row: {
+          amount: number
+          created_at: string
+          end_time: string
+          id: string
+          lot_id: string
+          reservation_date: string
+          start_time: string
+          status: string
+          updated_at: string
+          user_id: string
+          vehicle_number: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          end_time: string
+          id?: string
+          lot_id: string
+          reservation_date: string
+          start_time: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          vehicle_number: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          end_time?: string
+          id?: string
+          lot_id?: string
+          reservation_date?: string
+          start_time?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vehicle_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sensor_logs: {
         Row: {
           created_at: string
