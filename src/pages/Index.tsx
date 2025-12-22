@@ -1,14 +1,36 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import AdminDashboard from './AdminDashboard';
+import AttendantPOS from './AttendantPOS';
+import CitizenPortal from './CitizenPortal';
 
-const Index = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+export default function Index() {
+  const { user, loading, userRole } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full chakra-spinner mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading NIGAM-Park...</p>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
 
-export default Index;
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // Render view based on user role
+  switch (userRole) {
+    case 'admin':
+      return <AdminDashboard />;
+    case 'attendant':
+      return <AttendantPOS />;
+    case 'citizen':
+    default:
+      return <CitizenPortal />;
+  }
+}
