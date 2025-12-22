@@ -10,6 +10,8 @@ import AdminUserManagement from "./pages/AdminUserManagement";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminParkingLots from "./pages/AdminParkingLots";
 import MyReservations from "./pages/MyReservations";
+import VisionDashboard from "./pages/VisionDashboard";
+import FraudHunter from "./pages/FraudHunter";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,8 @@ const App = () => (
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
             <Route path="/my-reservations" element={<MyReservations />} />
+            <Route path="/vision-dashboard" element={<VisionDashboard />} />
+            <Route path="/fraud-hunter" element={<FraudHunter />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

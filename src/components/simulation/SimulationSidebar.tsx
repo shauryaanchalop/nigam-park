@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
-import { Settings, Car, CreditCard, Banknote, AlertTriangle, RotateCcw, X, Play } from 'lucide-react';
+import { Settings, Car, CreditCard, Banknote, AlertTriangle, RotateCcw, X, Play, BrainCircuit, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useAlerts } from '@/hooks/useAlerts';
 import { useSensorLogs } from '@/hooks/useSensorLogs';
+import { useFraudAlerts } from '@/hooks/useFraudAlerts';
+import { useOccupancyForecasts } from '@/hooks/useOccupancyForecasts';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { addHours } from 'date-fns';
 
 interface SimulationEvent {
   id: string;
-  type: 'entry' | 'payment' | 'fraud' | 'alert';
+  type: 'entry' | 'payment' | 'fraud' | 'alert' | 'ai';
   message: string;
   timestamp: Date;
 }
@@ -28,6 +30,8 @@ export function SimulationSidebar() {
   const { createTransaction } = useTransactions();
   const { createAlert } = useAlerts();
   const { createSensorLog } = useSensorLogs();
+  const { createFraudAlert } = useFraudAlerts();
+  const { createForecast } = useOccupancyForecasts();
 
   const generateVehicleNumber = () => {
     const states = ['DL', 'HR', 'UP', 'RJ'];
@@ -176,13 +180,61 @@ export function SimulationSidebar() {
     }
   };
 
+  const handleSimulateFraudAI = async () => {
+    if (!selectedLot) {
+      toast.error('Please select a parking lot');
+      return;
+    }
+    const lot = lots?.find(l => l.id === selectedLot);
+    if (!lot) return;
+
+    try {
+      await createFraudAlert.mutateAsync({
+        severity: 'CRITICAL',
+        location: lot.name,
+        description: `AI detected unauthorized vehicle entry at ${lot.name} - No payment recorded for 15 minutes`,
+        metadata: {
+          entry_time: new Date().toISOString(),
+          payment_time: null,
+          confidence: 0.96,
+          detection_type: 'REVENUE_LEAKAGE',
+        },
+      });
+      addEvent('ai', `🤖 AI FRAUD ALERT: Critical detection at ${lot.name}`);
+      toast.error('AI Fraud Alert Created!', { duration: 5000 });
+    } catch (error) {
+      toast.error('Failed to simulate AI fraud');
+    }
+  };
+
+  const handleSimulateTraffic = async () => {
+    if (!selectedLot) {
+      toast.error('Please select a parking lot');
+      return;
+    }
+
+    try {
+      const now = new Date();
+      for (let i = 1; i <= 6; i++) {
+        await createForecast.mutateAsync({
+          parking_lot_id: selectedLot,
+          forecast_time: addHours(now, i).toISOString(),
+          predicted_occupancy: Math.min(100, 40 + Math.floor(Math.random() * 50) + i * 5),
+          confidence_score: 0.85 + Math.random() * 0.1,
+        });
+      }
+      addEvent('ai', `🧠 AI generated 6-hour traffic forecast`);
+      toast.success('AI Traffic Forecast Generated!');
+    } catch (error) {
+      toast.error('Failed to simulate traffic forecast');
+    }
+  };
+
   const handleReset = () => {
     setEvents([]);
     setPendingFraud(null);
     toast.info('Demo data cleared');
   };
-
-  const selectedLotName = lots?.find(l => l.id === selectedLot)?.name ?? 'Select lot';
 
   return (
     <>
@@ -279,6 +331,27 @@ export function SimulationSidebar() {
                 : 'SIMULATE FRAUD SCENARIO'
               }
             </Button>
+
+            {/* AI Simulation Buttons */}
+            <div className="pt-2 border-t border-sidebar-border">
+              <p className="text-xs text-sidebar-foreground/50 mb-2">AI Simulations</p>
+              <Button
+                onClick={handleSimulateFraudAI}
+                className="w-full justify-start gap-3 bg-destructive/30 hover:bg-destructive/40 text-destructive mb-2"
+                disabled={!selectedLot}
+              >
+                <ShieldAlert className="w-5 h-5" />
+                Simulate AI Fraud Alert
+              </Button>
+              <Button
+                onClick={handleSimulateTraffic}
+                className="w-full justify-start gap-3 bg-primary/20 hover:bg-primary/30 text-sidebar-foreground"
+                disabled={!selectedLot}
+              >
+                <BrainCircuit className="w-5 h-5" />
+                Simulate Traffic Forecast
+              </Button>
+            </div>
 
             <Button
               onClick={handleReset}
