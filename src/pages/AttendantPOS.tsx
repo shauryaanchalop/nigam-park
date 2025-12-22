@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Car, CreditCard, Banknote, QrCode, CheckCircle2, Clock, LogOut } from 'lucide-react';
+import { Car, CreditCard, Banknote, QrCode, CheckCircle2, Clock, LogOut, ScanLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { SimulationSidebar } from '@/components/simulation/SimulationSidebar';
+import { QRScannerDialog } from '@/components/attendant/QRScannerDialog';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTransactions, useTodayStats } from '@/hooks/useTransactions';
 import { useSensorLogs } from '@/hooks/useSensorLogs';
@@ -20,6 +21,7 @@ export default function AttendantPOS() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [qrRefreshKey, setQrRefreshKey] = useState(0);
   const [checkInDialogOpen, setCheckInDialogOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   const { data: lots } = useParkingLots();
   const { createTransaction } = useTransactions();
@@ -104,6 +106,24 @@ export default function AttendantPOS() {
     }
   };
 
+  const handleReservationVerified = async (reservation: any) => {
+    if (!assignedLot) return;
+    
+    // Log the entry
+    try {
+      await createSensorLog.mutateAsync({
+        lot_id: reservation.lot_id,
+        event_type: 'entry',
+        vehicle_detected: reservation.vehicle_number,
+        has_payment: true,
+      });
+
+      await updateOccupancy.mutateAsync({ lotId: reservation.lot_id, delta: 1 });
+    } catch (error) {
+      console.error('Error logging entry:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <GovHeader 
@@ -161,6 +181,16 @@ export default function AttendantPOS() {
 
         {/* Action Buttons */}
         <div className="space-y-4">
+          {/* Scan Reservation QR */}
+          <Button 
+            className="w-full h-16 text-lg gap-3 bg-success hover:bg-success/90 text-success-foreground" 
+            size="lg"
+            onClick={() => setScannerOpen(true)}
+          >
+            <ScanLine className="w-6 h-6" />
+            Scan Reservation QR
+          </Button>
+
           {/* Check-in */}
           <Dialog open={checkInDialogOpen} onOpenChange={setCheckInDialogOpen}>
             <DialogTrigger asChild>
@@ -277,6 +307,13 @@ export default function AttendantPOS() {
       </main>
 
       <SimulationSidebar />
+
+      {/* QR Scanner Dialog */}
+      <QRScannerDialog 
+        open={scannerOpen} 
+        onOpenChange={setScannerOpen}
+        onReservationVerified={handleReservationVerified}
+      />
     </div>
   );
 }
