@@ -2,6 +2,14 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { AppRole } from '@/types/database';
+import { z } from 'zod';
+
+// Validation schemas
+const signUpSchema = z.object({
+  email: z.string().email('Invalid email').max(255, 'Email too long'),
+  password: z.string().min(6, 'Password must be at least 6 characters').max(100, 'Password too long'),
+  fullName: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
+});
 
 interface AuthContextType {
   user: User | null;
@@ -9,7 +17,7 @@ interface AuthContextType {
   loading: boolean;
   userRole: AppRole | null;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, fullName: string, role: AppRole) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -72,7 +80,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error as Error | null };
   };
 
-  const signUp = async (email: string, password: string, fullName: string, role: AppRole) => {
+  const signUp = async (email: string, password: string, fullName: string) => {
+    // Validate input
+    try {
+      signUpSchema.parse({ email, password, fullName });
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        return { error: new Error(validationError.errors[0].message) };
+      }
+      return { error: validationError as Error };
+    }
+
     const redirectUrl = `${window.location.origin}/`;
     
     const { data, error } = await supabase.auth.signUp({
@@ -90,19 +108,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error: error as Error };
     }
 
-    // Insert user role after signup
-    if (data.user) {
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: data.user.id,
-          role: role,
-        });
-
-      if (roleError) {
-        console.error('Error setting user role:', roleError);
-      }
-    }
+    // Role is now automatically assigned by database trigger (always 'citizen')
+    // No need to manually insert - the on_auth_user_created_role trigger handles it
 
     return { error: null };
   };
