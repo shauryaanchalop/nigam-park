@@ -176,6 +176,11 @@ export default function CitizenPortal() {
                         className="w-full gap-2"
                         variant={status.color === 'destructive' ? 'secondary' : 'default'}
                         disabled={status.color === 'destructive'}
+                        onClick={() => {
+                          // Open Google Maps with directions to the parking lot
+                          const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lot.lat},${lot.lng}&travelmode=driving`;
+                          window.open(mapsUrl, '_blank', 'noopener,noreferrer');
+                        }}
                       >
                         <Navigation className="w-4 h-4" />
                         {status.color === 'destructive' ? 'Lot Full' : 'Get Directions'}
