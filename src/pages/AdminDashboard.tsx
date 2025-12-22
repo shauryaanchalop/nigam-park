@@ -1,5 +1,6 @@
 import React from 'react';
-import { IndianRupee, Car, AlertTriangle, Bell, Activity } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { IndianRupee, Car, AlertTriangle, Bell, Users } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { StatCard } from '@/components/ui/StatCard';
 import { VigilanceFeed } from '@/components/dashboard/VigilanceFeed';
@@ -10,6 +11,7 @@ import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTodayStats } from '@/hooks/useTransactions';
 import { useAlerts } from '@/hooks/useAlerts';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 export default function AdminDashboard() {
   const { data: lots } = useParkingLots();
@@ -31,24 +33,32 @@ export default function AdminDashboard() {
       />
 
       <main className="container mx-auto px-4 py-6">
-        {/* Live Indicator */}
-        <div className="flex items-center gap-2 mb-6">
+        {/* Live Indicator & Admin Actions */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-sm text-muted-foreground">Live</span>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+              <span className="text-sm text-muted-foreground">Live</span>
+            </div>
+            <span className="text-muted-foreground">•</span>
+            <span className="text-sm text-muted-foreground">
+              Last updated: {new Date().toLocaleTimeString('en-IN')}
+            </span>
+            {fraudAlerts.length > 0 && (
+              <>
+                <span className="text-muted-foreground">•</span>
+                <Badge variant="destructive" className="animate-pulse">
+                  {fraudAlerts.length} Active Fraud Alert{fraudAlerts.length > 1 ? 's' : ''}
+                </Badge>
+              </>
+            )}
           </div>
-          <span className="text-muted-foreground">•</span>
-          <span className="text-sm text-muted-foreground">
-            Last updated: {new Date().toLocaleTimeString('en-IN')}
-          </span>
-          {fraudAlerts.length > 0 && (
-            <>
-              <span className="text-muted-foreground">•</span>
-              <Badge variant="destructive" className="animate-pulse">
-                {fraudAlerts.length} Active Fraud Alert{fraudAlerts.length > 1 ? 's' : ''}
-              </Badge>
-            </>
-          )}
+          <Button asChild variant="outline" className="gap-2">
+            <Link to="/admin/users">
+              <Users className="w-4 h-4" />
+              Manage Users
+            </Link>
+          </Button>
         </div>
 
         {/* Stats Grid */}
