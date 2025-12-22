@@ -7,6 +7,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AdminUserManagement from "./pages/AdminUserManagement";
+import AdminAnalytics from "./pages/AdminAnalytics";
+import AdminParkingLots from "./pages/AdminParkingLots";
 import MyReservations from "./pages/MyReservations";
 import NotFound from "./pages/NotFound";
 
@@ -23,6 +25,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin/users" element={<AdminUserManagement />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
             <Route path="/my-reservations" element={<MyReservations />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

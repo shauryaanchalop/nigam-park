@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IndianRupee, Car, AlertTriangle, Bell, Users } from 'lucide-react';
+import { IndianRupee, Car, AlertTriangle, Bell, Users, BarChart3, MapPinned } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { StatCard } from '@/components/ui/StatCard';
 import { VigilanceFeed } from '@/components/dashboard/VigilanceFeed';
@@ -53,12 +53,26 @@ export default function AdminDashboard() {
               </>
             )}
           </div>
-          <Button asChild variant="outline" className="gap-2">
-            <Link to="/admin/users">
-              <Users className="w-4 h-4" />
-              Manage Users
-            </Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link to="/admin/analytics">
+                <BarChart3 className="w-4 h-4" />
+                Analytics
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link to="/admin/parking-lots">
+                <MapPinned className="w-4 h-4" />
+                Manage Lots
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link to="/admin/users">
+                <Users className="w-4 h-4" />
+                Manage Users
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Stats Grid */}

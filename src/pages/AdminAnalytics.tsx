@@ -1,0 +1,305 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { 
+  TrendingUp, IndianRupee, Car, Calendar, BarChart3, 
+  ArrowUpRight, ArrowDownRight, Download, ChevronLeft 
+} from 'lucide-react';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
+  ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend 
+} from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { GovHeader } from '@/components/ui/GovHeader';
+import { 
+  useRevenueAnalytics, 
+  useOccupancyAnalytics, 
+  useReservationAnalytics,
+  useSummaryStats,
+  TimeRange 
+} from '@/hooks/useAnalytics';
+import { cn } from '@/lib/utils';
+
+const COLORS = ['hsl(var(--primary))', 'hsl(var(--warning))', 'hsl(var(--success))'];
+
+export default function AdminAnalytics() {
+  const [timeRange, setTimeRange] = useState<TimeRange>('daily');
+  const { data: revenueData, isLoading: revenueLoading } = useRevenueAnalytics(timeRange);
+  const { data: occupancyData, isLoading: occupancyLoading } = useOccupancyAnalytics();
+  const { data: reservationStats } = useReservationAnalytics(timeRange);
+  const { data: summaryStats } = useSummaryStats();
+
+  const paymentMethodData = revenueData ? [
+    { name: 'FASTag', value: revenueData.reduce((sum, d) => sum + d.fastag, 0) },
+    { name: 'Cash', value: revenueData.reduce((sum, d) => sum + d.cash, 0) },
+    { name: 'UPI', value: revenueData.reduce((sum, d) => sum + d.upi, 0) },
+  ] : [];
+
+  return (
+    <div className="min-h-screen bg-background">
+      <GovHeader 
+        title="Analytics & Reports" 
+        subtitle="Revenue and Occupancy Insights"
+      />
+
+      <main className="container mx-auto px-4 py-6">
+        {/* Back Button */}
+        <Button variant="ghost" asChild className="mb-4">
+          <Link to="/">
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Back to Dashboard
+          </Link>
+        </Button>
+
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Today's Revenue</p>
+                  <p className="text-2xl font-bold">
+                    ₹{(summaryStats?.todayRevenue ?? 0).toLocaleString('en-IN')}
+                  </p>
+                </div>
+                <div className={cn(
+                  'flex items-center gap-1 text-sm',
+                  (summaryStats?.revenueChange ?? 0) >= 0 ? 'text-success' : 'text-destructive'
+                )}>
+                  {(summaryStats?.revenueChange ?? 0) >= 0 ? (
+                    <ArrowUpRight className="w-4 h-4" />
+                  ) : (
+                    <ArrowDownRight className="w-4 h-4" />
+                  )}
+                  {Math.abs(summaryStats?.revenueChange ?? 0)}%
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Weekly Revenue</p>
+                  <p className="text-2xl font-bold">
+                    ₹{(summaryStats?.weekRevenue ?? 0).toLocaleString('en-IN')}
+                  </p>
+                </div>
+                <TrendingUp className="w-8 h-8 text-muted-foreground" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Avg Daily Revenue</p>
+                  <p className="text-2xl font-bold">
+                    ₹{(summaryStats?.avgDailyRevenue ?? 0).toLocaleString('en-IN')}
+                  </p>
+                </div>
+                <IndianRupee className="w-8 h-8 text-muted-foreground" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Reservations</p>
+                  <p className="text-2xl font-bold">{reservationStats?.total ?? 0}</p>
+                </div>
+                <Calendar className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {reservationStats?.completed ?? 0} completed, {reservationStats?.cancelled ?? 0} cancelled
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Time Range Selector */}
+        <div className="flex items-center justify-between mb-6">
+          <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
+            <TabsList>
+              <TabsTrigger value="daily">Daily</TabsTrigger>
+              <TabsTrigger value="weekly">Weekly</TabsTrigger>
+              <TabsTrigger value="monthly">Monthly</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <Button variant="outline" size="sm" className="gap-2">
+            <Download className="w-4 h-4" />
+            Export Report
+          </Button>
+        </div>
+
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Revenue Trend Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Revenue Trend
+              </CardTitle>
+              <CardDescription>
+                Revenue over time by payment method
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {revenueLoading ? (
+                <div className="h-[300px] flex items-center justify-center">
+                  <p className="text-muted-foreground">Loading...</p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={revenueData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="displayDate" className="text-xs" />
+                    <YAxis className="text-xs" />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                      formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, '']}
+                    />
+                    <Legend />
+                    <Bar dataKey="fastag" name="FASTag" fill="hsl(var(--primary))" stackId="a" />
+                    <Bar dataKey="cash" name="Cash" fill="hsl(var(--warning))" stackId="a" />
+                    <Bar dataKey="upi" name="UPI" fill="hsl(var(--success))" stackId="a" />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Payment Method Breakdown */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <IndianRupee className="w-5 h-5" />
+                Payment Methods
+              </CardTitle>
+              <CardDescription>
+                Revenue distribution by payment type
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={paymentMethodData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {paymentMethodData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, '']}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Occupancy Chart */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Car className="w-5 h-5" />
+              Current Occupancy by Lot
+            </CardTitle>
+            <CardDescription>
+              Real-time parking lot utilization
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {occupancyLoading ? (
+              <div className="h-[300px] flex items-center justify-center">
+                <p className="text-muted-foreground">Loading...</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={occupancyData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" domain={[0, 100]} unit="%" />
+                  <YAxis dataKey="lotName" type="category" width={150} className="text-xs" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                    formatter={(value: number, name: string, props: any) => [
+                      `${props.payload.occupancy}/${props.payload.capacity} (${value}%)`,
+                      'Occupancy'
+                    ]}
+                  />
+                  <Bar 
+                    dataKey="percentage" 
+                    fill="hsl(var(--primary))"
+                    radius={[0, 4, 4, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Reservation Stats */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="w-5 h-5" />
+              Reservation Statistics
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+              <div className="text-center p-4 bg-muted/50 rounded-lg">
+                <p className="text-2xl font-bold">{reservationStats?.total ?? 0}</p>
+                <p className="text-sm text-muted-foreground">Total</p>
+              </div>
+              <div className="text-center p-4 bg-success/10 rounded-lg">
+                <p className="text-2xl font-bold text-success">{reservationStats?.confirmed ?? 0}</p>
+                <p className="text-sm text-muted-foreground">Confirmed</p>
+              </div>
+              <div className="text-center p-4 bg-primary/10 rounded-lg">
+                <p className="text-2xl font-bold text-primary">{reservationStats?.checkedIn ?? 0}</p>
+                <p className="text-sm text-muted-foreground">Checked In</p>
+              </div>
+              <div className="text-center p-4 bg-muted rounded-lg">
+                <p className="text-2xl font-bold">{reservationStats?.completed ?? 0}</p>
+                <p className="text-sm text-muted-foreground">Completed</p>
+              </div>
+              <div className="text-center p-4 bg-destructive/10 rounded-lg">
+                <p className="text-2xl font-bold text-destructive">{reservationStats?.cancelled ?? 0}</p>
+                <p className="text-sm text-muted-foreground">Cancelled</p>
+              </div>
+            </div>
+            <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                Total reservation revenue: <span className="font-semibold text-foreground">₹{(reservationStats?.totalRevenue ?? 0).toLocaleString('en-IN')}</span>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  );
+}
