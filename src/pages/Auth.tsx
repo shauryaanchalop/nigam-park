@@ -6,10 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { AppRole } from '@/types/database';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -18,8 +16,7 @@ const loginSchema = z.object({
 });
 
 const signupSchema = loginSchema.extend({
-  fullName: z.string().min(2, 'Name must be at least 2 characters'),
-  role: z.enum(['admin', 'attendant', 'citizen']),
+  fullName: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
 });
 
 export default function Auth() {
@@ -35,7 +32,6 @@ export default function Auth() {
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupName, setSignupName] = useState('');
-  const [signupRole, setSignupRole] = useState<AppRole>('citizen');
 
   if (loading) {
     return (
@@ -84,7 +80,6 @@ export default function Auth() {
         email: signupEmail, 
         password: signupPassword,
         fullName: signupName,
-        role: signupRole,
       });
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -94,7 +89,7 @@ export default function Auth() {
     }
 
     setIsSubmitting(true);
-    const { error } = await signUp(signupEmail, signupPassword, signupName, signupRole);
+    const { error } = await signUp(signupEmail, signupPassword, signupName);
     setIsSubmitting(false);
 
     if (error) {
@@ -104,7 +99,7 @@ export default function Auth() {
         toast.error(error.message);
       }
     } else {
-      toast.success('Account created successfully!');
+      toast.success('Account created successfully! You are now logged in as a Citizen.');
     }
   };
 
@@ -242,19 +237,9 @@ export default function Auth() {
                       </Button>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-role">Role</Label>
-                    <Select value={signupRole} onValueChange={(v) => setSignupRole(v as AppRole)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="admin">MCD Commissioner (Admin)</SelectItem>
-                        <SelectItem value="attendant">Parking Attendant</SelectItem>
-                        <SelectItem value="citizen">Citizen</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    New users are registered as Citizens. Contact an administrator to request elevated access.
+                  </p>
                   <Button type="submit" className="w-full" disabled={isSubmitting}>
                     {isSubmitting ? 'Creating account...' : 'Create Account'}
                   </Button>

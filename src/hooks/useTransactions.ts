@@ -2,6 +2,23 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Transaction, TransactionWithLot } from '@/types/database';
 import { useEffect } from 'react';
+import { z } from 'zod';
+
+// Vehicle number validation - Indian format (e.g., DL01AB1234, HR99X9999)
+const vehicleNumberSchema = z.string()
+  .regex(/^[A-Z]{2}[0-9]{1,2}[A-Z]{1,3}[0-9]{1,4}$/, 'Invalid vehicle number format')
+  .max(15, 'Vehicle number too long');
+
+// Transaction validation schema
+const transactionSchema = z.object({
+  lot_id: z.string().uuid('Invalid lot ID'),
+  vehicle_number: vehicleNumberSchema,
+  amount: z.number().int().positive('Amount must be positive').max(100000, 'Amount exceeds maximum'),
+  payment_method: z.enum(['FASTag', 'Cash', 'UPI'], { errorMap: () => ({ message: 'Invalid payment method' }) }),
+  status: z.enum(['pending', 'completed', 'failed']),
+  entry_time: z.string(),
+  exit_time: z.string().nullable(),
+});
 
 export function useTransactions() {
   const queryClient = useQueryClient();
@@ -45,6 +62,9 @@ export function useTransactions() {
 
   const createTransaction = useMutation({
     mutationFn: async (transaction: Omit<Transaction, 'id' | 'created_at'>) => {
+      // Validate input before database operation
+      transactionSchema.parse(transaction);
+      
       const { data, error } = await supabase
         .from('transactions')
         .insert(transaction)
@@ -97,3 +117,6 @@ export function useTodayStats() {
     refetchInterval: 5000,
   });
 }
+
+// Export validation helpers for use in components
+export { vehicleNumberSchema };

@@ -2,6 +2,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertWithLot } from '@/types/database';
 import { useEffect } from 'react';
+import { z } from 'zod';
+
+// Alert validation schema
+const alertSchema = z.object({
+  lot_id: z.string().uuid('Invalid lot ID').nullable(),
+  alert_type: z.string().min(1).max(50, 'Alert type too long'),
+  message: z.string().min(1).max(500, 'Message too long'),
+  severity: z.enum(['low', 'medium', 'high', 'critical']),
+  is_resolved: z.boolean(),
+  sensor_log_id: z.string().uuid().nullable(),
+});
 
 export function useAlerts() {
   const queryClient = useQueryClient();
@@ -44,6 +55,9 @@ export function useAlerts() {
 
   const createAlert = useMutation({
     mutationFn: async (alert: Omit<Alert, 'id' | 'created_at'>) => {
+      // Validate input before database operation
+      alertSchema.parse(alert);
+      
       const { data, error } = await supabase
         .from('alerts')
         .insert(alert)
@@ -60,6 +74,9 @@ export function useAlerts() {
 
   const resolveAlert = useMutation({
     mutationFn: async (alertId: string) => {
+      // Validate alertId is a valid UUID
+      z.string().uuid().parse(alertId);
+      
       const { error } = await supabase
         .from('alerts')
         .update({ is_resolved: true })
