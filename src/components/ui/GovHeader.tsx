@@ -1,8 +1,9 @@
 import React from 'react';
-import { Shield, LogOut, User } from 'lucide-react';
+import { Shield, LogOut, User, CalendarCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,7 @@ interface GovHeaderProps {
 
 export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance & Smart Parking System" }: GovHeaderProps) {
   const { user, userRole, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const roleLabels = {
     admin: 'MCD Commissioner',
@@ -57,24 +59,52 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
             </div>
 
             {user && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10">
-                    <User className="w-4 h-4 mr-2" />
-                    <span className="hidden sm:inline">{roleLabels[userRole ?? 'citizen']}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem disabled className="text-muted-foreground">
-                    Logged in as {roleLabels[userRole ?? 'citizen']}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut} className="text-destructive">
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-primary-foreground hover:bg-primary-foreground/10 hidden sm:flex"
+                  onClick={() => navigate('/my-reservations')}
+                >
+                  <CalendarCheck className="w-4 h-4 mr-2" />
+                  My Reservations
+                </Button>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10">
+                      <User className="w-4 h-4 mr-2" />
+                      <span className="hidden sm:inline">{roleLabels[userRole ?? 'citizen']}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem disabled className="text-muted-foreground">
+                      Logged in as {roleLabels[userRole ?? 'citizen']}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/my-reservations')} className="sm:hidden">
+                      <CalendarCheck className="w-4 h-4 mr-2" />
+                      My Reservations
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={signOut} className="text-destructive">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
+
+            {!user && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-primary-foreground hover:bg-primary-foreground/10"
+                onClick={() => navigate('/auth')}
+              >
+                <User className="w-4 h-4 mr-2" />
+                Sign In
+              </Button>
             )}
           </div>
         </div>

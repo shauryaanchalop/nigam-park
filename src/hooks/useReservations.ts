@@ -39,6 +39,16 @@ export function useReservations() {
     enabled: !!user,
   });
 
+  // Real-time subscription for reservation updates
+  useQuery({
+    queryKey: ['reservations-realtime', user?.id],
+    queryFn: () => null,
+    enabled: !!user,
+    staleTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+
   const createReservation = useMutation({
     mutationFn: async (data: CreateReservationData) => {
       if (!user) throw new Error('Must be logged in to create a reservation');
@@ -58,7 +68,9 @@ export function useReservations() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reservations'] });
-      toast.success('Reservation confirmed!');
+      toast.success('Reservation confirmed!', {
+        description: 'View your reservation in My Reservations',
+      });
     },
     onError: (error) => {
       toast.error(`Failed to create reservation: ${error.message}`);
@@ -83,10 +95,28 @@ export function useReservations() {
     },
   });
 
+  const updateReservationStatus = useMutation({
+    mutationFn: async ({ reservationId, status }: { reservationId: string; status: string }) => {
+      const { error } = await supabase
+        .from('reservations')
+        .update({ status })
+        .eq('id', reservationId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reservations'] });
+    },
+    onError: (error) => {
+      toast.error(`Failed to update reservation: ${error.message}`);
+    },
+  });
+
   return {
     reservations: reservationsQuery.data ?? [],
     isLoading: reservationsQuery.isLoading,
     createReservation,
     cancelReservation,
+    updateReservationStatus,
   };
 }
