@@ -17,7 +17,7 @@ interface GovHeaderProps {
 }
 
 export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance & Smart Parking System" }: GovHeaderProps) {
-  const { user, userRole, signOut, switchRole } = useAuth();
+  const { user, userRole, signOut } = useAuth();
 
   const roleLabels = {
     admin: 'MCD Commissioner',
@@ -65,14 +65,8 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => switchRole('admin')}>
-                    Switch to Admin
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => switchRole('attendant')}>
-                    Switch to Attendant
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => switchRole('citizen')}>
-                    Switch to Citizen
+                  <DropdownMenuItem disabled className="text-muted-foreground">
+                    Logged in as {roleLabels[userRole ?? 'citizen']}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut} className="text-destructive">

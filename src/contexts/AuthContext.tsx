@@ -11,7 +11,6 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName: string, role: AppRole) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
-  switchRole: (role: AppRole) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -113,10 +112,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserRole(null);
   };
 
-  const switchRole = (role: AppRole) => {
-    setUserRole(role);
-  };
-
   return (
     <AuthContext.Provider value={{
       user,
@@ -126,7 +121,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signIn,
       signUp,
       signOut,
-      switchRole,
     }}>
       {children}
     </AuthContext.Provider>
