@@ -55,6 +55,18 @@ export default function AdminDashboard() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link to="/vision-dashboard">
+                <Car className="w-4 h-4" />
+                Vision AI
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link to="/fraud-hunter">
+                <AlertTriangle className="w-4 h-4" />
+                Fraud Hunter
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-2">
               <Link to="/admin/analytics">
                 <BarChart3 className="w-4 h-4" />
                 Analytics

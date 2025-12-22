@@ -62,6 +62,98 @@ export type Database = {
           },
         ]
       }
+      cameras: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          status: Database["public"]["Enums"]["camera_status"]
+          stream_url: string | null
+          zone: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          status?: Database["public"]["Enums"]["camera_status"]
+          stream_url?: string | null
+          zone: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          status?: Database["public"]["Enums"]["camera_status"]
+          stream_url?: string | null
+          zone?: string
+        }
+        Relationships: []
+      }
+      fraud_alerts: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          location: string
+          metadata: Json | null
+          severity: Database["public"]["Enums"]["fraud_severity"]
+          status: Database["public"]["Enums"]["fraud_status"]
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          location: string
+          metadata?: Json | null
+          severity?: Database["public"]["Enums"]["fraud_severity"]
+          status?: Database["public"]["Enums"]["fraud_status"]
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          location?: string
+          metadata?: Json | null
+          severity?: Database["public"]["Enums"]["fraud_severity"]
+          status?: Database["public"]["Enums"]["fraud_status"]
+        }
+        Relationships: []
+      }
+      occupancy_forecasts: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          forecast_time: string
+          id: string
+          parking_lot_id: string
+          predicted_occupancy: number
+        }
+        Insert: {
+          confidence_score?: number
+          created_at?: string
+          forecast_time: string
+          id?: string
+          parking_lot_id: string
+          predicted_occupancy: number
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          forecast_time?: string
+          id?: string
+          parking_lot_id?: string
+          predicted_occupancy?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "occupancy_forecasts_parking_lot_id_fkey"
+            columns: ["parking_lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       parking_lots: {
         Row: {
           capacity: number
@@ -278,6 +370,38 @@ export type Database = {
         }
         Relationships: []
       }
+      vision_events: {
+        Row: {
+          bounding_box: Json
+          camera_id: string
+          detected_at: string
+          id: string
+          object_type: string
+        }
+        Insert: {
+          bounding_box?: Json
+          camera_id: string
+          detected_at?: string
+          id?: string
+          object_type?: string
+        }
+        Update: {
+          bounding_box?: Json
+          camera_id?: string
+          detected_at?: string
+          id?: string
+          object_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vision_events_camera_id_fkey"
+            columns: ["camera_id"]
+            isOneToOne: false
+            referencedRelation: "cameras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -301,6 +425,9 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "attendant" | "citizen"
+      camera_status: "ONLINE" | "OFFLINE" | "OCCLUDED"
+      fraud_severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"
+      fraud_status: "NEW" | "INVESTIGATING" | "RESOLVED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -429,6 +556,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "attendant", "citizen"],
+      camera_status: ["ONLINE", "OFFLINE", "OCCLUDED"],
+      fraud_severity: ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+      fraud_status: ["NEW", "INVESTIGATING", "RESOLVED"],
     },
   },
 } as const
