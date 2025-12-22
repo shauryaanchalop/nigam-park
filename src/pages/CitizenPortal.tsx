@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,11 +7,31 @@ import { Badge } from '@/components/ui/badge';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { SimulationSidebar } from '@/components/simulation/SimulationSidebar';
 import { useParkingLots } from '@/hooks/useParkingLots';
+import { ReservationDialog } from '@/components/citizen/ReservationDialog';
+import { estimateTravelTime } from '@/lib/travelTime';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
+
+interface ParkingLot {
+  id: string;
+  name: string;
+  zone: string;
+  lat: number;
+  lng: number;
+  capacity: number;
+  current_occupancy: number;
+  hourly_rate: number;
+  status: string;
+}
 
 export default function CitizenPortal() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLot, setSelectedLot] = useState<ParkingLot | null>(null);
+  const [reservationOpen, setReservationOpen] = useState(false);
   const { data: lots, isLoading } = useParkingLots();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const popularLocations = ['Connaught Place', 'Karol Bagh', 'Lajpat Nagar', 'Sarojini Nagar'];
 
@@ -20,11 +40,38 @@ export default function CitizenPortal() {
     lot.zone.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Memoize travel times so they don't change on every render
+  const travelTimes = useMemo(() => {
+    if (!lots) return {};
+    const times: Record<string, ReturnType<typeof estimateTravelTime>> = {};
+    lots.forEach(lot => {
+      times[lot.id] = estimateTravelTime(lot.lat, lot.lng);
+    });
+    return times;
+  }, [lots]);
+
   const getAvailabilityStatus = (current: number, capacity: number) => {
     const percentage = (current / capacity) * 100;
     if (percentage >= 95) return { label: 'Full', color: 'destructive' as const, available: 0 };
     if (percentage >= 80) return { label: 'Limited', color: 'warning' as const, available: capacity - current };
     return { label: 'Available', color: 'success' as const, available: capacity - current };
+  };
+
+  const handleReserve = (lot: ParkingLot) => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    setSelectedLot(lot);
+    setReservationOpen(true);
+  };
+
+  const getTrafficColor = (traffic: 'light' | 'moderate' | 'heavy') => {
+    switch (traffic) {
+      case 'light': return 'text-success';
+      case 'moderate': return 'text-warning';
+      case 'heavy': return 'text-destructive';
+    }
   };
 
   return (
@@ -103,6 +150,7 @@ export default function CitizenPortal() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredLots?.map(lot => {
               const status = getAvailabilityStatus(lot.current_occupancy, lot.capacity);
+              const travelTime = travelTimes[lot.id];
               
               return (
                 <Card key={lot.id} className="data-card overflow-hidden">
@@ -136,7 +184,7 @@ export default function CitizenPortal() {
                         </Badge>
                       </div>
                       
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-4">
                           <div className="flex items-center gap-1 text-sm">
                             <Car className="w-4 h-4 text-muted-foreground" />
@@ -152,6 +200,23 @@ export default function CitizenPortal() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Travel Time Display */}
+                      {travelTime && (
+                        <div className="flex items-center gap-2 mb-3 p-2 rounded-md bg-muted/50">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">
+                            <span className="font-medium">{travelTime.minutes} min</span>
+                            <span className="text-muted-foreground"> • {travelTime.distance}</span>
+                          </span>
+                          <Badge 
+                            variant="outline" 
+                            className={cn('ml-auto text-xs capitalize', getTrafficColor(travelTime.traffic))}
+                          >
+                            {travelTime.traffic} traffic
+                          </Badge>
+                        </div>
+                      )}
                       
                       {/* Capacity Bar */}
                       <div className="mb-4">
@@ -172,19 +237,29 @@ export default function CitizenPortal() {
                         </div>
                       </div>
                       
-                      <Button 
-                        className="w-full gap-2"
-                        variant={status.color === 'destructive' ? 'secondary' : 'default'}
-                        disabled={status.color === 'destructive'}
-                        onClick={() => {
-                          // Open Google Maps with directions to the parking lot
-                          const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lot.lat},${lot.lng}&travelmode=driving`;
-                          window.open(mapsUrl, '_blank', 'noopener,noreferrer');
-                        }}
-                      >
-                        <Navigation className="w-4 h-4" />
-                        {status.color === 'destructive' ? 'Lot Full' : 'Get Directions'}
-                      </Button>
+                      {/* Action Buttons */}
+                      <div className="flex gap-2">
+                        <Button 
+                          className="flex-1 gap-2"
+                          variant="outline"
+                          onClick={() => {
+                            const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lot.lat},${lot.lng}&travelmode=driving`;
+                            window.open(mapsUrl, '_blank', 'noopener,noreferrer');
+                          }}
+                        >
+                          <Navigation className="w-4 h-4" />
+                          Directions
+                        </Button>
+                        <Button 
+                          className="flex-1 gap-2"
+                          variant={status.color === 'destructive' ? 'secondary' : 'default'}
+                          disabled={status.color === 'destructive'}
+                          onClick={() => handleReserve(lot)}
+                        >
+                          <CalendarPlus className="w-4 h-4" />
+                          {status.color === 'destructive' ? 'Full' : 'Reserve'}
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -203,6 +278,12 @@ export default function CitizenPortal() {
       </main>
 
       <SimulationSidebar />
+
+      <ReservationDialog
+        open={reservationOpen}
+        onOpenChange={setReservationOpen}
+        parkingLot={selectedLot}
+      />
     </div>
   );
 }
