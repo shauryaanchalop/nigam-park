@@ -54,6 +54,7 @@ export function MobileNav() {
   const isAdmin = userRole === 'admin';
   const isAttendant = userRole === 'attendant';
 
+  // Citizens are users who are not admin or attendant (including users with no role set yet)
   const isCitizen = !isAdmin && !isAttendant;
   
   const navItems = [
@@ -66,7 +67,6 @@ export function MobileNav() {
       { to: '/', icon: Car, label: 'POS' },
     ] : []),
     ...(isCitizen ? [
-      { to: '/', icon: Car, label: 'Find Parking' },
       { to: '/my-reservations', icon: CalendarCheck, label: 'Bookings' },
       { to: '/parking-history', icon: History, label: 'History' },
     ] : []),
