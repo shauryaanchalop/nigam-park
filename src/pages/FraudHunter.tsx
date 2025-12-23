@@ -6,14 +6,66 @@ import { ShieldAlert, TrendingDown, DollarSign, AlertTriangle, Volume2, VolumeX,
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useFraudAlerts } from '@/hooks/useFraudAlerts';
+import { useAlertNotifications } from '@/hooks/useAlertNotifications';
 import { SimulationSidebar } from '@/components/simulation/SimulationSidebar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
+import { useEffect, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { FraudAlert } from '@/types/ai-modules';
 import logo from '@/assets/logo.png';
 
 export default function FraudHunter() {
   const { user, userRole, loading } = useAuth();
-  const { alerts, isMuted, toggleMute, notificationPermission, requestNotificationPermission } = useFraudAlerts();
+  const { alerts } = useFraudAlerts();
+  const { isMuted, toggleMute, playAlertSound, sendBrowserNotification, notificationPermission, requestNotificationPermission } = useAlertNotifications();
+  const isInitialLoad = useRef(true);
+
+  // Separate subscription for sound/browser notifications (only on FraudHunter page)
+  useEffect(() => {
+    // Mark initial load as complete after first render
+    const timer = setTimeout(() => {
+      isInitialLoad.current = false;
+    }, 1000);
+
+    const channel = supabase
+      .channel('fraud-alerts-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'fraud_alerts',
+        },
+        (payload) => {
+          const newAlert = payload.new as FraudAlert;
+          
+          if (isInitialLoad.current) return;
+          
+          // Play sound and send browser notification for critical/high alerts
+          if (newAlert.severity === 'CRITICAL') {
+            playAlertSound();
+            sendBrowserNotification(
+              '🚨 CRITICAL FRAUD ALERT',
+              `${newAlert.location}: ${newAlert.description}`,
+              `fraud-${newAlert.id}`
+            );
+          } else if (newAlert.severity === 'HIGH') {
+            sendBrowserNotification(
+              '⚠️ High Priority Alert',
+              `${newAlert.location}: ${newAlert.description}`,
+              `fraud-${newAlert.id}`
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      clearTimeout(timer);
+      supabase.removeChannel(channel);
+    };
+  }, [playAlertSound, sendBrowserNotification]);
 
   if (loading) {
     return (
