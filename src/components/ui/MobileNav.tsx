@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Car, BarChart3, CalendarCheck, User, History } from 'lucide-react';
+import { Home, Car, BarChart3, CalendarCheck, User, History, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
@@ -62,11 +62,12 @@ export function MobileNav() {
     ...(isAdmin ? [
       { to: '/admin/parking-lots', icon: Car, label: 'Lots' },
       { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-      { to: '/admin/users', icon: User, label: 'Users' },
+      { to: '/admin/users', icon: Users, label: 'Users' },
     ] : []),
     ...(isCitizen ? [
       { to: '/my-reservations', icon: CalendarCheck, label: 'Bookings' },
       { to: '/parking-history', icon: History, label: 'History' },
+      { to: '/profile', icon: User, label: 'Profile' },
     ] : []),
   ];
 

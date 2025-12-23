@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LogOut, User, CalendarCheck, Repeat } from 'lucide-react';
+import { LogOut, User, CalendarCheck, Repeat, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -159,12 +159,17 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
                       Logged in as {roleLabels[userRole ?? 'citizen']}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                      <Settings className="w-4 h-4 mr-2" />
+                      Profile Settings
+                    </DropdownMenuItem>
                     {(userRole === 'citizen' || (!userRole && user) || (userRole !== 'admin' && userRole !== 'attendant')) && (
                       <DropdownMenuItem onClick={() => navigate('/my-reservations')} className="sm:hidden">
                         <CalendarCheck className="w-4 h-4 mr-2" />
                         My Reservations
                       </DropdownMenuItem>
                     )}
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={signOut} className="text-destructive">
                       <LogOut className="w-4 h-4 mr-2" />
                       Sign Out

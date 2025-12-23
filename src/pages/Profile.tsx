@@ -1,0 +1,533 @@
+import React, { useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import { User, Car, Bell, Phone, Mail, Edit2, Plus, Trash2, Star, Check, ArrowLeft } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useProfile, useSavedVehicles, useUserPreferences } from '@/hooks/useProfile';
+import { GovHeader } from '@/components/ui/GovHeader';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
+
+const vehicleSchema = z.object({
+  vehicle_number: z.string()
+    .min(6, 'Vehicle number too short')
+    .max(15, 'Vehicle number too long')
+    .regex(/^[A-Z]{2}[0-9]{1,2}[A-Z]{1,3}[0-9]{1,4}$/, 'Invalid vehicle number format (e.g., DL01AB1234)'),
+  vehicle_name: z.string().max(50).optional(),
+  vehicle_type: z.enum(['car', 'bike', 'suv', 'truck']),
+});
+
+export default function Profile() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const { profile, isLoading: profileLoading, updateProfile } = useProfile();
+  const { vehicles, isLoading: vehiclesLoading, addVehicle, updateVehicle, deleteVehicle } = useSavedVehicles();
+  const { preferences, isLoading: preferencesLoading, updatePreferences } = useUserPreferences();
+
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    full_name: '',
+    phone: '',
+  });
+
+  const [vehicleDialogOpen, setVehicleDialogOpen] = useState(false);
+  const [vehicleForm, setVehicleForm] = useState({
+    vehicle_number: '',
+    vehicle_name: '',
+    vehicle_type: 'car',
+    is_primary: false,
+  });
+  const [vehicleErrors, setVehicleErrors] = useState<Record<string, string>>({});
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  const handleEditProfile = () => {
+    setProfileForm({
+      full_name: profile?.full_name || '',
+      phone: profile?.phone || '',
+    });
+    setEditingProfile(true);
+  };
+
+  const handleSaveProfile = async () => {
+    await updateProfile.mutateAsync(profileForm);
+    setEditingProfile(false);
+  };
+
+  const handleAddVehicle = async () => {
+    setVehicleErrors({});
+    
+    const result = vehicleSchema.safeParse({
+      ...vehicleForm,
+      vehicle_number: vehicleForm.vehicle_number.toUpperCase().replace(/\s/g, ''),
+    });
+
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setVehicleErrors(errors);
+      return;
+    }
+
+    await addVehicle.mutateAsync({
+      vehicle_number: result.data.vehicle_number,
+      vehicle_name: result.data.vehicle_name || undefined,
+      vehicle_type: result.data.vehicle_type,
+      is_primary: vehicleForm.is_primary,
+    });
+    
+    setVehicleDialogOpen(false);
+    setVehicleForm({ vehicle_number: '', vehicle_name: '', vehicle_type: 'car', is_primary: false });
+  };
+
+  const handleSetPrimary = async (id: string) => {
+    await updateVehicle.mutateAsync({ id, is_primary: true });
+  };
+
+  const handleDeleteVehicle = async (id: string) => {
+    await deleteVehicle.mutateAsync(id);
+  };
+
+  const handlePreferenceChange = async (key: string, value: boolean | number) => {
+    await updatePreferences.mutateAsync({ [key]: value });
+  };
+
+  const vehicleTypeLabels: Record<string, string> = {
+    car: '🚗 Car',
+    bike: '🏍️ Bike',
+    suv: '🚙 SUV',
+    truck: '🚛 Truck',
+  };
+
+  return (
+    <div className="min-h-screen bg-background pb-20">
+      <GovHeader title="My Profile" subtitle="Manage your account settings" />
+
+      <main className="container mx-auto px-4 py-6 max-w-4xl">
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/')}
+          className="mb-4 gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Home
+        </Button>
+
+        <Tabs defaultValue="account" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="account" className="gap-2">
+              <User className="w-4 h-4" />
+              <span className="hidden sm:inline">Account</span>
+            </TabsTrigger>
+            <TabsTrigger value="vehicles" className="gap-2">
+              <Car className="w-4 h-4" />
+              <span className="hidden sm:inline">Vehicles</span>
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="gap-2">
+              <Bell className="w-4 h-4" />
+              <span className="hidden sm:inline">Notifications</span>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Account Tab */}
+          <TabsContent value="account">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="w-5 h-5" />
+                      Account Information
+                    </CardTitle>
+                    <CardDescription>Your personal details and contact information</CardDescription>
+                  </div>
+                  {!editingProfile && (
+                    <Button variant="outline" size="sm" onClick={handleEditProfile}>
+                      <Edit2 className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {profileLoading ? (
+                  <div className="animate-pulse space-y-4">
+                    <div className="h-10 bg-muted rounded" />
+                    <div className="h-10 bg-muted rounded" />
+                    <div className="h-10 bg-muted rounded" />
+                  </div>
+                ) : editingProfile ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="full_name">Full Name</Label>
+                      <Input
+                        id="full_name"
+                        value={profileForm.full_name}
+                        onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
+                        placeholder="Enter your full name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={profileForm.phone}
+                        onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                        placeholder="+91 98765 43210"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Email Address</Label>
+                      <Input value={user.email || ''} disabled className="bg-muted" />
+                      <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                    </div>
+                    <div className="flex gap-2 pt-4">
+                      <Button onClick={handleSaveProfile} disabled={updateProfile.isPending}>
+                        {updateProfile.isPending ? 'Saving...' : 'Save Changes'}
+                      </Button>
+                      <Button variant="outline" onClick={() => setEditingProfile(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                      <User className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Full Name</p>
+                        <p className="font-medium">{profile?.full_name || 'Not set'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                      <Phone className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Phone Number</p>
+                        <p className="font-medium">{profile?.phone || 'Not set'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                      <Mail className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Email Address</p>
+                        <p className="font-medium">{user.email}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Vehicles Tab */}
+          <TabsContent value="vehicles">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Car className="w-5 h-5" />
+                      Saved Vehicles
+                    </CardTitle>
+                    <CardDescription>Manage your registered vehicles for quick booking</CardDescription>
+                  </div>
+                  <Dialog open={vehicleDialogOpen} onOpenChange={setVehicleDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Vehicle
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add New Vehicle</DialogTitle>
+                        <DialogDescription>
+                          Enter your vehicle details to save it for quick booking
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="vehicle_number">Vehicle Number *</Label>
+                          <Input
+                            id="vehicle_number"
+                            value={vehicleForm.vehicle_number}
+                            onChange={(e) => setVehicleForm({ ...vehicleForm, vehicle_number: e.target.value.toUpperCase() })}
+                            placeholder="DL01AB1234"
+                            className={vehicleErrors.vehicle_number ? 'border-destructive' : ''}
+                          />
+                          {vehicleErrors.vehicle_number && (
+                            <p className="text-xs text-destructive">{vehicleErrors.vehicle_number}</p>
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="vehicle_name">Vehicle Name (Optional)</Label>
+                          <Input
+                            id="vehicle_name"
+                            value={vehicleForm.vehicle_name}
+                            onChange={(e) => setVehicleForm({ ...vehicleForm, vehicle_name: e.target.value })}
+                            placeholder="My Swift, Office Car, etc."
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="vehicle_type">Vehicle Type</Label>
+                          <Select
+                            value={vehicleForm.vehicle_type}
+                            onValueChange={(value) => setVehicleForm({ ...vehicleForm, vehicle_type: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="car">🚗 Car</SelectItem>
+                              <SelectItem value="bike">🏍️ Bike</SelectItem>
+                              <SelectItem value="suv">🚙 SUV</SelectItem>
+                              <SelectItem value="truck">🚛 Truck</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            id="is_primary"
+                            checked={vehicleForm.is_primary}
+                            onCheckedChange={(checked) => setVehicleForm({ ...vehicleForm, is_primary: checked })}
+                          />
+                          <Label htmlFor="is_primary">Set as primary vehicle</Label>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setVehicleDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={handleAddVehicle} disabled={addVehicle.isPending}>
+                          {addVehicle.isPending ? 'Adding...' : 'Add Vehicle'}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {vehiclesLoading ? (
+                  <div className="animate-pulse space-y-3">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-20 bg-muted rounded-lg" />
+                    ))}
+                  </div>
+                ) : vehicles.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Car className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No vehicles saved yet</p>
+                    <p className="text-sm">Add your vehicles for quick parking reservations</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {vehicles.map((vehicle) => (
+                      <div
+                        key={vehicle.id}
+                        className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="text-2xl">
+                            {vehicle.vehicle_type === 'bike' ? '🏍️' : vehicle.vehicle_type === 'suv' ? '🚙' : vehicle.vehicle_type === 'truck' ? '🚛' : '🚗'}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-mono font-semibold">{vehicle.vehicle_number}</p>
+                              {vehicle.is_primary && (
+                                <Badge variant="secondary" className="text-xs">
+                                  <Star className="w-3 h-3 mr-1 fill-current" />
+                                  Primary
+                                </Badge>
+                              )}
+                            </div>
+                            {vehicle.vehicle_name && (
+                              <p className="text-sm text-muted-foreground">{vehicle.vehicle_name}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {!vehicle.is_primary && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSetPrimary(vehicle.id)}
+                              disabled={updateVehicle.isPending}
+                            >
+                              <Star className="w-4 h-4" />
+                            </Button>
+                          )}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Vehicle?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to remove {vehicle.vehicle_number} from your saved vehicles?
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteVehicle(vehicle.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Notifications Tab */}
+          <TabsContent value="notifications">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="w-5 h-5" />
+                  Notification Preferences
+                </CardTitle>
+                <CardDescription>Choose how you want to receive updates and reminders</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {preferencesLoading ? (
+                  <div className="animate-pulse space-y-4">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="h-16 bg-muted rounded-lg" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between p-4 rounded-lg border">
+                      <div className="flex items-center gap-3">
+                        <Mail className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          <p className="font-medium">Email Notifications</p>
+                          <p className="text-sm text-muted-foreground">Receive booking confirmations and updates via email</p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={preferences?.email_notifications ?? true}
+                        onCheckedChange={(checked) => handlePreferenceChange('email_notifications', checked)}
+                        disabled={updatePreferences.isPending}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 rounded-lg border">
+                      <div className="flex items-center gap-3">
+                        <Bell className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          <p className="font-medium">Push Notifications</p>
+                          <p className="text-sm text-muted-foreground">Get real-time alerts on your browser</p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={preferences?.push_notifications ?? true}
+                        onCheckedChange={(checked) => handlePreferenceChange('push_notifications', checked)}
+                        disabled={updatePreferences.isPending}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 rounded-lg border">
+                      <div className="flex items-center gap-3">
+                        <Phone className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          <p className="font-medium">SMS Notifications</p>
+                          <p className="text-sm text-muted-foreground">Receive important alerts via SMS</p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={preferences?.sms_notifications ?? false}
+                        onCheckedChange={(checked) => handlePreferenceChange('sms_notifications', checked)}
+                        disabled={updatePreferences.isPending}
+                      />
+                    </div>
+
+                    <div className="p-4 rounded-lg border">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Bell className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          <p className="font-medium">Parking Expiry Reminder</p>
+                          <p className="text-sm text-muted-foreground">Get notified before your parking time expires</p>
+                        </div>
+                      </div>
+                      <Select
+                        value={String(preferences?.reminder_before_expiry ?? 30)}
+                        onValueChange={(value) => handlePreferenceChange('reminder_before_expiry', parseInt(value))}
+                        disabled={updatePreferences.isPending}
+                      >
+                        <SelectTrigger className="w-full sm:w-48">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="15">15 minutes before</SelectItem>
+                          <SelectItem value="30">30 minutes before</SelectItem>
+                          <SelectItem value="60">1 hour before</SelectItem>
+                          <SelectItem value="0">Don't remind me</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
+  );
+}
