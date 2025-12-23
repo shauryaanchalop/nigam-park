@@ -361,8 +361,8 @@ export function SimulationSidebar() {
 
             <Button
               onClick={handleReset}
-              variant="outline"
-              className="w-full justify-start gap-3 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent/10"
+              variant="secondary"
+              className="w-full justify-start gap-3"
             >
               <RotateCcw className="w-5 h-5" />
               Reset Demo Data

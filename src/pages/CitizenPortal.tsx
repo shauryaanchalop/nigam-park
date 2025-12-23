@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { GovHeader } from '@/components/ui/GovHeader';
-import { SimulationSidebar } from '@/components/simulation/SimulationSidebar';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { ReservationDialog } from '@/components/citizen/ReservationDialog';
 import { estimateTravelTime } from '@/lib/travelTime';
@@ -276,8 +275,6 @@ export default function CitizenPortal() {
           </div>
         )}
       </main>
-
-      <SimulationSidebar />
 
       <ReservationDialog
         open={reservationOpen}

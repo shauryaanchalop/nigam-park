@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode, Html5QrcodeScanner } from 'html5-qrcode';
-import { Camera, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Camera, X, CheckCircle, AlertCircle, Loader2, CameraOff } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -47,20 +47,51 @@ interface QRScannerDialogProps {
 export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: QRScannerDialogProps) {
   const [scanning, setScanning] = useState(false);
   const [scannedData, setScannedData] = useState<ScannedReservation | null>(null);
-  const [verificationStatus, setVerificationStatus] = useState<'idle' | 'verifying' | 'valid' | 'invalid'>('idle');
+  const [verificationStatus, setVerificationStatus] = useState<'idle' | 'verifying' | 'valid' | 'invalid' | 'permission_denied'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (open && !scanning) {
-      startScanning();
+    if (open && verificationStatus === 'idle') {
+      requestCameraPermission();
     }
     
     return () => {
       stopScanning();
     };
   }, [open]);
+
+  const requestCameraPermission = async () => {
+    try {
+      // First check if camera permission is granted
+      const result = await navigator.permissions.query({ name: 'camera' as PermissionName });
+      
+      if (result.state === 'denied') {
+        setVerificationStatus('permission_denied');
+        setErrorMessage('Camera access was denied. Please enable camera permissions in your browser settings.');
+        return;
+      }
+      
+      // Request camera access
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      // Stop the stream immediately, we just needed permission
+      stream.getTracks().forEach(track => track.stop());
+      
+      // Start scanning after permission granted
+      startScanning();
+    } catch (error: any) {
+      console.error('Camera permission error:', error);
+      setVerificationStatus('permission_denied');
+      if (error.name === 'NotAllowedError') {
+        setErrorMessage('Camera access was denied. Please allow camera access to scan QR codes.');
+      } else if (error.name === 'NotFoundError') {
+        setErrorMessage('No camera found. Please ensure your device has a camera.');
+      } else {
+        setErrorMessage('Could not access camera. Please check your permissions.');
+      }
+    }
+  };
 
   const startScanning = async () => {
     if (!containerRef.current) return;
@@ -84,10 +115,11 @@ export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: Q
           // Ignore scan errors, they happen constantly when no QR is in view
         }
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error starting scanner:', error);
       setScanning(false);
-      toast.error('Could not access camera. Please grant camera permissions.');
+      setVerificationStatus('permission_denied');
+      setErrorMessage('Could not start camera. Please grant camera permissions and try again.');
     }
   };
 
@@ -211,8 +243,28 @@ export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: Q
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Camera Permission Denied */}
+          {verificationStatus === 'permission_denied' && (
+            <Card className="border-warning bg-warning/5">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <CameraOff className="w-6 h-6 text-warning" />
+                  <span className="font-semibold text-warning">Camera Access Required</span>
+                </div>
+                
+                <p className="text-sm text-muted-foreground mb-4">
+                  {errorMessage}
+                </p>
+
+                <Button className="w-full" onClick={requestCameraPermission}>
+                  Request Camera Permission
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Scanner View */}
-          {verificationStatus === 'idle' || verificationStatus === 'verifying' ? (
+          {(verificationStatus === 'idle' || verificationStatus === 'verifying') && (
             <div className="relative">
               <div 
                 id="qr-reader" 
@@ -228,7 +280,7 @@ export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: Q
                 </div>
               )}
             </div>
-          ) : null}
+          )}
 
           {/* Valid Reservation */}
           {verificationStatus === 'valid' && scannedData && (
