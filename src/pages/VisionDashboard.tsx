@@ -8,6 +8,7 @@ import { Camera, Wifi, WifiOff, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SimulationSidebar } from '@/components/simulation/SimulationSidebar';
+import logo from '@/assets/logo.png';
 
 export default function VisionDashboard() {
   const { user, userRole, loading } = useAuth();
@@ -15,8 +16,11 @@ export default function VisionDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="chakra-spinner w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <img src={logo} alt="NIGAM-Park" className="w-20 h-20 mx-auto mb-4 rounded-full object-cover" />
+          <div className="chakra-spinner w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+        </div>
       </div>
     );
   }

@@ -17,6 +17,7 @@ import { useParkingLots } from '@/hooks/useParkingLots';
 import { AppRole } from '@/types/database';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import logo from '@/assets/logo.png';
 
 export default function AdminUserManagement() {
   const { user, userRole, loading } = useAuth();
@@ -37,7 +38,10 @@ export default function AdminUserManagement() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full chakra-spinner" />
+        <div className="text-center">
+          <img src={logo} alt="NIGAM-Park" className="w-20 h-20 mx-auto mb-4 rounded-full object-cover" />
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full chakra-spinner mx-auto" />
+        </div>
       </div>
     );
   }
