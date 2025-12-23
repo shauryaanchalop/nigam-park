@@ -2,15 +2,18 @@ import { GovHeader } from '@/components/ui/GovHeader';
 import { FraudAlertFeed } from '@/components/fraud/FraudAlertFeed';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { ShieldAlert, TrendingDown, DollarSign, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, TrendingDown, DollarSign, AlertTriangle, Volume2, VolumeX, Bell, BellOff } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useFraudAlerts } from '@/hooks/useFraudAlerts';
 import { SimulationSidebar } from '@/components/simulation/SimulationSidebar';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { toast } from 'sonner';
 import logo from '@/assets/logo.png';
 
 export default function FraudHunter() {
   const { user, userRole, loading } = useAuth();
-  const { alerts } = useFraudAlerts();
+  const { alerts, isMuted, toggleMute, notificationPermission, requestNotificationPermission } = useFraudAlerts();
 
   if (loading) {
     return (
@@ -30,7 +33,16 @@ export default function FraudHunter() {
   // Calculate stats
   const criticalAlerts = alerts?.filter(a => a.severity === 'CRITICAL').length || 0;
   const highAlerts = alerts?.filter(a => a.severity === 'HIGH').length || 0;
-  const estimatedLeakage = criticalAlerts * 500 + highAlerts * 200; // Simulated calculation
+  const estimatedLeakage = criticalAlerts * 500 + highAlerts * 200;
+
+  const handleEnableNotifications = async () => {
+    const permission = await requestNotificationPermission();
+    if (permission === 'granted') {
+      toast.success('Browser notifications enabled');
+    } else if (permission === 'denied') {
+      toast.error('Notification permission denied. Please enable in browser settings.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,14 +50,61 @@ export default function FraudHunter() {
       
       <main className="container mx-auto px-4 py-6">
         {/* Page Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold flex items-center gap-3">
-            <ShieldAlert className="w-7 h-7 text-destructive" />
-            Fraud Hunter
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            AI-powered real-time fraud detection and revenue leakage prevention
-          </p>
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-3">
+              <ShieldAlert className="w-7 h-7 text-destructive" />
+              Fraud Hunter
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              AI-powered real-time fraud detection and revenue leakage prevention
+            </p>
+          </div>
+          
+          {/* Notification Controls */}
+          <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={isMuted ? "outline" : "default"}
+                    size="icon"
+                    onClick={toggleMute}
+                    className={isMuted ? "text-muted-foreground" : ""}
+                  >
+                    {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isMuted ? 'Unmute alert sounds' : 'Mute alert sounds'}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={notificationPermission === 'granted' ? "default" : "outline"}
+                    size="icon"
+                    onClick={handleEnableNotifications}
+                    className={notificationPermission !== 'granted' ? "text-muted-foreground" : ""}
+                  >
+                    {notificationPermission === 'granted' ? (
+                      <Bell className="w-4 h-4" />
+                    ) : (
+                      <BellOff className="w-4 h-4" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {notificationPermission === 'granted' 
+                    ? 'Browser notifications enabled' 
+                    : 'Enable browser notifications'}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
 
         {/* Stats Row */}
