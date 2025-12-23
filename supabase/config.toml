@@ -1,1 +1,7 @@
 project_id = "lsxkhjdfvekjzpjzmwkt"
+
+[functions.demo-login]
+verify_jwt = false
+
+[functions.send-fraud-alert-email]
+verify_jwt = false
