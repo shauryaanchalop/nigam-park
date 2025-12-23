@@ -3,7 +3,7 @@ import { format, parseISO, isToday, isTomorrow, isPast, addMinutes } from 'date-
 import { QRCodeSVG } from 'qrcode.react';
 import { 
   Calendar, Clock, Car, MapPin, IndianRupee, 
-  QrCode, X, CheckCircle, AlertCircle, Timer 
+  QrCode, X, CheckCircle, AlertCircle, Timer, History 
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -182,10 +182,16 @@ export default function MyReservations() {
       <GovHeader title="My Reservations" subtitle="View and manage your parking bookings" />
 
       <main className="container mx-auto px-4 py-6 max-w-4xl">
-        {/* Back to portal */}
-        <Button variant="ghost" onClick={() => navigate('/')} className="mb-4">
-          ← Back to Parking Finder
-        </Button>
+        {/* Navigation */}
+        <div className="flex items-center justify-between mb-4">
+          <Button variant="ghost" onClick={() => navigate('/')}>
+            ← Back to Parking Finder
+          </Button>
+          <Button variant="outline" onClick={() => navigate('/parking-history')} className="gap-2">
+            <History className="w-4 h-4" />
+            View History
+          </Button>
+        </div>
 
         {reservations.length === 0 ? (
           <Card>
