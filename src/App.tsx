@@ -14,6 +14,7 @@ import MyReservations from "./pages/MyReservations";
 import ParkingHistory from "./pages/ParkingHistory";
 import VisionDashboard from "./pages/VisionDashboard";
 import FraudHunter from "./pages/FraudHunter";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
               <Route path="/my-reservations" element={<MyReservations />} />
               <Route path="/parking-history" element={<ParkingHistory />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/vision-dashboard" element={<VisionDashboard />} />
               <Route path="/fraud-hunter" element={<FraudHunter />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
