@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import logo from '@/assets/logo.png';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email'),
@@ -158,9 +159,7 @@ export default function Auth() {
       {/* Header Banner */}
       <div className="gradient-primary py-4">
         <div className="container mx-auto px-4 flex items-center justify-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-            <Shield className="w-6 h-6 text-primary-foreground" />
-          </div>
+          <img src={logo} alt="NIGAM-Park Logo" className="w-10 h-10 rounded-full object-cover" />
           <div className="text-center">
             <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
             <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>

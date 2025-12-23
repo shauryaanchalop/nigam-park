@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, LogOut, User, CalendarCheck } from 'lucide-react';
+import { LogOut, User, CalendarCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import logo from '@/assets/logo.png';
 
 interface GovHeaderProps {
   title?: string;
@@ -33,9 +34,7 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
       <div className="gradient-primary px-4 py-2">
         <div className="container mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-              <Shield className="w-6 h-6 text-primary-foreground" />
-            </div>
+            <img src={logo} alt="NIGAM-Park Logo" className="w-10 h-10 rounded-full object-cover" />
             <div>
               <h1 className="text-primary-foreground font-bold text-lg tracking-tight">{title}</h1>
               <p className="text-primary-foreground/80 text-xs">{subtitle}</p>
