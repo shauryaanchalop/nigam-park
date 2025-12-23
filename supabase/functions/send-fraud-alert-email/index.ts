@@ -32,8 +32,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Processing fraud alert email for alert: ${alertId}, severity: ${severity}`);
 
-    // Default to a configured admin email or use the provided one
-    const toEmail = recipientEmail || "admin@nigampark.gov.in";
+    // Use configured admin email from secrets, fallback to provided email or default
+    const adminEmail = Deno.env.get("ADMIN_EMAIL");
+    const toEmail = recipientEmail || adminEmail || "admin@nigampark.gov.in";
+    
+    console.log(`Sending fraud alert to: ${toEmail}`);
 
     const severityColors: Record<string, string> = {
       CRITICAL: "#dc2626",

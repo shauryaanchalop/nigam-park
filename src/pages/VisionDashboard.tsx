@@ -1,12 +1,14 @@
+import { Link } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { CameraCard } from '@/components/vision/CameraCard';
 import { useCameras } from '@/hooks/useCameras';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Camera, Wifi, WifiOff, AlertCircle } from 'lucide-react';
+import { Camera, Wifi, WifiOff, AlertCircle, ChevronLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { SimulationSidebar } from '@/components/simulation/SimulationSidebar';
 import logo from '@/assets/logo.png';
 
@@ -40,6 +42,14 @@ export default function VisionDashboard() {
       <GovHeader />
       
       <main className="container mx-auto px-4 py-6">
+        {/* Back Button */}
+        <Button variant="ghost" asChild className="mb-4">
+          <Link to="/">
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Back to Dashboard
+          </Link>
+        </Button>
+
         {/* Page Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-3">

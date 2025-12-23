@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { FraudAlertFeed } from '@/components/fraud/FraudAlertFeed';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { ShieldAlert, TrendingDown, DollarSign, AlertTriangle, Volume2, VolumeX, Bell, BellOff, Zap, Mail } from 'lucide-react';
+import { ShieldAlert, TrendingDown, DollarSign, AlertTriangle, Volume2, VolumeX, Bell, BellOff, Zap, Mail, ChevronLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useFraudAlerts } from '@/hooks/useFraudAlerts';
@@ -151,6 +152,14 @@ export default function FraudHunter() {
       <GovHeader />
       
       <main className="container mx-auto px-4 py-6">
+        {/* Back Button */}
+        <Button variant="ghost" asChild className="mb-4">
+          <Link to="/">
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Back to Dashboard
+          </Link>
+        </Button>
+
         {/* Page Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
