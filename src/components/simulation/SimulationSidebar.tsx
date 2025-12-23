@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Car, CreditCard, Banknote, AlertTriangle, RotateCcw, X, Play, BrainCircuit, ShieldAlert } from 'lucide-react';
+import { Settings, Car, CreditCard, Banknote, AlertTriangle, RotateCcw, X, Play, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -343,19 +343,11 @@ export function SimulationSidebar() {
               <p className="text-xs text-sidebar-foreground/50 mb-2">AI Simulations</p>
               <Button
                 onClick={handleSimulateFraudAI}
-                className="w-full justify-start gap-3 bg-destructive/30 hover:bg-destructive/40 text-destructive mb-2"
+                className="w-full justify-start gap-3 bg-destructive/30 hover:bg-destructive/40 text-destructive"
                 disabled={!selectedLot}
               >
                 <ShieldAlert className="w-5 h-5" />
                 Simulate AI Fraud Alert
-              </Button>
-              <Button
-                onClick={handleSimulateTraffic}
-                className="w-full justify-start gap-3 bg-primary/20 hover:bg-primary/30 text-sidebar-foreground"
-                disabled={!selectedLot}
-              >
-                <BrainCircuit className="w-5 h-5" />
-                Simulate Traffic Forecast
               </Button>
             </div>
 
