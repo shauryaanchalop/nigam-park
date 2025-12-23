@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,8 +6,8 @@
 
 @layer base {
   :root {
-    /* NIGAM-Park Digital India Theme - Professional Government Aesthetic */
-    --background: 210 40% 98%;
+    /* NIGAM-Park Digital India Theme - Modern Government Aesthetic */
+    --background: 220 25% 97%;
     --foreground: 222 47% 11%;
     
     --card: 0 0% 100%;
@@ -16,100 +16,100 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
     
-    /* Primary: Deep Government Blue */
-    --primary: 221 83% 53%;
+    /* Primary: Deep Government Blue with more saturation */
+    --primary: 221 83% 48%;
     --primary-foreground: 210 40% 98%;
     
-    /* Secondary: Light Blue-Gray */
-    --secondary: 214 32% 91%;
+    /* Secondary: Soft Blue-Gray */
+    --secondary: 217 32% 93%;
     --secondary-foreground: 222 47% 11%;
     
     /* Muted */
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 220 25% 94%;
+    --muted-foreground: 215 16% 42%;
     
-    /* Accent: Saffron (Digital India) */
-    --accent: 25 95% 53%;
+    /* Accent: Saffron (Digital India) - more vibrant */
+    --accent: 24 100% 50%;
     --accent-foreground: 0 0% 100%;
     
-    /* Success: Active/Open */
-    --success: 142 76% 36%;
+    /* Success: Active/Open - more vibrant green */
+    --success: 152 76% 38%;
     --success-foreground: 0 0% 100%;
     
-    /* Destructive: Alert/Fraud */
-    --destructive: 0 84% 60%;
+    /* Destructive: Alert/Fraud - intense red */
+    --destructive: 0 84% 55%;
     --destructive-foreground: 0 0% 100%;
     
-    /* Warning */
-    --warning: 38 92% 50%;
+    /* Warning - bright amber */
+    --warning: 38 95% 50%;
     --warning-foreground: 0 0% 100%;
     
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    --border: 220 20% 88%;
+    --input: 220 20% 88%;
+    --ring: 221 83% 48%;
     
-    --radius: 0.5rem;
+    --radius: 0.625rem;
     
     /* Sidebar */
     --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary: 221 83% 55%;
     --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 25 95% 53%;
+    --sidebar-accent: 24 100% 50%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 221 83% 53%;
+    --sidebar-ring: 221 83% 55%;
     
-    /* Chart colors */
-    --chart-1: 221 83% 53%;
-    --chart-2: 25 95% 53%;
-    --chart-3: 142 76% 36%;
+    /* Chart colors - more distinct */
+    --chart-1: 221 83% 55%;
+    --chart-2: 24 100% 50%;
+    --chart-3: 152 76% 38%;
     --chart-4: 262 83% 58%;
-    --chart-5: 0 84% 60%;
+    --chart-5: 0 84% 55%;
   }
 
   .dark {
-    --background: 222 47% 11%;
+    --background: 222 47% 8%;
     --foreground: 210 40% 98%;
     
-    --card: 217 33% 17%;
+    --card: 222 47% 12%;
     --card-foreground: 210 40% 98%;
     
-    --popover: 217 33% 17%;
+    --popover: 222 47% 12%;
     --popover-foreground: 210 40% 98%;
     
     --primary: 217 91% 60%;
     --primary-foreground: 222 47% 11%;
     
-    --secondary: 217 33% 25%;
+    --secondary: 217 33% 20%;
     --secondary-foreground: 210 40% 98%;
     
-    --muted: 217 33% 17%;
+    --muted: 217 33% 15%;
     --muted-foreground: 215 20% 65%;
     
-    --accent: 25 95% 53%;
+    --accent: 24 100% 55%;
     --accent-foreground: 0 0% 100%;
     
-    --success: 142 76% 36%;
+    --success: 152 76% 42%;
     --success-foreground: 0 0% 100%;
     
-    --destructive: 0 62% 50%;
+    --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
     
-    --warning: 38 92% 50%;
+    --warning: 38 95% 55%;
     --warning-foreground: 0 0% 100%;
     
-    --border: 217 33% 25%;
-    --input: 217 33% 25%;
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
     --ring: 217 91% 60%;
     
-    --sidebar-background: 222 47% 8%;
+    --sidebar-background: 222 47% 5%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 25 95% 53%;
+    --sidebar-accent: 24 100% 55%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 217 33% 17%;
+    --sidebar-border: 217 33% 15%;
     --sidebar-ring: 217 91% 60%;
   }
 }
@@ -121,7 +121,12 @@
   
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
   }
 }
 
@@ -130,11 +135,11 @@
   @keyframes fraud-pulse {
     0%, 100% {
       opacity: 1;
-      box-shadow: 0 0 0 0 hsl(var(--destructive) / 0.4);
+      box-shadow: 0 0 0 0 hsl(var(--destructive) / 0.5);
     }
     50% {
       opacity: 0.9;
-      box-shadow: 0 0 0 12px hsl(var(--destructive) / 0);
+      box-shadow: 0 0 0 15px hsl(var(--destructive) / 0);
     }
   }
   
@@ -153,34 +158,81 @@
   }
   
   .chakra-spinner {
-    animation: chakra-spin 3s linear infinite;
+    animation: chakra-spin 2s linear infinite;
   }
   
-  /* Gradient backgrounds */
+  /* Gradient backgrounds - enhanced */
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(221 83% 40%) 100%);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(221 83% 35%) 100%);
   }
   
   .gradient-saffron {
-    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(25 95% 45%) 100%);
+    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(24 100% 42%) 100%);
   }
   
   .gradient-success {
-    background: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(142 76% 28%) 100%);
+    background: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(152 76% 28%) 100%);
   }
   
   .gradient-danger {
-    background: linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(0 84% 50%) 100%);
+    background: linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(0 84% 45%) 100%);
   }
   
-  /* Glass effect */
+  /* Subtle gradient overlay for cards */
+  .gradient-card {
+    background: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%);
+  }
+  
+  /* Glass effect - enhanced */
   .glass {
-    @apply bg-card/80 backdrop-blur-sm;
+    @apply bg-card/70 backdrop-blur-md border border-border/50;
   }
   
-  /* Data card hover */
+  /* Data card hover - enhanced with shadow */
   .data-card {
-    @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5;
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary/20;
+  }
+  
+  /* Glow effects */
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  
+  .glow-success {
+    box-shadow: 0 0 20px hsl(var(--success) / 0.3);
+  }
+  
+  .glow-destructive {
+    box-shadow: 0 0 20px hsl(var(--destructive) / 0.3);
+  }
+  
+  /* Text gradient */
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Shimmer effect */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
   }
   
   /* Scrollbar styling */
@@ -189,10 +241,20 @@
   }
   
   .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-muted rounded-full;
+    @apply bg-muted/50 rounded-full;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50;
+    @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50 transition-colors;
+  }
+  
+  /* Focus ring enhancement */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background;
+  }
+  
+  /* Monospace for IDs and codes */
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
   }
 }

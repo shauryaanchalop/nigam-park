@@ -185,22 +185,22 @@ export default function Auth() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {demoButtons.map(({ role, label, icon: Icon, description }) => (
                   <Button
                     key={role}
                     variant="outline"
-                    className="h-auto py-3 flex flex-col items-center gap-1 hover:bg-accent/10 hover:border-accent"
+                    className="h-auto py-4 px-3 flex flex-col items-center gap-2 hover:bg-accent/10 hover:border-accent transition-all"
                     onClick={() => handleDemoLogin(role)}
                     disabled={demoLoading !== null}
                   >
                     {demoLoading === role ? (
-                      <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-6 h-6 text-primary" />
                     )}
-                    <span className="font-medium text-sm">{label}</span>
-                    <span className="text-xs text-muted-foreground">{description}</span>
+                    <span className="font-semibold text-sm whitespace-nowrap">{label}</span>
+                    <span className="text-xs text-muted-foreground text-center leading-tight">{description}</span>
                   </Button>
                 ))}
               </div>

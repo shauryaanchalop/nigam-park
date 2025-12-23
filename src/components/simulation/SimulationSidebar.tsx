@@ -75,8 +75,11 @@ export function SimulationSidebar() {
 
       addEvent('entry', `🚗 Vehicle ${vehicle} entered ${lot.name}`);
       toast.success(`Vehicle ${vehicle} entered ${lot.name}`);
-    } catch (error) {
-      toast.error('Failed to simulate car entry');
+    } catch (error: any) {
+      console.error('Car entry simulation error:', error);
+      toast.error('Failed to simulate car entry', {
+        description: error?.message || 'Please try again',
+      });
     }
   };
 
@@ -105,8 +108,11 @@ export function SimulationSidebar() {
 
       addEvent('payment', `💳 ₹${amount} received via ${method} for ${vehicle}`);
       toast.success(`₹${amount} payment received via ${method}`);
-    } catch (error) {
-      toast.error('Failed to process payment');
+    } catch (error: any) {
+      console.error('Payment simulation error:', error);
+      toast.error('Failed to process payment', {
+        description: error?.message || 'Please try again',
+      });
     }
   };
 
