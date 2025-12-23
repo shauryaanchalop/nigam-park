@@ -6,6 +6,7 @@ import { ShieldAlert, TrendingDown, DollarSign, AlertTriangle } from 'lucide-rea
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFraudAlerts } from '@/hooks/useFraudAlerts';
 import { SimulationSidebar } from '@/components/simulation/SimulationSidebar';
+import logo from '@/assets/logo.png';
 
 export default function FraudHunter() {
   const { user, userRole, loading } = useAuth();
@@ -13,8 +14,11 @@ export default function FraudHunter() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="chakra-spinner w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <img src={logo} alt="NIGAM-Park" className="w-20 h-20 mx-auto mb-4 rounded-full object-cover" />
+          <div className="chakra-spinner w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+        </div>
       </div>
     );
   }
