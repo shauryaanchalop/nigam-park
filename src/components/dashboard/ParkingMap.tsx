@@ -1,25 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { MapPin, Car, Activity, Wifi } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { cn } from '@/lib/utils';
+import '@/lib/leaflet';
+
+type LatLngTuple = [number, number];
 
 export function ParkingMap() {
   const { data: lots, isLoading } = useParkingLots();
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-  const [updatedLots, setUpdatedLots] = useState<Set<string>>(new Set());
 
-  // Track real-time updates
   useEffect(() => {
-    if (lots) {
-      setLastUpdate(new Date());
-      // Flash animation for updated lots
-      const newUpdated = new Set(lots.map(l => l.id));
-      setUpdatedLots(newUpdated);
-      const timer = setTimeout(() => setUpdatedLots(new Set()), 1500);
-      return () => clearTimeout(timer);
-    }
+    if (lots) setLastUpdate(new Date());
   }, [lots?.map(l => l.current_occupancy).join(',')]);
+
+  const center = useMemo<LatLngTuple>(() => {
+    if (!lots?.length) return [28.6139, 77.2090]; // Delhi
+    const avgLat = lots.reduce((sum, l) => sum + Number(l.lat), 0) / lots.length;
+    const avgLng = lots.reduce((sum, l) => sum + Number(l.lng), 0) / lots.length;
+    return [avgLat, avgLng];
+  }, [lots]);
+
+  const getOccupancyStatus = (current: number, capacity: number) => {
+    const pct = (current / capacity) * 100;
+    if (pct >= 90) return { label: 'Full', cls: 'border-destructive text-destructive' };
+    if (pct >= 70) return { label: 'Busy', cls: 'border-warning text-warning' };
+    return { label: 'Available', cls: 'border-success text-success' };
+  };
 
   if (isLoading) {
     return (
@@ -30,29 +40,14 @@ export function ParkingMap() {
     );
   }
 
-  const getOccupancyColor = (current: number, capacity: number) => {
-    const percentage = (current / capacity) * 100;
-    if (percentage >= 90) return 'bg-destructive';
-    if (percentage >= 70) return 'bg-warning';
-    return 'bg-success';
-  };
-
-  const getOccupancyStatus = (current: number, capacity: number) => {
-    const percentage = (current / capacity) * 100;
-    if (percentage >= 90) return 'Full';
-    if (percentage >= 70) return 'Busy';
-    return 'Available';
-  };
-
   return (
-    <div className="bg-card rounded-lg border border-border overflow-hidden">
-      <div className="p-4 border-b border-border flex items-center justify-between">
+    <section className="bg-card rounded-lg border border-border overflow-hidden">
+      <header className="p-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MapPin className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold text-foreground">Delhi Parking Zones</h3>
+          <h2 className="font-semibold text-foreground">Live Parking Map (OSM)</h2>
         </div>
         <div className="flex items-center gap-3">
-          {/* Live indicator */}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <div className="relative">
               <Wifi className="w-3.5 h-3.5 text-success" />
@@ -60,126 +55,73 @@ export function ParkingMap() {
             </div>
             <span>Live</span>
           </div>
-          <Badge variant="outline">{lots?.length ?? 0} Active Lots</Badge>
+          <Badge variant="outline">{lots?.length ?? 0} Lots</Badge>
         </div>
-      </div>
-      
-      {/* Stylized Map Placeholder */}
-      <div className="relative h-[350px] bg-gradient-to-br from-muted to-muted/50 overflow-hidden">
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 opacity-30">
-          <svg className="w-full h-full">
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-border" />
-            </pattern>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        </div>
-        
-        {/* Parking Lot Markers */}
-        <div className="absolute inset-0 p-4">
-          {lots?.map((lot, index) => {
-            // Position markers in a visually appealing way
-            const positions = [
-              { top: '15%', left: '25%' },
-              { top: '25%', left: '55%' },
-              { top: '45%', left: '15%' },
-              { top: '35%', left: '75%' },
-              { top: '65%', left: '45%' },
-              { top: '75%', left: '70%' },
-            ];
-            const pos = positions[index % positions.length];
-            const isJustUpdated = updatedLots.has(lot.id);
-            
+      </header>
+
+      <div className="relative h-[350px] bg-muted">
+        <MapContainer center={center} zoom={12} scrollWheelZoom={false} className="h-full w-full">
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          {lots?.map((lot) => {
+            const lat = Number(lot.lat);
+            const lng = Number(lot.lng);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+            const status = getOccupancyStatus(lot.current_occupancy, lot.capacity);
+
             return (
-              <div
-                key={lot.id}
-                className="absolute group cursor-pointer transition-all duration-300 hover:scale-110"
-                style={{ top: pos.top, left: pos.left }}
-              >
-                {/* Pulse ring for real-time updates */}
-                {isJustUpdated && (
-                  <div className={cn(
-                    'absolute inset-0 rounded-full animate-ping opacity-75',
-                    getOccupancyColor(lot.current_occupancy, lot.capacity)
-                  )} style={{ animationDuration: '1s' }} />
-                )}
-                
-                {/* Marker */}
-                <div className={cn(
-                  'relative w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300',
-                  getOccupancyColor(lot.current_occupancy, lot.capacity),
-                  isJustUpdated && 'ring-4 ring-primary/30'
-                )}>
-                  <Car className="w-5 h-5 text-primary-foreground" />
-                  
-                  {/* Live activity indicator */}
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-card rounded-full flex items-center justify-center">
-                    <Activity className="w-2 h-2 text-success" />
-                  </div>
-                </div>
-                
-                {/* Tooltip */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  <div className="bg-card border border-border rounded-lg shadow-lg p-3 min-w-[180px]">
-                    <p className="font-semibold text-sm text-foreground">{lot.name}</p>
-                    <p className="text-xs text-muted-foreground">{lot.zone}</p>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-muted-foreground">Occupancy</span>
-                      <Badge 
-                        variant="outline" 
-                        className={cn(
-                          'text-xs',
-                          getOccupancyStatus(lot.current_occupancy, lot.capacity) === 'Full' && 'border-destructive text-destructive',
-                          getOccupancyStatus(lot.current_occupancy, lot.capacity) === 'Busy' && 'border-warning text-warning',
-                          getOccupancyStatus(lot.current_occupancy, lot.capacity) === 'Available' && 'border-success text-success',
-                        )}
-                      >
-                        {lot.current_occupancy}/{lot.capacity}
+              <Marker key={lot.id} position={[lat, lng]}>
+                <Popup>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="font-semibold text-foreground">{lot.name}</p>
+                      <p className="text-xs text-muted-foreground">{lot.zone}</p>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2">
+                      <Badge variant="outline" className={cn('text-xs', status.cls)}>
+                        {status.label}
                       </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {lot.current_occupancy}/{lot.capacity}
+                      </span>
                     </div>
-                    {/* Progress bar */}
-                    <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className={cn(
-                          'h-full rounded-full transition-all duration-500',
-                          getOccupancyColor(lot.current_occupancy, lot.capacity)
-                        )}
-                        style={{ width: `${(lot.current_occupancy / lot.capacity) * 100}%` }}
-                      />
-                    </div>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        const url = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=18/${lat}/${lng}`;
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                      }}
+                    >
+                      <Activity className="w-4 h-4 mr-2" />
+                      Open in OSM
+                    </Button>
                   </div>
-                </div>
-              </div>
+                </Popup>
+              </Marker>
             );
           })}
+        </MapContainer>
+
+        {/* subtle “real” overlay */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--background)/0)_40%,hsl(var(--background)/0.35)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 opacity-25 mix-blend-multiply bg-[linear-gradient(transparent_0,transparent_2px,hsl(var(--foreground)/0.04)_3px)] bg-[length:100%_6px]" />
+
+        <div className="absolute bottom-3 right-3 bg-card/90 backdrop-blur-sm border border-border rounded-md px-2 py-1 text-[10px] text-muted-foreground font-mono">
+          Updated: {lastUpdate.toLocaleTimeString('en-IN')}
         </div>
-        
-        {/* Legend */}
-        <div className="absolute bottom-4 right-4 bg-card/90 backdrop-blur-sm border border-border rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <Activity className="w-3 h-3 text-success" />
-            <p className="text-xs font-medium text-foreground">Real-time Status</p>
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-success"></div>
-              <span className="text-xs text-muted-foreground">Available</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-warning"></div>
-              <span className="text-xs text-muted-foreground">Busy (70%+)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-destructive"></div>
-              <span className="text-xs text-muted-foreground">Full (90%+)</span>
-            </div>
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-2 pt-2 border-t border-border">
-            Updated: {lastUpdate.toLocaleTimeString('en-IN')}
-          </p>
+        <div className="absolute top-3 left-3 bg-card/90 backdrop-blur-sm border border-border rounded-md px-2 py-1 text-[10px] text-muted-foreground font-mono flex items-center gap-2">
+          <Car className="w-3.5 h-3.5" />
+          LIVE MAP FEED
         </div>
       </div>
-    </div>
+    </section>
   );
 }
