@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { FraudAlertFeed } from '@/components/fraud/FraudAlertFeed';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { ShieldAlert, TrendingDown, DollarSign, AlertTriangle, Volume2, VolumeX, Bell, BellOff } from 'lucide-react';
+import { ShieldAlert, TrendingDown, DollarSign, AlertTriangle, Volume2, VolumeX, Bell, BellOff, Zap, Mail } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useFraudAlerts } from '@/hooks/useFraudAlerts';
@@ -17,11 +18,12 @@ import logo from '@/assets/logo.png';
 
 export default function FraudHunter() {
   const { user, userRole, loading } = useAuth();
-  const { alerts } = useFraudAlerts();
+  const { alerts, createFraudAlert } = useFraudAlerts();
   const { isMuted, toggleMute, playAlertSound, sendBrowserNotification, notificationPermission, requestNotificationPermission } = useAlertNotifications();
   const isInitialLoad = useRef(true);
+  const [isTestingAlert, setIsTestingAlert] = useState(false);
 
-  // Separate subscription for sound/browser notifications (only on FraudHunter page)
+  // Separate subscription for sound/browser notifications and email (only on FraudHunter page)
   useEffect(() => {
     // Mark initial load as complete after first render
     const timer = setTimeout(() => {
@@ -37,7 +39,7 @@ export default function FraudHunter() {
           schema: 'public',
           table: 'fraud_alerts',
         },
-        (payload) => {
+        async (payload) => {
           const newAlert = payload.new as FraudAlert;
           
           if (isInitialLoad.current) return;
@@ -50,6 +52,21 @@ export default function FraudHunter() {
               `${newAlert.location}: ${newAlert.description}`,
               `fraud-${newAlert.id}`
             );
+            
+            // Send email notification for critical alerts
+            try {
+              await supabase.functions.invoke('send-fraud-alert-email', {
+                body: {
+                  alertId: newAlert.id,
+                  severity: newAlert.severity,
+                  location: newAlert.location,
+                  description: newAlert.description,
+                },
+              });
+              console.log('Email notification sent for critical alert');
+            } catch (error) {
+              console.error('Failed to send email notification:', error);
+            }
           } else if (newAlert.severity === 'HIGH') {
             sendBrowserNotification(
               '⚠️ High Priority Alert',
@@ -66,6 +83,39 @@ export default function FraudHunter() {
       supabase.removeChannel(channel);
     };
   }, [playAlertSound, sendBrowserNotification]);
+
+  const handleTestCriticalAlert = async () => {
+    setIsTestingAlert(true);
+    
+    const testLocations = ['Zone A - Main Entry', 'Zone B - Exit Gate', 'Zone C - VIP Area', 'Zone D - Staff Parking'];
+    const testDescriptions = [
+      'Unauthorized vehicle detected bypassing payment barrier',
+      'Multiple failed payment attempts from same terminal',
+      'Suspicious cash handling pattern detected',
+      'Vehicle mismatch between entry and exit records',
+    ];
+    
+    const randomLocation = testLocations[Math.floor(Math.random() * testLocations.length)];
+    const randomDescription = testDescriptions[Math.floor(Math.random() * testDescriptions.length)];
+    
+    try {
+      await createFraudAlert.mutateAsync({
+        severity: 'CRITICAL',
+        location: randomLocation,
+        description: randomDescription,
+        metadata: { isTest: true, triggeredAt: new Date().toISOString() },
+      });
+      
+      toast.success('Test critical alert created', {
+        description: 'Sound, browser notification, and email will be triggered.',
+      });
+    } catch (error) {
+      console.error('Failed to create test alert:', error);
+      toast.error('Failed to create test alert');
+    } finally {
+      setIsTestingAlert(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -115,6 +165,26 @@ export default function FraudHunter() {
           
           {/* Notification Controls */}
           <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleTestCriticalAlert}
+                    disabled={isTestingAlert}
+                    className="gap-2"
+                  >
+                    <Zap className="w-4 h-4" />
+                    {isTestingAlert ? 'Creating...' : 'Test Alert'}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Create a test critical alert to verify notifications
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -238,6 +308,24 @@ export default function FraudHunter() {
                 <div className="p-3 bg-muted rounded-lg">
                   <p className="text-sm text-muted-foreground">Resolution Rate</p>
                   <p className="text-2xl font-bold text-primary">94.2%</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Mail className="w-5 h-5" />
+                  Email Notifications
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Critical alerts automatically send email notifications to administrators.
+                </p>
+                <div className="flex items-center gap-2 p-2 bg-success/10 rounded text-success text-sm">
+                  <Bell className="w-4 h-4" />
+                  Email alerts active
                 </div>
               </CardContent>
             </Card>
