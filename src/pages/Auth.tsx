@@ -349,7 +349,7 @@ export default function Auth() {
 
       {/* Footer */}
       <div className="py-4 text-center text-sm text-muted-foreground">
-        <p>© 2024 Municipal Corporation of Delhi. All rights reserved.</p>
+        <p>© 2026 Municipal Corporation of Delhi. All rights reserved.</p>
       </div>
     </div>
   );
