@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { Camera, Video, VideoOff, Eye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import cctvImage from '@/assets/cctv-parking.jpg';
 
 interface CameraCardProps {
   camera: CameraWithEvents;
@@ -47,16 +48,16 @@ export function CameraCard({ camera }: CameraCardProps) {
       <CardContent className="p-0">
         {/* Camera Feed Container with AI Overlay */}
         <div className="relative aspect-video bg-muted overflow-hidden">
-          {/* Simulated CCTV Feed */}
-          <div className="absolute inset-0 bg-gradient-to-br from-muted to-muted-foreground/20">
-            <img 
-              src="/placeholder.svg" 
-              alt={`Camera feed: ${camera.name}`}
-              className="w-full h-full object-cover opacity-50"
-            />
-            {/* Grid overlay for CCTV effect */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.1)_1px,transparent_1px)] bg-[size:20px_20px]" />
-          </div>
+          {/* Realistic CCTV Image */}
+          <img 
+            src={cctvImage}
+            alt={`Camera feed: ${camera.name}`}
+            className="w-full h-full object-cover"
+          />
+          {/* Scanline overlay for CCTV effect */}
+          <div className="absolute inset-0 pointer-events-none opacity-30 mix-blend-multiply bg-[linear-gradient(transparent_0,transparent_2px,rgba(0,0,0,0.05)_3px)] bg-[length:100%_4px]" />
+          {/* Subtle vignette */}
+          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(0,0,0,0.35)_100%)]" />
 
           {/* AI Bounding Boxes Overlay */}
           <div className="absolute inset-0">

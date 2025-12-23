@@ -7,7 +7,8 @@ import { z } from 'zod';
 const sensorLogSchema = z.object({
   lot_id: z.string().uuid('Invalid lot ID'),
   event_type: z.enum(['entry', 'exit'], { errorMap: () => ({ message: 'Invalid event type' }) }),
-  vehicle_detected: z.string()
+  vehicle_detected: z
+    .string()
     .regex(/^[A-Z]{2}[0-9]{1,2}[A-Z]{1,3}[0-9]{1,4}$/, 'Invalid vehicle number format')
     .max(15, 'Vehicle number too long')
     .nullable()
@@ -20,17 +21,17 @@ export function useSensorLogs() {
 
   const createSensorLog = useMutation({
     mutationFn: async (log: Omit<SensorLog, 'id' | 'created_at'>) => {
-      // Validate input before database operation
+      // Validate input before sending to edge function
       sensorLogSchema.parse(log);
-      
-      const { data, error } = await supabase
-        .from('sensor_logs')
-        .insert(log)
-        .select()
-        .single();
-      
+
+      // Call the edge function which uses service role to bypass RLS
+      const { data, error } = await supabase.functions.invoke('create-sensor-log', {
+        body: log,
+      });
+
       if (error) throw error;
-      return data;
+      if (data?.error) throw new Error(data.error);
+      return data?.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sensor-logs'] });
