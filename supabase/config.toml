@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.send-fraud-alert-email]
 verify_jwt = false
+
+[functions.create-sensor-log]
+verify_jwt = true
+
+[functions.create-transaction]
+verify_jwt = true
