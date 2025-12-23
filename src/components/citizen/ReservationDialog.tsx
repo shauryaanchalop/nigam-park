@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format, addHours } from 'date-fns';
-import { Calendar, Clock, Car, IndianRupee } from 'lucide-react';
+import { Calendar, Clock, Car, IndianRupee, ChevronDown } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { useReservations } from '@/hooks/useReservations';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSavedVehicles } from '@/hooks/useProfile';
 
 interface ParkingLot {
   id: string;
@@ -40,15 +41,53 @@ const timeSlots = [
 export function ReservationDialog({ open, onOpenChange, parkingLot }: ReservationDialogProps) {
   const { user } = useAuth();
   const { createReservation } = useReservations();
+  const { vehicles, isLoading: vehiclesLoading } = useSavedVehicles();
+  
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [startTime, setStartTime] = useState('09:00');
   const [duration, setDuration] = useState('2');
   const [vehicleNumber, setVehicleNumber] = useState('');
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>('');
+
+  // Auto-select primary vehicle when dialog opens
+  useEffect(() => {
+    if (open && vehicles.length > 0) {
+      const primaryVehicle = vehicles.find(v => v.is_primary) || vehicles[0];
+      if (primaryVehicle && !vehicleNumber) {
+        setVehicleNumber(primaryVehicle.vehicle_number);
+        setSelectedVehicleId(primaryVehicle.id);
+      }
+    }
+  }, [open, vehicles]);
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setVehicleNumber('');
+      setSelectedVehicleId('');
+      setDate(new Date());
+      setStartTime('09:00');
+      setDuration('2');
+    }
+  }, [open]);
 
   if (!parkingLot) return null;
 
   const durationHours = parseInt(duration);
   const estimatedCost = parkingLot.hourly_rate * durationHours;
+
+  const handleVehicleSelect = (vehicleId: string) => {
+    if (vehicleId === 'custom') {
+      setSelectedVehicleId('custom');
+      setVehicleNumber('');
+    } else {
+      const vehicle = vehicles.find(v => v.id === vehicleId);
+      if (vehicle) {
+        setSelectedVehicleId(vehicle.id);
+        setVehicleNumber(vehicle.vehicle_number);
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +109,6 @@ export function ReservationDialog({ open, onOpenChange, parkingLot }: Reservatio
     });
 
     onOpenChange(false);
-    setVehicleNumber('');
   };
 
   return (
@@ -84,20 +122,68 @@ export function ReservationDialog({ open, onOpenChange, parkingLot }: Reservatio
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Vehicle Number */}
+          {/* Vehicle Selection */}
           <div className="space-y-2">
-            <Label htmlFor="vehicle">Vehicle Number</Label>
-            <div className="relative">
-              <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                id="vehicle"
-                placeholder="DL 01 AB 1234"
-                value={vehicleNumber}
-                onChange={(e) => setVehicleNumber(e.target.value)}
-                className="pl-10 uppercase"
-                required
-              />
-            </div>
+            <Label>Vehicle</Label>
+            {vehicles.length > 0 ? (
+              <div className="space-y-2">
+                <Select value={selectedVehicleId} onValueChange={handleVehicleSelect}>
+                  <SelectTrigger>
+                    <div className="flex items-center gap-2">
+                      <Car className="w-4 h-4 text-muted-foreground" />
+                      <SelectValue placeholder="Select a vehicle" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {vehicles.map((vehicle) => (
+                      <SelectItem key={vehicle.id} value={vehicle.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{vehicle.vehicle_type === 'bike' ? '🏍️' : vehicle.vehicle_type === 'suv' ? '🚙' : '🚗'}</span>
+                          <span className="font-mono">{vehicle.vehicle_number}</span>
+                          {vehicle.vehicle_name && (
+                            <span className="text-muted-foreground text-xs">({vehicle.vehicle_name})</span>
+                          )}
+                          {vehicle.is_primary && (
+                            <span className="text-xs text-primary">★</span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="custom">
+                      <div className="flex items-center gap-2">
+                        <span>➕</span>
+                        <span>Enter new vehicle number</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                {selectedVehicleId === 'custom' && (
+                  <div className="relative">
+                    <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="DL 01 AB 1234"
+                      value={vehicleNumber}
+                      onChange={(e) => setVehicleNumber(e.target.value)}
+                      className="pl-10 uppercase"
+                      required
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="relative">
+                <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="vehicle"
+                  placeholder="DL 01 AB 1234"
+                  value={vehicleNumber}
+                  onChange={(e) => setVehicleNumber(e.target.value)}
+                  className="pl-10 uppercase"
+                  required
+                />
+              </div>
+            )}
           </div>
 
           {/* Date Selection */}
@@ -182,7 +268,7 @@ export function ReservationDialog({ open, onOpenChange, parkingLot }: Reservatio
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={createReservation.isPending || !user}>
+            <Button type="submit" disabled={createReservation.isPending || !user || !vehicleNumber.trim()}>
               {createReservation.isPending ? 'Reserving...' : 'Confirm Reservation'}
             </Button>
           </div>

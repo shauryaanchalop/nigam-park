@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { User, Car, Bell, Phone, Mail, Edit2, Plus, Trash2, Star, Check, ArrowLeft } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { User, Car, Bell, Phone, Mail, Edit2, Plus, Trash2, Star, ArrowLeft, Camera, Upload, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile, useSavedVehicles, useUserPreferences } from '@/hooks/useProfile';
 import { GovHeader } from '@/components/ui/GovHeader';
@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Dialog,
   DialogContent,
@@ -32,7 +33,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 const vehicleSchema = z.object({
@@ -50,6 +52,9 @@ export default function Profile() {
   const { profile, isLoading: profileLoading, updateProfile } = useProfile();
   const { vehicles, isLoading: vehiclesLoading, addVehicle, updateVehicle, deleteVehicle } = useSavedVehicles();
   const { preferences, isLoading: preferencesLoading, updatePreferences } = useUserPreferences();
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({
@@ -77,6 +82,56 @@ export default function Profile() {
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image must be less than 2MB');
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/avatar.${fileExt}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      // Add cache-busting query param
+      const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+
+      // Update profile
+      await updateProfile.mutateAsync({ avatar_url: avatarUrl });
+      toast.success('Avatar updated successfully');
+    } catch (error: any) {
+      console.error('Avatar upload error:', error);
+      toast.error('Failed to upload avatar', { description: error.message });
+    } finally {
+      setUploadingAvatar(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   const handleEditProfile = () => {
     setProfileForm({
@@ -133,11 +188,11 @@ export default function Profile() {
     await updatePreferences.mutateAsync({ [key]: value });
   };
 
-  const vehicleTypeLabels: Record<string, string> = {
-    car: '🚗 Car',
-    bike: '🏍️ Bike',
-    suv: '🚙 SUV',
-    truck: '🚛 Truck',
+  const getInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    return user.email?.slice(0, 2).toUpperCase() || 'U';
   };
 
   return (
@@ -195,69 +250,107 @@ export default function Profile() {
               <CardContent className="space-y-6">
                 {profileLoading ? (
                   <div className="animate-pulse space-y-4">
+                    <div className="h-20 w-20 bg-muted rounded-full mx-auto" />
                     <div className="h-10 bg-muted rounded" />
                     <div className="h-10 bg-muted rounded" />
                     <div className="h-10 bg-muted rounded" />
-                  </div>
-                ) : editingProfile ? (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="full_name">Full Name</Label>
-                      <Input
-                        id="full_name"
-                        value={profileForm.full_name}
-                        onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
-                        placeholder="Enter your full name"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={profileForm.phone}
-                        onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                        placeholder="+91 98765 43210"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Email Address</Label>
-                      <Input value={user.email || ''} disabled className="bg-muted" />
-                      <p className="text-xs text-muted-foreground">Email cannot be changed</p>
-                    </div>
-                    <div className="flex gap-2 pt-4">
-                      <Button onClick={handleSaveProfile} disabled={updateProfile.isPending}>
-                        {updateProfile.isPending ? 'Saving...' : 'Save Changes'}
-                      </Button>
-                      <Button variant="outline" onClick={() => setEditingProfile(false)}>
-                        Cancel
-                      </Button>
-                    </div>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                      <User className="w-5 h-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Full Name</p>
-                        <p className="font-medium">{profile?.full_name || 'Not set'}</p>
+                  <>
+                    {/* Avatar Section */}
+                    <div className="flex flex-col items-center gap-4 pb-4 border-b">
+                      <div className="relative">
+                        <Avatar className="w-24 h-24">
+                          <AvatarImage src={profile?.avatar_url || undefined} alt="Profile" />
+                          <AvatarFallback className="text-2xl bg-primary/10 text-primary">
+                            {getInitials()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleAvatarUpload}
+                          accept="image/*"
+                          className="hidden"
+                        />
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="absolute bottom-0 right-0 rounded-full w-8 h-8"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={uploadingAvatar}
+                        >
+                          {uploadingAvatar ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Camera className="w-4 h-4" />
+                          )}
+                        </Button>
                       </div>
+                      <p className="text-sm text-muted-foreground">Click the camera icon to upload a new photo</p>
                     </div>
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                      <Phone className="w-5 h-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Phone Number</p>
-                        <p className="font-medium">{profile?.phone || 'Not set'}</p>
+
+                    {editingProfile ? (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="full_name">Full Name</Label>
+                          <Input
+                            id="full_name"
+                            value={profileForm.full_name}
+                            onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
+                            placeholder="Enter your full name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone">Phone Number</Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            value={profileForm.phone}
+                            onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                            placeholder="+91 98765 43210"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Email Address</Label>
+                          <Input value={user.email || ''} disabled className="bg-muted" />
+                          <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                        </div>
+                        <div className="flex gap-2 pt-4">
+                          <Button onClick={handleSaveProfile} disabled={updateProfile.isPending}>
+                            {updateProfile.isPending ? 'Saving...' : 'Save Changes'}
+                          </Button>
+                          <Button variant="outline" onClick={() => setEditingProfile(false)}>
+                            Cancel
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                      <Mail className="w-5 h-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Email Address</p>
-                        <p className="font-medium">{user.email}</p>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                          <User className="w-5 h-5 text-muted-foreground" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Full Name</p>
+                            <p className="font-medium">{profile?.full_name || 'Not set'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                          <Phone className="w-5 h-5 text-muted-foreground" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Phone Number</p>
+                            <p className="font-medium">{profile?.phone || 'Not set'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                          <Mail className="w-5 h-5 text-muted-foreground" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Email Address</p>
+                            <p className="font-medium">{user.email}</p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
