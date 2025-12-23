@@ -2,6 +2,7 @@ import React from 'react';
 import { LogOut, User, CalendarCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -41,7 +42,7 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <div className="hidden md:flex items-center gap-2">
               <Badge variant="secondary" className="bg-primary-foreground/20 text-primary-foreground border-0">
                 Municipal Corporation of Delhi
@@ -56,6 +57,9 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
                 })}
               </span>
             </div>
+
+            {/* Theme Toggle */}
+            <ThemeToggle className="text-primary-foreground hover:bg-primary-foreground/10" />
 
             {user && (
               <>
