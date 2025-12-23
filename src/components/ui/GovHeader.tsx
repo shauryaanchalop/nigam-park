@@ -134,15 +134,18 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
 
             {user && (
               <>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-primary-foreground hover:bg-primary-foreground/10 hidden sm:flex"
-                  onClick={() => navigate('/my-reservations')}
-                >
-                  <CalendarCheck className="w-4 h-4 mr-2" />
-                  My Reservations
-                </Button>
+                {/* Only show My Reservations for citizens */}
+                {userRole === 'citizen' && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-primary-foreground hover:bg-primary-foreground/10 hidden sm:flex"
+                    onClick={() => navigate('/my-reservations')}
+                  >
+                    <CalendarCheck className="w-4 h-4 mr-2" />
+                    My Reservations
+                  </Button>
+                )}
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -156,10 +159,12 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
                       Logged in as {roleLabels[userRole ?? 'citizen']}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate('/my-reservations')} className="sm:hidden">
-                      <CalendarCheck className="w-4 h-4 mr-2" />
-                      My Reservations
-                    </DropdownMenuItem>
+                    {userRole === 'citizen' && (
+                      <DropdownMenuItem onClick={() => navigate('/my-reservations')} className="sm:hidden">
+                        <CalendarCheck className="w-4 h-4 mr-2" />
+                        My Reservations
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={signOut} className="text-destructive">
                       <LogOut className="w-4 h-4 mr-2" />
                       Sign Out

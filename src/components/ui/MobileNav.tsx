@@ -54,6 +54,8 @@ export function MobileNav() {
   const isAdmin = userRole === 'admin';
   const isAttendant = userRole === 'attendant';
 
+  const isCitizen = !isAdmin && !isAttendant;
+  
   const navItems = [
     { to: '/', icon: Home, label: 'Home' },
     ...(isAdmin ? [
@@ -63,10 +65,10 @@ export function MobileNav() {
     ...(isAttendant ? [
       { to: '/', icon: Car, label: 'POS' },
     ] : []),
-    ...(!isAdmin && !isAttendant ? [
+    ...(isCitizen ? [
       { to: '/', icon: Car, label: 'Find Parking' },
+      { to: '/my-reservations', icon: CalendarCheck, label: 'Bookings' },
     ] : []),
-    { to: '/my-reservations', icon: CalendarCheck, label: 'Bookings' },
     { to: user ? '/' : '/auth', icon: User, label: user ? 'Profile' : 'Login' },
   ];
 
