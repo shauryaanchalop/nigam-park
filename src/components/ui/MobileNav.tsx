@@ -62,15 +62,12 @@ export function MobileNav() {
     ...(isAdmin ? [
       { to: '/admin/parking-lots', icon: Car, label: 'Lots' },
       { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-    ] : []),
-    ...(isAttendant ? [
-      { to: '/', icon: Car, label: 'POS' },
+      { to: '/admin/users', icon: User, label: 'Users' },
     ] : []),
     ...(isCitizen ? [
       { to: '/my-reservations', icon: CalendarCheck, label: 'Bookings' },
       { to: '/parking-history', icon: History, label: 'History' },
     ] : []),
-    { to: user ? '/' : '/auth', icon: User, label: user ? 'Profile' : 'Login' },
   ];
 
   return (
