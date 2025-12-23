@@ -1,4 +1,4 @@
-# NIGAM-Park  
+# NIGAM-Park  (https://nigam-park.vercel.app/)
 ### AI-Powered Revenue Assurance System for Public Parking Governance
 
 NIGAM-Park is an AI-driven civic technology solution designed to eliminate revenue leakage and improve transparency in public parking operations. The system uses Vision AI, real-time payment reconciliation, and centralized monitoring to ensure that every parked vehicle is verified against a legitimate digital payment, without relying on manual enforcement.
