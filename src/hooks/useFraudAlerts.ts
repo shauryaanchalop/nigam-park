@@ -4,12 +4,10 @@ import { FraudAlert, FraudSeverity, FraudStatus } from '@/types/ai-modules';
 import { useEffect, useRef } from 'react';
 import { Json } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
-import { useAlertNotifications } from './useAlertNotifications';
 
 export function useFraudAlerts() {
   const queryClient = useQueryClient();
   const isInitialLoad = useRef(true);
-  const { playAlertSound, sendBrowserNotification, isMuted, toggleMute, notificationPermission, requestNotificationPermission } = useAlertNotifications();
 
   const { data: alerts, isLoading, error } = useQuery({
     queryKey: ['fraud-alerts'],
@@ -26,7 +24,7 @@ export function useFraudAlerts() {
     },
   });
 
-  // Real-time subscription with sound and browser notification for critical alerts
+  // Real-time subscription - basic toasts only (no sound/browser notifications)
   useEffect(() => {
     const channel = supabase
       .channel('fraud-alerts-realtime')
@@ -40,28 +38,19 @@ export function useFraudAlerts() {
         (payload) => {
           const newAlert = payload.new as FraudAlert;
           
-          // Play sound and show notifications for critical alerts
-          if (newAlert.severity === 'CRITICAL' && !isInitialLoad.current) {
-            playAlertSound();
-            toast.error('🚨 CRITICAL FRAUD ALERT', {
-              description: `${newAlert.location}: ${newAlert.description}`,
-              duration: 10000,
-            });
-            sendBrowserNotification(
-              '🚨 CRITICAL FRAUD ALERT',
-              `${newAlert.location}: ${newAlert.description}`,
-              `fraud-${newAlert.id}`
-            );
-          } else if (newAlert.severity === 'HIGH' && !isInitialLoad.current) {
-            toast.warning('⚠️ High Priority Alert', {
-              description: `${newAlert.location}: ${newAlert.description}`,
-              duration: 5000,
-            });
-            sendBrowserNotification(
-              '⚠️ High Priority Alert',
-              `${newAlert.location}: ${newAlert.description}`,
-              `fraud-${newAlert.id}`
-            );
+          // Only show toasts here - sound/browser notifications handled by useFraudAlertsWithNotifications
+          if (!isInitialLoad.current) {
+            if (newAlert.severity === 'CRITICAL') {
+              toast.error('🚨 CRITICAL FRAUD ALERT', {
+                description: `${newAlert.location}: ${newAlert.description}`,
+                duration: 10000,
+              });
+            } else if (newAlert.severity === 'HIGH') {
+              toast.warning('⚠️ High Priority Alert', {
+                description: `${newAlert.location}: ${newAlert.description}`,
+                duration: 5000,
+              });
+            }
           }
           
           queryClient.invalidateQueries({ queryKey: ['fraud-alerts'] });
@@ -94,7 +83,7 @@ export function useFraudAlerts() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient, playAlertSound, sendBrowserNotification]);
+  }, [queryClient]);
 
   const createFraudAlert = useMutation({
     mutationFn: async (alert: {
@@ -143,9 +132,5 @@ export function useFraudAlerts() {
     error,
     createFraudAlert,
     updateFraudStatus,
-    isMuted,
-    toggleMute,
-    notificationPermission,
-    requestNotificationPermission,
   };
 }
