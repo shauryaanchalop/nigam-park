@@ -70,15 +70,26 @@ export default function AttendantPOS() {
       toast.success(`Vehicle ${vehicleNumber} checked in`);
       setVehicleNumber('');
       setCheckInDialogOpen(false);
-    } catch (error) {
-      toast.error('Failed to check in vehicle');
+    } catch (error: any) {
+      console.error('Check-in error:', error);
+      const message = error?.message || 'Failed to check in vehicle';
+      if (message.includes('row-level security')) {
+        toast.error('Permission denied. Please ensure you are assigned to this lot.');
+      } else if (message.includes('Invalid vehicle number')) {
+        toast.error('Invalid vehicle number format. Use format like DL01AB1234');
+      } else {
+        toast.error(message);
+      }
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handlePayment = async (method: 'FASTag' | 'Cash' | 'UPI') => {
-    if (!assignedLot) return;
+    if (!assignedLot) {
+      toast.error('No parking lot assigned. Contact administrator.');
+      return;
+    }
 
     setIsProcessing(true);
     const vehicle = vehicleNumber.trim() || generateVehicleNumber();
@@ -99,8 +110,16 @@ export default function AttendantPOS() {
         description: `Vehicle: ${vehicle}`,
       });
       setVehicleNumber('');
-    } catch (error) {
-      toast.error('Payment failed');
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      const message = error?.message || 'Payment failed';
+      if (message.includes('row-level security')) {
+        toast.error('Permission denied. Please ensure you are assigned to this lot.');
+      } else if (message.includes('Invalid vehicle number')) {
+        toast.error('Invalid vehicle number format. Use format like DL01AB1234');
+      } else {
+        toast.error(message);
+      }
     } finally {
       setIsProcessing(false);
     }

@@ -4,10 +4,11 @@ import { Transaction, TransactionWithLot } from '@/types/database';
 import { useEffect } from 'react';
 import { z } from 'zod';
 
-// Vehicle number validation - Indian format (e.g., DL01AB1234, HR99X9999)
+// Vehicle number validation - flexible Indian format (e.g., DL01AB1234, HR99X9999, UP22TS7726)
 const vehicleNumberSchema = z.string()
-  .regex(/^[A-Z]{2}[0-9]{1,2}[A-Z]{1,3}[0-9]{1,4}$/, 'Invalid vehicle number format')
-  .max(15, 'Vehicle number too long');
+  .min(6, 'Vehicle number too short')
+  .max(15, 'Vehicle number too long')
+  .regex(/^[A-Z]{2}[0-9]{1,2}[A-Z]{1,3}[0-9]{1,4}$/, 'Invalid vehicle number format');
 
 // Transaction validation schema
 const transactionSchema = z.object({
