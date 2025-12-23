@@ -134,8 +134,8 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
 
             {user && (
               <>
-                {/* Only show My Reservations for citizens */}
-                {userRole === 'citizen' && (
+                {/* Show My Reservations for citizens (or users without admin/attendant role) */}
+                {(userRole === 'citizen' || (!userRole && user) || (userRole !== 'admin' && userRole !== 'attendant')) && (
                   <Button 
                     variant="ghost" 
                     size="sm" 
@@ -159,7 +159,7 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
                       Logged in as {roleLabels[userRole ?? 'citizen']}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    {userRole === 'citizen' && (
+                    {(userRole === 'citizen' || (!userRole && user) || (userRole !== 'admin' && userRole !== 'attendant')) && (
                       <DropdownMenuItem onClick={() => navigate('/my-reservations')} className="sm:hidden">
                         <CalendarCheck className="w-4 h-4 mr-2" />
                         My Reservations
