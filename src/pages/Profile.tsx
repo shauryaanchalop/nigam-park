@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { User, Car, Bell, Phone, Mail, Edit2, Plus, Trash2, Star, ArrowLeft, Camera, Upload, Loader2 } from 'lucide-react';
+import { User, Car, Bell, Phone, Mail, Edit2, Plus, Trash2, Star, ArrowLeft, Camera, Loader2, X, Settings, Send } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile, useSavedVehicles, useUserPreferences } from '@/hooks/useProfile';
 import { GovHeader } from '@/components/ui/GovHeader';
@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ImageCropper } from '@/components/ui/ImageCropper';
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -55,6 +62,8 @@ export default function Profile() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [selectedImageSrc, setSelectedImageSrc] = useState<string>('');
 
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({
@@ -71,6 +80,11 @@ export default function Profile() {
   });
   const [vehicleErrors, setVehicleErrors] = useState<Record<string, string>>({});
 
+  // Admin settings state
+  const [adminPhone, setAdminPhone] = useState('');
+  const [testSmsNumber, setTestSmsNumber] = useState('');
+  const [sendingTestSms, setSendingTestSms] = useState(false);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -83,9 +97,9 @@ export default function Profile() {
     return <Navigate to="/auth" replace />;
   }
 
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !user?.id) return;
+    if (!file) return;
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
@@ -93,21 +107,37 @@ export default function Profile() {
       return;
     }
 
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error('Image must be less than 2MB');
+    // Validate file size (max 5MB for cropping)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
       return;
     }
 
+    // Create URL for cropper
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSelectedImageSrc(reader.result as string);
+      setCropperOpen(true);
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    if (!user?.id) return;
+
     setUploadingAvatar(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/avatar.${fileExt}`;
+      const fileName = `${user.id}/avatar.jpg`;
 
       // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(fileName, file, { upsert: true });
+        .upload(fileName, croppedBlob, { upsert: true, contentType: 'image/jpeg' });
 
       if (uploadError) throw uploadError;
 
@@ -127,9 +157,26 @@ export default function Profile() {
       toast.error('Failed to upload avatar', { description: error.message });
     } finally {
       setUploadingAvatar(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!user?.id || !profile?.avatar_url) return;
+
+    setUploadingAvatar(true);
+    try {
+      // Delete from storage
+      const fileName = `${user.id}/avatar.jpg`;
+      await supabase.storage.from('avatars').remove([fileName]);
+
+      // Update profile
+      await updateProfile.mutateAsync({ avatar_url: null });
+      toast.success('Avatar removed');
+    } catch (error: any) {
+      console.error('Avatar removal error:', error);
+      toast.error('Failed to remove avatar');
+    } finally {
+      setUploadingAvatar(false);
     }
   };
 
@@ -188,6 +235,32 @@ export default function Profile() {
     await updatePreferences.mutateAsync({ [key]: value });
   };
 
+  const handleSendTestSms = async () => {
+    if (!testSmsNumber) {
+      toast.error('Please enter a phone number');
+      return;
+    }
+
+    setSendingTestSms(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-sms', {
+        body: {
+          to: testSmsNumber,
+          message: '✅ NIGAM-Park Test SMS\n\nThis is a test message to verify your Twilio integration is working correctly.\n\nTimestamp: ' + new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+          type: 'general',
+        },
+      });
+
+      if (error) throw error;
+      toast.success('Test SMS sent successfully!');
+    } catch (error: any) {
+      console.error('Test SMS error:', error);
+      toast.error('Failed to send test SMS', { description: error.message });
+    } finally {
+      setSendingTestSms(false);
+    }
+  };
+
   const getInitials = () => {
     if (profile?.full_name) {
       return profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -212,7 +285,7 @@ export default function Profile() {
         </Button>
 
         <Tabs defaultValue="account" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="account" className="gap-2">
               <User className="w-4 h-4" />
               <span className="hidden sm:inline">Account</span>
@@ -224,6 +297,10 @@ export default function Profile() {
             <TabsTrigger value="notifications" className="gap-2">
               <Bell className="w-4 h-4" />
               <span className="hidden sm:inline">Notifications</span>
+            </TabsTrigger>
+            <TabsTrigger value="admin" className="gap-2">
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline">Admin</span>
             </TabsTrigger>
           </TabsList>
 
@@ -269,26 +346,53 @@ export default function Profile() {
                         <input
                           type="file"
                           ref={fileInputRef}
-                          onChange={handleAvatarUpload}
+                          onChange={handleFileSelect}
                           accept="image/*"
                           className="hidden"
                         />
-                        <Button
-                          size="icon"
-                          variant="secondary"
-                          className="absolute bottom-0 right-0 rounded-full w-8 h-8"
-                          onClick={() => fileInputRef.current?.click()}
-                          disabled={uploadingAvatar}
-                        >
-                          {uploadingAvatar ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Camera className="w-4 h-4" />
-                          )}
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="secondary"
+                              className="absolute bottom-0 right-0 rounded-full w-8 h-8"
+                              disabled={uploadingAvatar}
+                            >
+                              {uploadingAvatar ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Camera className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
+                              <Camera className="w-4 h-4 mr-2" />
+                              Upload new photo
+                            </DropdownMenuItem>
+                            {profile?.avatar_url && (
+                              <DropdownMenuItem 
+                                onClick={handleRemoveAvatar}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <X className="w-4 h-4 mr-2" />
+                                Remove photo
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                      <p className="text-sm text-muted-foreground">Click the camera icon to upload a new photo</p>
+                      <p className="text-sm text-muted-foreground">Click the camera icon to upload or remove photo</p>
                     </div>
+
+                    {/* Image Cropper */}
+                    <ImageCropper
+                      open={cropperOpen}
+                      onOpenChange={setCropperOpen}
+                      imageSrc={selectedImageSrc}
+                      onCropComplete={handleCropComplete}
+                      aspectRatio={1}
+                    />
 
                     {editingProfile ? (
                       <div className="space-y-4">
@@ -580,13 +684,13 @@ export default function Profile() {
                         <Phone className="w-5 h-5 text-muted-foreground" />
                         <div>
                           <p className="font-medium">SMS Notifications</p>
-                          <p className="text-sm text-muted-foreground">Receive important alerts via SMS</p>
+                          <p className="text-sm text-muted-foreground">Receive important alerts via SMS (requires phone number)</p>
                         </div>
                       </div>
                       <Switch
                         checked={preferences?.sms_notifications ?? false}
                         onCheckedChange={(checked) => handlePreferenceChange('sms_notifications', checked)}
-                        disabled={updatePreferences.isPending}
+                        disabled={updatePreferences.isPending || !profile?.phone}
                       />
                     </div>
 
@@ -618,6 +722,89 @@ export default function Profile() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Admin Tab */}
+          <TabsContent value="admin">
+            <div className="space-y-6">
+              {/* Admin Phone Setting */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Phone className="w-5 h-5" />
+                    Admin Alert Settings
+                  </CardTitle>
+                  <CardDescription>Configure phone number for receiving fraud and system alerts</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-phone">Admin Phone Number</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="admin-phone"
+                        type="tel"
+                        value={adminPhone}
+                        onChange={(e) => setAdminPhone(e.target.value)}
+                        placeholder="+91 98765 43210"
+                        className="flex-1"
+                      />
+                      <Button variant="outline" disabled>
+                        Save
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      This phone number will receive critical fraud alerts and system notifications.
+                      Contact support to update the admin phone number.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* SMS Test */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Send className="w-5 h-5" />
+                    Test SMS Integration
+                  </CardTitle>
+                  <CardDescription>Verify that Twilio SMS is configured correctly</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="test-sms">Send Test SMS To</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="test-sms"
+                        type="tel"
+                        value={testSmsNumber}
+                        onChange={(e) => setTestSmsNumber(e.target.value)}
+                        placeholder="Enter phone number (e.g., 9876543210)"
+                        className="flex-1"
+                      />
+                      <Button 
+                        onClick={handleSendTestSms}
+                        disabled={sendingTestSms || !testSmsNumber}
+                      >
+                        {sendingTestSms ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4 mr-2" />
+                            Send Test
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      A test message will be sent to verify your Twilio configuration is working.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
