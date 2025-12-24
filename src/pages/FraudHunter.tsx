@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useFraudAlerts } from '@/hooks/useFraudAlerts';
 import { useAlertNotifications } from '@/hooks/useAlertNotifications';
-import { SimulationSidebar } from '@/components/simulation/SimulationSidebar';
+
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
 import { useEffect, useRef } from 'react';
@@ -359,8 +359,6 @@ export default function FraudHunter() {
           </div>
         </div>
       </main>
-
-      <SimulationSidebar />
     </div>
   );
 }

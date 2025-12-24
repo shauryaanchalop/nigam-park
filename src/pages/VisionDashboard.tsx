@@ -9,7 +9,7 @@ import { Camera, Wifi, WifiOff, AlertCircle, ChevronLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { SimulationSidebar } from '@/components/simulation/SimulationSidebar';
+
 import logo from '@/assets/logo.png';
 
 export default function VisionDashboard() {
@@ -144,8 +144,6 @@ export default function VisionDashboard() {
           </Card>
         )}
       </main>
-
-      <SimulationSidebar />
     </div>
   );
 }

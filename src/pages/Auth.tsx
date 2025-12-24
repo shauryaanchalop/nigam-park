@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { Shield, Eye, EyeOff, LogIn, UserPlus, User, Play, KeyRound, Mail, ArrowLeft, Lock } from 'lucide-react';
+import { Eye, EyeOff, LogIn, UserPlus, User, KeyRound, Mail, ArrowLeft, Lock } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +23,6 @@ const signupSchema = loginSchema.extend({
   fullName: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
 });
 
-type DemoRole = 'admin' | 'attendant' | 'citizen';
 type AuthView = 'main' | 'forgot-password' | 'reset-sent' | 'update-password';
 
 export default function Auth() {
@@ -31,7 +30,6 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [demoLoading, setDemoLoading] = useState<DemoRole | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [authView, setAuthView] = useState<AuthView>('main');
   
@@ -210,49 +208,6 @@ export default function Auth() {
       toast.success('Account created successfully! You are now logged in as a Citizen.');
     }
   };
-
-  const handleDemoLogin = async (role: DemoRole) => {
-    setDemoLoading(role);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('demo-login', {
-        body: { role },
-      });
-
-      if (error) {
-        console.error('Demo login error:', error);
-        toast.error('Failed to setup demo account. Please try again.');
-        setDemoLoading(null);
-        return;
-      }
-
-      if (data?.email && data?.password) {
-        const { error: signInError } = await signIn(data.email, data.password);
-        
-        if (signInError) {
-          toast.error('Failed to sign in with demo account');
-        } else {
-          const roleLabels = {
-            admin: 'MCD Commissioner',
-            attendant: 'Parking Attendant',
-            citizen: 'Citizen',
-          };
-          toast.success(`Welcome! Logged in as ${roleLabels[role]}`);
-        }
-      }
-    } catch (err) {
-      console.error('Demo login error:', err);
-      toast.error('Demo login failed. Please try again.');
-    } finally {
-      setDemoLoading(null);
-    }
-  };
-
-  const demoButtons = [
-    { role: 'admin' as DemoRole, label: 'Admin Demo', icon: Shield, description: 'Full dashboard access' },
-    { role: 'attendant' as DemoRole, label: 'Attendant Demo', icon: Shield, description: 'POS terminal access' },
-    { role: 'citizen' as DemoRole, label: 'Citizen Demo', icon: User, description: 'Public portal access' },
-  ];
 
   // Forgot Password View
   if (authView === 'forgot-password') {
@@ -447,50 +402,6 @@ export default function Auth() {
       {/* Auth Form */}
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-4">
-          {/* Demo Mode Card */}
-          <Card className="border-accent/50 bg-accent/5">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Play className="w-5 h-5 text-accent" />
-                <CardTitle className="text-lg">Demo Mode</CardTitle>
-              </div>
-              <CardDescription>
-                Try the system instantly with pre-configured accounts
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-2">
-                {demoButtons.map(({ role, label, icon: Icon, description }) => (
-                  <Button
-                    key={role}
-                    variant="outline"
-                    className="h-auto py-2 px-1.5 flex flex-col items-center gap-1 hover:bg-accent/10 hover:border-accent transition-all overflow-hidden"
-                    onClick={() => handleDemoLogin(role)}
-                    disabled={demoLoading !== null}
-                  >
-                    {demoLoading === role ? (
-                      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Icon className="w-4 h-4 text-primary shrink-0" />
-                    )}
-                    <span className="font-semibold text-[10px] sm:text-xs truncate w-full text-center">{label}</span>
-                    <span className="text-[9px] sm:text-[10px] text-muted-foreground text-center leading-tight truncate w-full">{description}</span>
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <Separator />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-            </div>
-          </div>
-
           {/* Main Auth Card */}
           <Card>
             <CardHeader className="text-center">
