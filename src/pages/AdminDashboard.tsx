@@ -19,7 +19,7 @@ import { StatCard } from '@/components/ui/StatCard';
 import { VigilanceFeed } from '@/components/dashboard/VigilanceFeed';
 import { ParkingMap } from '@/components/dashboard/ParkingMap';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
-import { SimulationSidebar } from '@/components/simulation/SimulationSidebar';
+
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTodayStats } from '@/hooks/useTransactions';
 import { useAlerts } from '@/hooks/useAlerts';
@@ -240,8 +240,6 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Simulation Sidebar */}
-      <SimulationSidebar />
     </div>
   );
 }

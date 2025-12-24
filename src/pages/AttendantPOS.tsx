@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { GovHeader } from '@/components/ui/GovHeader';
-import { SimulationSidebar } from '@/components/simulation/SimulationSidebar';
+
 import { QRScannerDialog } from '@/components/attendant/QRScannerDialog';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTransactions, useTodayStats } from '@/hooks/useTransactions';
@@ -324,8 +324,6 @@ export default function AttendantPOS() {
           </CardContent>
         </Card>
       </main>
-
-      <SimulationSidebar />
 
       {/* QR Scanner Dialog */}
       <QRScannerDialog 
