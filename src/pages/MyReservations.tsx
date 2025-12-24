@@ -135,8 +135,12 @@ export default function MyReservations() {
     setQrDialogOpen(true);
   };
 
-  const handleCancel = async (id: string) => {
-    await cancelReservation.mutateAsync(id);
+  const handleCancel = async (reservation: any) => {
+    await cancelReservation.mutateAsync({
+      reservationId: reservation.id,
+      lotName: reservation.parking_lots?.name,
+      date: reservation.reservation_date,
+    });
   };
 
   const generateQRData = (reservation: any) => {
@@ -260,7 +264,7 @@ export default function MyReservations() {
                               <Button 
                                 variant="outline"
                                 className="gap-2 text-destructive hover:text-destructive"
-                                onClick={() => handleCancel(reservation.id)}
+                                onClick={() => handleCancel(reservation)}
                                 disabled={cancelReservation.isPending}
                               >
                                 <X className="w-4 h-4" />

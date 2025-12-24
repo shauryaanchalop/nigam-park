@@ -18,7 +18,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { useReservations } from '@/hooks/useReservations';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSavedVehicles } from '@/hooks/useProfile';
+import { useSavedVehicles, useProfile, useUserPreferences } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 
 interface ParkingLot {
@@ -47,6 +47,8 @@ export function ReservationDialog({ open, onOpenChange, parkingLot }: Reservatio
   const { user } = useAuth();
   const { createReservation } = useReservations();
   const { vehicles, isLoading: vehiclesLoading, addVehicle } = useSavedVehicles();
+  const { profile } = useProfile();
+  const { preferences } = useUserPreferences();
   
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [startTime, setStartTime] = useState('09:00');
@@ -154,6 +156,9 @@ export function ReservationDialog({ open, onOpenChange, parkingLot }: Reservatio
       start_time: startTime,
       end_time: format(endDate, 'HH:mm'),
       amount: estimatedCost,
+      lotName: parkingLot.name,
+      userPhone: profile?.phone || undefined,
+      smsEnabled: preferences?.sms_notifications ?? false,
     });
 
     onOpenChange(false);
