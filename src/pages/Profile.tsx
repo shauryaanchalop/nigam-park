@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { User, Car, Bell, Phone, Mail, Edit2, Plus, Trash2, Star, ArrowLeft, Camera, Loader2, X, Settings, Send, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Car, Bell, Phone, Mail, Edit2, Plus, Trash2, Star, ArrowLeft, Camera, Loader2, X, Settings, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile, useSavedVehicles, useUserPreferences } from '@/hooks/useProfile';
 import { GovHeader } from '@/components/ui/GovHeader';
@@ -85,8 +85,6 @@ export default function Profile() {
 
   // Admin settings state
   const [adminPhone, setAdminPhone] = useState('');
-  const [testSmsNumber, setTestSmsNumber] = useState('');
-  const [sendingTestSms, setSendingTestSms] = useState(false);
 
   // Password change state
   const [passwordForm, setPasswordForm] = useState({
@@ -246,32 +244,6 @@ export default function Profile() {
 
   const handlePreferenceChange = async (key: string, value: boolean | number) => {
     await updatePreferences.mutateAsync({ [key]: value });
-  };
-
-  const handleSendTestSms = async () => {
-    if (!testSmsNumber) {
-      toast.error('Please enter a phone number');
-      return;
-    }
-
-    setSendingTestSms(true);
-    try {
-      const { error } = await supabase.functions.invoke('send-sms', {
-        body: {
-          to: testSmsNumber,
-          message: '✅ NIGAM-Park Test SMS\n\nThis is a test message to verify your Twilio integration is working correctly.\n\nTimestamp: ' + new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
-          type: 'general',
-        },
-      });
-
-      if (error) throw error;
-      toast.success('Test SMS sent successfully!');
-    } catch (error: any) {
-      console.error('Test SMS error:', error);
-      toast.error('Failed to send test SMS', { description: error.message });
-    } finally {
-      setSendingTestSms(false);
-    }
   };
 
   const handleChangePassword = async () => {
@@ -886,51 +858,6 @@ export default function Profile() {
                     <p className="text-xs text-muted-foreground">
                       This phone number will receive critical fraud alerts and system notifications.
                       Contact support to update the admin phone number.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* SMS Test */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Send className="w-5 h-5" />
-                    Test SMS Integration
-                  </CardTitle>
-                  <CardDescription>Verify that Twilio SMS is configured correctly</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="test-sms">Send Test SMS To</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="test-sms"
-                        type="tel"
-                        value={testSmsNumber}
-                        onChange={(e) => setTestSmsNumber(e.target.value)}
-                        placeholder="Enter phone number (e.g., 9876543210)"
-                        className="flex-1"
-                      />
-                      <Button 
-                        onClick={handleSendTestSms}
-                        disabled={sendingTestSms || !testSmsNumber}
-                      >
-                        {sendingTestSms ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            <Send className="w-4 h-4 mr-2" />
-                            Send Test
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      A test message will be sent to verify your Twilio configuration is working.
                     </p>
                   </div>
                 </CardContent>

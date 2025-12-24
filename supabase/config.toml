@@ -11,6 +11,3 @@ verify_jwt = true
 
 [functions.create-transaction]
 verify_jwt = true
-
-[functions.send-sms]
-verify_jwt = false

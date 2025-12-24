@@ -139,8 +139,6 @@ export default function MyReservations() {
   const handleCancel = async (reservation: any) => {
     await cancelReservation.mutateAsync({
       reservationId: reservation.id,
-      lotName: reservation.parking_lots?.name,
-      date: reservation.reservation_date,
     });
   };
 
