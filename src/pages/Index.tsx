@@ -8,9 +8,10 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import logo from '@/assets/logo.png';
 
 export default function Index() {
-  const { user, loading, userRole } = useAuth();
+  const { user, loading, userRole, isSwitchingRole } = useAuth();
 
-  if (loading) {
+  // Show loading state during initial load OR during role switching
+  if (loading || isSwitchingRole) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="absolute top-4 right-4">
@@ -19,7 +20,9 @@ export default function Index() {
         <div className="text-center">
           <img src={logo} alt="NIGAM-Park" className="w-20 h-20 mx-auto mb-4 rounded-full object-cover" />
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full chakra-spinner mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading NIGAM-Park...</p>
+          <p className="text-muted-foreground">
+            {isSwitchingRole ? 'Switching role...' : 'Loading NIGAM-Park...'}
+          </p>
         </div>
       </div>
     );
