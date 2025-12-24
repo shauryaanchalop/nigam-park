@@ -40,7 +40,7 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
   const handleSwitchRole = async (role: DemoRole) => {
     if (role === userRole) return;
     setSwitchLoading(role);
-    setIsSwitchingRole(true);
+    setIsSwitchingRole(true, role);
 
     try {
       // Sign out first

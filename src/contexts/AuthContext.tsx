@@ -17,7 +17,8 @@ interface AuthContextType {
   loading: boolean;
   userRole: AppRole | null;
   isSwitchingRole: boolean;
-  setIsSwitchingRole: (value: boolean) => void;
+  targetRole: AppRole | null;
+  setIsSwitchingRole: (value: boolean, targetRole?: AppRole | null) => void;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -30,7 +31,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<AppRole | null>(null);
-  const [isSwitchingRole, setIsSwitchingRole] = useState(false);
+  const [isSwitchingRole, setIsSwitchingRoleState] = useState(false);
+  const [targetRole, setTargetRole] = useState<AppRole | null>(null);
+
+  const setIsSwitchingRole = (value: boolean, newTargetRole?: AppRole | null) => {
+    setIsSwitchingRoleState(value);
+    setTargetRole(value ? (newTargetRole ?? null) : null);
+  };
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -129,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       userRole,
       isSwitchingRole,
+      targetRole,
       setIsSwitchingRole,
       signIn,
       signUp,

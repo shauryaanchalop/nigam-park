@@ -34,8 +34,8 @@ export default function ParkingHistory() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Only allow citizens to access this page
-  if (userRole !== 'citizen') {
+  // Only allow citizens to access this page (non-admin, non-attendant users)
+  if (userRole === 'admin' || userRole === 'attendant') {
     return <Navigate to="/" replace />;
   }
 
