@@ -35,7 +35,7 @@ export function useFraudAlerts() {
           schema: 'public',
           table: 'fraud_alerts',
         },
-        (payload) => {
+        async (payload) => {
           const newAlert = payload.new as FraudAlert;
           
           // Only show toasts here - sound/browser notifications handled by useFraudAlertsWithNotifications
@@ -45,6 +45,19 @@ export function useFraudAlerts() {
                 description: `${newAlert.location}: ${newAlert.description}`,
                 duration: 10000,
               });
+              
+              // Send SMS for critical alerts
+              try {
+                await supabase.functions.invoke('send-sms', {
+                  body: {
+                    to: process.env.ADMIN_PHONE || '',
+                    message: `🚨 CRITICAL FRAUD ALERT\n\n📍 ${newAlert.location}\n${newAlert.description}\n\nImmediate action required!`,
+                    type: 'alert',
+                  },
+                });
+              } catch (e) {
+                console.error('Failed to send fraud alert SMS:', e);
+              }
             } else if (newAlert.severity === 'HIGH') {
               toast.warning('⚠️ High Priority Alert', {
                 description: `${newAlert.location}: ${newAlert.description}`,
