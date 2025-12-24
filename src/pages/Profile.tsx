@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { User, Car, Bell, Phone, Mail, Edit2, Plus, Trash2, Star, ArrowLeft, Camera, Loader2, X, Settings, Send } from 'lucide-react';
+import { User, Car, Bell, Phone, Mail, Edit2, Plus, Trash2, Star, ArrowLeft, Camera, Loader2, X, Settings, Send, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile, useSavedVehicles, useUserPreferences } from '@/hooks/useProfile';
 import { GovHeader } from '@/components/ui/GovHeader';
@@ -84,6 +84,16 @@ export default function Profile() {
   const [adminPhone, setAdminPhone] = useState('');
   const [testSmsNumber, setTestSmsNumber] = useState('');
   const [sendingTestSms, setSendingTestSms] = useState(false);
+
+  // Password change state
+  const [passwordForm, setPasswordForm] = useState({
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
 
   if (loading) {
     return (
@@ -258,6 +268,44 @@ export default function Profile() {
       toast.error('Failed to send test SMS', { description: error.message });
     } finally {
       setSendingTestSms(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    setPasswordErrors({});
+    
+    // Validate
+    const errors: Record<string, string> = {};
+    if (passwordForm.newPassword.length < 6) {
+      errors.newPassword = 'Password must be at least 6 characters';
+    }
+    if (passwordForm.newPassword.length > 100) {
+      errors.newPassword = 'Password must be less than 100 characters';
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
+    
+    if (Object.keys(errors).length > 0) {
+      setPasswordErrors(errors);
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: passwordForm.newPassword,
+      });
+
+      if (error) throw error;
+
+      toast.success('Password updated successfully');
+      setPasswordForm({ newPassword: '', confirmPassword: '' });
+    } catch (error: any) {
+      console.error('Password change error:', error);
+      toast.error('Failed to update password', { description: error.message });
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -454,6 +502,82 @@ export default function Profile() {
                         </div>
                       </div>
                     )}
+
+                    {/* Password Change Section */}
+                    <div className="pt-6 border-t">
+                      <h3 className="text-lg font-medium flex items-center gap-2 mb-4">
+                        <Lock className="w-5 h-5" />
+                        Change Password
+                      </h3>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="new-password">New Password</Label>
+                          <div className="relative">
+                            <Input
+                              id="new-password"
+                              type={showNewPassword ? 'text' : 'password'}
+                              value={passwordForm.newPassword}
+                              onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                              placeholder="Enter new password"
+                              className={passwordErrors.newPassword ? 'border-destructive pr-10' : 'pr-10'}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                              onClick={() => setShowNewPassword(!showNewPassword)}
+                            >
+                              {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </Button>
+                          </div>
+                          {passwordErrors.newPassword && (
+                            <p className="text-xs text-destructive">{passwordErrors.newPassword}</p>
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="confirm-password">Confirm New Password</Label>
+                          <div className="relative">
+                            <Input
+                              id="confirm-password"
+                              type={showConfirmPassword ? 'text' : 'password'}
+                              value={passwordForm.confirmPassword}
+                              onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                              placeholder="Confirm new password"
+                              className={passwordErrors.confirmPassword ? 'border-destructive pr-10' : 'pr-10'}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                              {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </Button>
+                          </div>
+                          {passwordErrors.confirmPassword && (
+                            <p className="text-xs text-destructive">{passwordErrors.confirmPassword}</p>
+                          )}
+                        </div>
+                        <Button 
+                          onClick={handleChangePassword} 
+                          disabled={changingPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
+                        >
+                          {changingPassword ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Updating...
+                            </>
+                          ) : (
+                            <>
+                              <Lock className="w-4 h-4 mr-2" />
+                              Update Password
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
                   </>
                 )}
               </CardContent>
