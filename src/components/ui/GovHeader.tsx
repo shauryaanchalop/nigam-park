@@ -26,7 +26,7 @@ interface GovHeaderProps {
 type DemoRole = 'admin' | 'attendant' | 'citizen';
 
 export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance & Smart Parking System" }: GovHeaderProps) {
-  const { user, userRole, signOut, signIn } = useAuth();
+  const { user, userRole, signOut, signIn, setIsSwitchingRole } = useAuth();
   const { profile } = useProfile();
   const navigate = useNavigate();
   const [switchLoading, setSwitchLoading] = useState<DemoRole | null>(null);
@@ -40,6 +40,7 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
   const handleSwitchRole = async (role: DemoRole) => {
     if (role === userRole) return;
     setSwitchLoading(role);
+    setIsSwitchingRole(true);
 
     try {
       // Sign out first
@@ -52,6 +53,7 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
 
       if (error || !data?.email || !data?.password) {
         toast.error('Failed to switch role');
+        setIsSwitchingRole(false);
         setSwitchLoading(null);
         return;
       }
@@ -59,12 +61,18 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
       const { error: signInErr } = await signIn(data.email, data.password);
       if (signInErr) {
         toast.error('Sign in failed');
+        setIsSwitchingRole(false);
       } else {
         toast.success(`Switched to ${roleLabels[role]}`);
-        navigate('/');
+        // Small delay to let the auth state settle before clearing switching flag
+        setTimeout(() => {
+          setIsSwitchingRole(false);
+          navigate('/');
+        }, 100);
       }
     } catch {
       toast.error('Failed to switch role');
+      setIsSwitchingRole(false);
     } finally {
       setSwitchLoading(null);
     }
