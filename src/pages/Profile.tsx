@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { User, Car, Bell, Phone, Mail, Edit2, Plus, Trash2, Star, ArrowLeft, Camera, Loader2, X, Settings, Send, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -54,8 +54,11 @@ const vehicleSchema = z.object({
 });
 
 export default function Profile() {
-  const { user, loading } = useAuth();
+  const { user, loading, userRole } = useAuth();
   const navigate = useNavigate();
+  
+  // Check if user is citizen (show vehicles tab only for citizens)
+  const isCitizen = userRole === 'citizen' || !userRole;
   const { profile, isLoading: profileLoading, updateProfile } = useProfile();
   const { vehicles, isLoading: vehiclesLoading, addVehicle, updateVehicle, deleteVehicle } = useSavedVehicles();
   const { preferences, isLoading: preferencesLoading, updatePreferences } = useUserPreferences();
@@ -333,15 +336,17 @@ export default function Profile() {
         </Button>
 
         <Tabs defaultValue="account" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className={`grid w-full ${isCitizen ? 'grid-cols-4' : 'grid-cols-3'}`}>
             <TabsTrigger value="account" className="gap-2">
               <User className="w-4 h-4" />
               <span className="hidden sm:inline">Account</span>
             </TabsTrigger>
-            <TabsTrigger value="vehicles" className="gap-2">
-              <Car className="w-4 h-4" />
-              <span className="hidden sm:inline">Vehicles</span>
-            </TabsTrigger>
+            {isCitizen && (
+              <TabsTrigger value="vehicles" className="gap-2">
+                <Car className="w-4 h-4" />
+                <span className="hidden sm:inline">Vehicles</span>
+              </TabsTrigger>
+            )}
             <TabsTrigger value="notifications" className="gap-2">
               <Bell className="w-4 h-4" />
               <span className="hidden sm:inline">Notifications</span>
@@ -584,175 +589,177 @@ export default function Profile() {
             </Card>
           </TabsContent>
 
-          {/* Vehicles Tab */}
-          <TabsContent value="vehicles">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Car className="w-5 h-5" />
-                      Saved Vehicles
-                    </CardTitle>
-                    <CardDescription>Manage your registered vehicles for quick booking</CardDescription>
-                  </div>
-                  <Dialog open={vehicleDialogOpen} onOpenChange={setVehicleDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button size="sm">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Vehicle
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Add New Vehicle</DialogTitle>
-                        <DialogDescription>
-                          Enter your vehicle details to save it for quick booking
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="vehicle_number">Vehicle Number *</Label>
-                          <Input
-                            id="vehicle_number"
-                            value={vehicleForm.vehicle_number}
-                            onChange={(e) => setVehicleForm({ ...vehicleForm, vehicle_number: e.target.value.toUpperCase() })}
-                            placeholder="DL01AB1234"
-                            className={vehicleErrors.vehicle_number ? 'border-destructive' : ''}
-                          />
-                          {vehicleErrors.vehicle_number && (
-                            <p className="text-xs text-destructive">{vehicleErrors.vehicle_number}</p>
-                          )}
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="vehicle_name">Vehicle Name (Optional)</Label>
-                          <Input
-                            id="vehicle_name"
-                            value={vehicleForm.vehicle_name}
-                            onChange={(e) => setVehicleForm({ ...vehicleForm, vehicle_name: e.target.value })}
-                            placeholder="My Swift, Office Car, etc."
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="vehicle_type">Vehicle Type</Label>
-                          <Select
-                            value={vehicleForm.vehicle_type}
-                            onValueChange={(value) => setVehicleForm({ ...vehicleForm, vehicle_type: value })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="car">🚗 Car</SelectItem>
-                              <SelectItem value="bike">🏍️ Bike</SelectItem>
-                              <SelectItem value="suv">🚙 SUV</SelectItem>
-                              <SelectItem value="truck">🚛 Truck</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            id="is_primary"
-                            checked={vehicleForm.is_primary}
-                            onCheckedChange={(checked) => setVehicleForm({ ...vehicleForm, is_primary: checked })}
-                          />
-                          <Label htmlFor="is_primary">Set as primary vehicle</Label>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setVehicleDialogOpen(false)}>
-                          Cancel
+          {/* Vehicles Tab - Only for Citizens */}
+          {isCitizen && (
+            <TabsContent value="vehicles">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Car className="w-5 h-5" />
+                        Saved Vehicles
+                      </CardTitle>
+                      <CardDescription>Manage your registered vehicles for quick booking</CardDescription>
+                    </div>
+                    <Dialog open={vehicleDialogOpen} onOpenChange={setVehicleDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button size="sm">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Vehicle
                         </Button>
-                        <Button onClick={handleAddVehicle} disabled={addVehicle.isPending}>
-                          {addVehicle.isPending ? 'Adding...' : 'Add Vehicle'}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {vehiclesLoading ? (
-                  <div className="animate-pulse space-y-3">
-                    {[1, 2].map((i) => (
-                      <div key={i} className="h-20 bg-muted rounded-lg" />
-                    ))}
-                  </div>
-                ) : vehicles.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Car className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No vehicles saved yet</p>
-                    <p className="text-sm">Add your vehicles for quick parking reservations</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {vehicles.map((vehicle) => (
-                      <div
-                        key={vehicle.id}
-                        className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="text-2xl">
-                            {vehicle.vehicle_type === 'bike' ? '🏍️' : vehicle.vehicle_type === 'suv' ? '🚙' : vehicle.vehicle_type === 'truck' ? '🚛' : '🚗'}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-mono font-semibold">{vehicle.vehicle_number}</p>
-                              {vehicle.is_primary && (
-                                <Badge variant="secondary" className="text-xs">
-                                  <Star className="w-3 h-3 mr-1 fill-current" />
-                                  Primary
-                                </Badge>
-                              )}
-                            </div>
-                            {vehicle.vehicle_name && (
-                              <p className="text-sm text-muted-foreground">{vehicle.vehicle_name}</p>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Add New Vehicle</DialogTitle>
+                          <DialogDescription>
+                            Enter your vehicle details to save it for quick booking
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="vehicle_number">Vehicle Number *</Label>
+                            <Input
+                              id="vehicle_number"
+                              value={vehicleForm.vehicle_number}
+                              onChange={(e) => setVehicleForm({ ...vehicleForm, vehicle_number: e.target.value.toUpperCase() })}
+                              placeholder="DL01AB1234"
+                              className={vehicleErrors.vehicle_number ? 'border-destructive' : ''}
+                            />
+                            {vehicleErrors.vehicle_number && (
+                              <p className="text-xs text-destructive">{vehicleErrors.vehicle_number}</p>
                             )}
                           </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {!vehicle.is_primary && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleSetPrimary(vehicle.id)}
-                              disabled={updateVehicle.isPending}
+                          <div className="space-y-2">
+                            <Label htmlFor="vehicle_name">Vehicle Name (Optional)</Label>
+                            <Input
+                              id="vehicle_name"
+                              value={vehicleForm.vehicle_name}
+                              onChange={(e) => setVehicleForm({ ...vehicleForm, vehicle_name: e.target.value })}
+                              placeholder="My Swift, Office Car, etc."
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="vehicle_type">Vehicle Type</Label>
+                            <Select
+                              value={vehicleForm.vehicle_type}
+                              onValueChange={(value) => setVehicleForm({ ...vehicleForm, vehicle_type: value })}
                             >
-                              <Star className="w-4 h-4" />
-                            </Button>
-                          )}
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Vehicle?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to remove {vehicle.vehicle_number} from your saved vehicles?
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleDeleteVehicle(vehicle.id)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="car">🚗 Car</SelectItem>
+                                <SelectItem value="bike">🏍️ Bike</SelectItem>
+                                <SelectItem value="suv">🚙 SUV</SelectItem>
+                                <SelectItem value="truck">🚛 Truck</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              id="is_primary"
+                              checked={vehicleForm.is_primary}
+                              onCheckedChange={(checked) => setVehicleForm({ ...vehicleForm, is_primary: checked })}
+                            />
+                            <Label htmlFor="is_primary">Set as primary vehicle</Label>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setVehicleDialogOpen(false)}>
+                            Cancel
+                          </Button>
+                          <Button onClick={handleAddVehicle} disabled={addVehicle.isPending}>
+                            {addVehicle.isPending ? 'Adding...' : 'Add Vehicle'}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                </CardHeader>
+                <CardContent>
+                  {vehiclesLoading ? (
+                    <div className="animate-pulse space-y-3">
+                      {[1, 2].map((i) => (
+                        <div key={i} className="h-20 bg-muted rounded-lg" />
+                      ))}
+                    </div>
+                  ) : vehicles.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Car className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p>No vehicles saved yet</p>
+                      <p className="text-sm">Add your vehicles for quick parking reservations</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {vehicles.map((vehicle) => (
+                        <div
+                          key={vehicle.id}
+                          className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="text-2xl">
+                              {vehicle.vehicle_type === 'bike' ? '🏍️' : vehicle.vehicle_type === 'suv' ? '🚙' : vehicle.vehicle_type === 'truck' ? '🚛' : '🚗'}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-mono font-semibold">{vehicle.vehicle_number}</p>
+                                {vehicle.is_primary && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    <Star className="w-3 h-3 mr-1 fill-current" />
+                                    Primary
+                                  </Badge>
+                                )}
+                              </div>
+                              {vehicle.vehicle_name && (
+                                <p className="text-sm text-muted-foreground">{vehicle.vehicle_name}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {!vehicle.is_primary && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleSetPrimary(vehicle.id)}
+                                disabled={updateVehicle.isPending}
+                              >
+                                <Star className="w-4 h-4" />
+                              </Button>
+                            )}
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Vehicle?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to remove {vehicle.vehicle_number} from your saved vehicles?
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteVehicle(vehicle.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
 
           {/* Notifications Tab */}
           <TabsContent value="notifications">

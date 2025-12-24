@@ -506,17 +506,17 @@ export default function Auth() {
                   <Button
                     key={role}
                     variant="outline"
-                    className="h-auto py-4 px-3 flex flex-col items-center gap-2 hover:bg-accent/10 hover:border-accent transition-all"
+                    className="h-auto py-3 px-2 flex flex-col items-center gap-1.5 hover:bg-accent/10 hover:border-accent transition-all min-w-0"
                     onClick={() => handleDemoLogin(role)}
                     disabled={demoLoading !== null}
                   >
                     {demoLoading === role ? (
-                      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <Icon className="w-6 h-6 text-primary" />
+                      <Icon className="w-5 h-5 text-primary shrink-0" />
                     )}
-                    <span className="font-semibold text-sm whitespace-nowrap">{label}</span>
-                    <span className="text-xs text-muted-foreground text-center leading-tight">{description}</span>
+                    <span className="font-semibold text-xs sm:text-sm truncate max-w-full">{label}</span>
+                    <span className="text-[10px] sm:text-xs text-muted-foreground text-center leading-tight line-clamp-2">{description}</span>
                   </Button>
                 ))}
               </div>
