@@ -113,39 +113,22 @@ export function ParkingMap() {
   }
 
   return (
-    <section className="bg-card rounded-lg border border-border overflow-hidden">
-      <header className="p-4 border-b border-border flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <MapPin className="w-5 h-5 text-primary" />
-          <h2 className="font-semibold text-foreground">Live Parking Map</h2>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <div className="relative">
-              <Wifi className="w-3.5 h-3.5 text-success" />
-              <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-success rounded-full live-indicator" />
-            </div>
-            <span>Live</span>
-          </div>
-          <Badge variant="outline">{lots?.length ?? 0} Lots</Badge>
-        </div>
-      </header>
+    <div className="relative h-full min-h-[300px] bg-muted rounded-lg overflow-hidden">
+      <div ref={mapRef} className="h-full w-full z-0" />
 
-      <div className="relative h-[350px] bg-muted">
-        <div ref={mapRef} className="h-full w-full z-0" />
+      {/* Overlays for realism */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,hsl(var(--background)/0.15)_100%)]" />
 
-        {/* Overlays for realism */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,hsl(var(--background)/0.25)_100%)]" />
-        <div className="pointer-events-none absolute inset-0 opacity-20 mix-blend-multiply bg-[linear-gradient(transparent_0,transparent_2px,hsl(var(--foreground)/0.03)_3px)] bg-[length:100%_6px]" />
-
-        <div className="absolute bottom-3 right-3 bg-card/90 backdrop-blur-sm border border-border rounded-md px-2 py-1 text-[10px] text-muted-foreground font-mono z-[1000]">
-          Updated: {lastUpdate.toLocaleTimeString('en-IN')}
-        </div>
-        <div className="absolute top-3 left-3 bg-card/90 backdrop-blur-sm border border-border rounded-md px-2 py-1 text-[10px] text-muted-foreground font-mono flex items-center gap-2 z-[1000]">
-          <Car className="w-3.5 h-3.5" />
-          LIVE MAP FEED
-        </div>
+      <div className="absolute bottom-2 right-2 bg-card/90 backdrop-blur-sm border border-border rounded-md px-2 py-1 text-[10px] text-muted-foreground font-mono z-[1000]">
+        {lastUpdate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
       </div>
-    </section>
+      <div className="absolute top-2 left-2 bg-card/90 backdrop-blur-sm border border-border rounded-md px-2 py-1 text-[10px] text-muted-foreground font-mono flex items-center gap-1.5 z-[1000]">
+        <div className="relative">
+          <Wifi className="w-3 h-3 text-success" />
+          <div className="absolute -top-0.5 -right-0.5 w-1 h-1 bg-success rounded-full live-indicator" />
+        </div>
+        <span className="hidden sm:inline">LIVE</span>
+      </div>
+    </div>
   );
 }
