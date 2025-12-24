@@ -42,24 +42,46 @@ export default function CitizenPortal() {
     }
   }, []);
 
+  const triggerHapticFeedback = useCallback((type: 'light' | 'medium' | 'success') => {
+    if ('vibrate' in navigator) {
+      switch (type) {
+        case 'light':
+          navigator.vibrate(10);
+          break;
+        case 'medium':
+          navigator.vibrate(20);
+          break;
+        case 'success':
+          navigator.vibrate([30, 50, 30]);
+          break;
+      }
+    }
+  }, []);
+
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (touchStart === null) return;
     const currentTouch = e.touches[0].clientY;
     const distance = currentTouch - touchStart;
     if (distance > 0 && window.scrollY === 0) {
-      setPullDistance(Math.min(distance, 100));
+      const newDistance = Math.min(distance, 100);
+      // Trigger haptic when crossing the threshold
+      if (pullDistance <= 60 && newDistance > 60) {
+        triggerHapticFeedback('medium');
+      }
+      setPullDistance(newDistance);
     }
-  }, [touchStart]);
+  }, [touchStart, pullDistance, triggerHapticFeedback]);
 
   const handleTouchEnd = useCallback(async () => {
     if (pullDistance > 60) {
+      triggerHapticFeedback('success');
       setIsRefreshing(true);
       await refetch();
       setIsRefreshing(false);
     }
     setTouchStart(null);
     setPullDistance(0);
-  }, [pullDistance, refetch]);
+  }, [pullDistance, refetch, triggerHapticFeedback]);
 
   const popularLocations = ['Connaught Place', 'Karol Bagh', 'Lajpat Nagar', 'Sarojini Nagar'];
 
