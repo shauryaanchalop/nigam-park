@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Shield, Eye, EyeOff, LogIn, UserPlus, User, Play, KeyRound, Mail, Phone, ArrowLeft } from 'lucide-react';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -477,12 +478,15 @@ export default function Auth() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-muted/30 to-background">
       {/* Header Banner */}
       <div className="gradient-primary py-4">
-        <div className="container mx-auto px-4 flex items-center justify-center gap-3">
-          <img src={logo} alt="NIGAM-Park Logo" className="w-10 h-10 rounded-full object-cover" />
-          <div className="text-center">
-            <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
-            <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
+        <div className="container mx-auto px-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="NIGAM-Park Logo" className="w-10 h-10 rounded-full object-cover" />
+            <div>
+              <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
+              <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
+            </div>
           </div>
+          <ThemeToggle />
         </div>
       </div>
 
@@ -501,22 +505,22 @@ export default function Auth() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 {demoButtons.map(({ role, label, icon: Icon, description }) => (
                   <Button
                     key={role}
                     variant="outline"
-                    className="h-auto py-3 px-2 flex flex-col items-center gap-1.5 hover:bg-accent/10 hover:border-accent transition-all min-w-0"
+                    className="h-auto py-2 px-1.5 flex flex-col items-center gap-1 hover:bg-accent/10 hover:border-accent transition-all overflow-hidden"
                     onClick={() => handleDemoLogin(role)}
                     disabled={demoLoading !== null}
                   >
                     {demoLoading === role ? (
-                      <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <Icon className="w-5 h-5 text-primary shrink-0" />
+                      <Icon className="w-4 h-4 text-primary shrink-0" />
                     )}
-                    <span className="font-semibold text-xs sm:text-sm truncate max-w-full">{label}</span>
-                    <span className="text-[10px] sm:text-xs text-muted-foreground text-center leading-tight line-clamp-2">{description}</span>
+                    <span className="font-semibold text-[10px] sm:text-xs truncate w-full text-center">{label}</span>
+                    <span className="text-[9px] sm:text-[10px] text-muted-foreground text-center leading-tight truncate w-full">{description}</span>
                   </Button>
                 ))}
               </div>
