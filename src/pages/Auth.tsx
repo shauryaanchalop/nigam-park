@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { Shield, Eye, EyeOff, LogIn, UserPlus, User, Play, KeyRound, Mail, Phone, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Navigate, useSearchParams } from 'react-router-dom';
+import { Shield, Eye, EyeOff, LogIn, UserPlus, User, Play, KeyRound, Mail, Phone, ArrowLeft, Lock } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,15 +25,28 @@ const signupSchema = loginSchema.extend({
 });
 
 type DemoRole = 'admin' | 'attendant' | 'citizen';
-type AuthView = 'main' | 'forgot-password' | 'reset-sent' | 'verify-otp';
+type AuthView = 'main' | 'forgot-password' | 'reset-sent' | 'verify-otp' | 'update-password';
 
 export default function Auth() {
   const { user, loading, signIn, signUp } = useAuth();
+  const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [demoLoading, setDemoLoading] = useState<DemoRole | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [authView, setAuthView] = useState<AuthView>('main');
+  
+  // New password for reset
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  // Check for reset token in URL
+  useEffect(() => {
+    const isReset = searchParams.get('reset') === 'true';
+    if (isReset) {
+      setAuthView('update-password');
+    }
+  }, [searchParams]);
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -93,6 +106,40 @@ export default function Auth() {
       }
     } catch (err) {
       toast.error('Failed to send reset email');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success('Password updated successfully!');
+        setAuthView('main');
+        setNewPassword('');
+        setConfirmPassword('');
+      }
+    } catch (err) {
+      toast.error('Failed to update password');
     } finally {
       setIsSubmitting(false);
     }
@@ -466,6 +513,82 @@ export default function Auth() {
                   Resend
                 </Button>
               </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Update Password View (after clicking reset link)
+  if (authView === 'update-password') {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-muted/30 to-background">
+        <div className="gradient-primary py-4">
+          <div className="container mx-auto px-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="NIGAM-Park Logo" className="w-10 h-10 rounded-full object-cover" />
+              <div>
+                <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
+                <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
+              </div>
+            </div>
+            <ThemeToggle />
+          </div>
+        </div>
+
+        <div className="flex-1 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lock className="w-5 h-5" />
+                Set New Password
+              </CardTitle>
+              <CardDescription>
+                Enter your new password below.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdatePassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">New Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter new password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Confirm Password</Label>
+                  <Input
+                    id="confirm-password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? 'Updating...' : 'Update Password'}
+                </Button>
+              </form>
             </CardContent>
           </Card>
         </div>
