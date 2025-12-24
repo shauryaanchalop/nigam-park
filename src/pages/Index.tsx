@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
+import { useRoleSwitchSound } from '@/hooks/useRoleSwitchSound';
 import AdminDashboard from './AdminDashboard';
 import AttendantPOS from './AttendantPOS';
 import CitizenPortal from './CitizenPortal';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Shield, BadgeCheck, User } from 'lucide-react';
+import { toast } from 'sonner';
 import logo from '@/assets/logo.png';
 
 const roleConfig = {
@@ -34,9 +37,12 @@ const roleConfig = {
 
 export default function Index() {
   const { user, loading, userRole, isSwitchingRole } = useAuth();
+  const { profile } = useProfile();
+  const { playRoleSwitchSound } = useRoleSwitchSound();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [displayedRole, setDisplayedRole] = useState(userRole);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right');
+  const [hasShownWelcome, setHasShownWelcome] = useState(false);
   const prevRoleRef = useRef(userRole);
 
   // Determine slide direction based on role hierarchy
@@ -53,17 +59,39 @@ export default function Index() {
       setSlideDirection(newIndex > prevIndex ? 'right' : 'left');
       setIsTransitioning(true);
       
+      // Play sound effect
+      playRoleSwitchSound();
+      
       const timer = setTimeout(() => {
         setDisplayedRole(userRole);
         prevRoleRef.current = userRole;
         setIsTransitioning(false);
+        
+        // Show welcome message
+        const newRoleConfig = roleConfig[userRole as keyof typeof roleConfig] || roleConfig.citizen;
+        const userName = profile?.full_name?.split(' ')[0] || 'there';
+        toast.success(`Welcome, ${userName}!`, {
+          description: `You're now viewing the ${newRoleConfig.label} dashboard`,
+          duration: 3000,
+        });
       }, 300);
       return () => clearTimeout(timer);
     } else if (!displayedRole && userRole) {
       setDisplayedRole(userRole);
       prevRoleRef.current = userRole;
+      
+      // Show initial welcome on first load (only once)
+      if (!hasShownWelcome && profile?.full_name) {
+        const currentConfig = roleConfig[userRole as keyof typeof roleConfig] || roleConfig.citizen;
+        const userName = profile.full_name.split(' ')[0];
+        toast.success(`Welcome back, ${userName}!`, {
+          description: `${currentConfig.label} dashboard`,
+          duration: 3000,
+        });
+        setHasShownWelcome(true);
+      }
     }
-  }, [userRole, displayedRole, isSwitchingRole, loading]);
+  }, [userRole, displayedRole, isSwitchingRole, loading, playRoleSwitchSound, profile, hasShownWelcome]);
 
   const currentRoleConfig = roleConfig[userRole as keyof typeof roleConfig] || roleConfig.citizen;
   const RoleIcon = currentRoleConfig.icon;
