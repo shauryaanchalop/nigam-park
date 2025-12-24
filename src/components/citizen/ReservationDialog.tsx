@@ -156,9 +156,6 @@ export function ReservationDialog({ open, onOpenChange, parkingLot }: Reservatio
       start_time: startTime,
       end_time: format(endDate, 'HH:mm'),
       amount: estimatedCost,
-      lotName: parkingLot.name,
-      userPhone: profile?.phone || undefined,
-      smsEnabled: preferences?.sms_notifications ?? false,
     });
 
     onOpenChange(false);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { Shield, Eye, EyeOff, LogIn, UserPlus, User, Play, KeyRound, Mail, Phone, ArrowLeft, Lock } from 'lucide-react';
+import { Shield, Eye, EyeOff, LogIn, UserPlus, User, Play, KeyRound, Mail, ArrowLeft, Lock } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -25,7 +24,7 @@ const signupSchema = loginSchema.extend({
 });
 
 type DemoRole = 'admin' | 'attendant' | 'citizen';
-type AuthView = 'main' | 'forgot-password' | 'reset-sent' | 'verify-otp' | 'update-password';
+type AuthView = 'main' | 'forgot-password' | 'reset-sent' | 'update-password';
 
 export default function Auth() {
   const { user, loading, signIn, signUp } = useAuth();
@@ -56,15 +55,9 @@ export default function Auth() {
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupName, setSignupName] = useState('');
-  const [signupPhone, setSignupPhone] = useState('');
 
   // Password reset state
   const [resetEmail, setResetEmail] = useState('');
-
-  // OTP verification state
-  const [otpValue, setOtpValue] = useState('');
-  const [otpType, setOtpType] = useState<'email' | 'phone'>('email');
-  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
@@ -142,96 +135,6 @@ export default function Auth() {
       toast.error('Failed to update password');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleSendEmailOtp = async () => {
-    if (!signupEmail) {
-      toast.error('Please enter your email first');
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: signupEmail,
-        options: {
-          shouldCreateUser: true,
-          data: { full_name: signupName },
-        },
-      });
-
-      if (error) {
-        toast.error(error.message);
-      } else {
-        setOtpType('email');
-        setAuthView('verify-otp');
-        toast.success('Verification code sent to your email!');
-      }
-    } catch (err) {
-      toast.error('Failed to send verification code');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSendPhoneOtp = async () => {
-    if (!signupPhone) {
-      toast.error('Please enter your phone number first');
-      return;
-    }
-
-    // Format phone number for India
-    const formattedPhone = signupPhone.startsWith('+') ? signupPhone : `+91${signupPhone}`;
-
-    setIsSubmitting(true);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-        options: {
-          shouldCreateUser: true,
-          data: { full_name: signupName },
-        },
-      });
-
-      if (error) {
-        toast.error(error.message);
-      } else {
-        setOtpType('phone');
-        setAuthView('verify-otp');
-        toast.success('Verification code sent to your phone!');
-      }
-    } catch (err) {
-      toast.error('Failed to send verification code');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    if (otpValue.length !== 6) {
-      toast.error('Please enter the complete 6-digit code');
-      return;
-    }
-
-    setVerifyingOtp(true);
-    try {
-      const verifyParams = otpType === 'email' 
-        ? { email: signupEmail, token: otpValue, type: 'email' as const }
-        : { phone: signupPhone.startsWith('+') ? signupPhone : `+91${signupPhone}`, token: otpValue, type: 'sms' as const };
-
-      const { error } = await supabase.auth.verifyOtp(verifyParams);
-
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success('Account verified successfully!');
-        setAuthView('main');
-      }
-    } catch (err) {
-      toast.error('Verification failed');
-    } finally {
-      setVerifyingOtp(false);
     }
   };
 
@@ -441,78 +344,6 @@ export default function Auth() {
               <Button variant="outline" className="w-full" onClick={() => setAuthView('main')}>
                 Back to Sign In
               </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  // OTP Verification View
-  if (authView === 'verify-otp') {
-    return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-muted/30 to-background">
-        <div className="gradient-primary py-4">
-          <div className="container mx-auto px-4 flex items-center justify-center gap-3">
-            <img src={logo} alt="NIGAM-Park Logo" className="w-10 h-10 rounded-full object-cover" />
-            <div className="text-center">
-              <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
-              <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex-1 flex items-center justify-center p-4">
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="w-fit -ml-2 mb-2"
-                onClick={() => setAuthView('main')}
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-              <CardTitle className="flex items-center gap-2">
-                {otpType === 'email' ? <Mail className="w-5 h-5" /> : <Phone className="w-5 h-5" />}
-                Verify Your {otpType === 'email' ? 'Email' : 'Phone'}
-              </CardTitle>
-              <CardDescription>
-                Enter the 6-digit code we sent to {otpType === 'email' ? signupEmail : signupPhone}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex justify-center">
-                <InputOTP maxLength={6} value={otpValue} onChange={setOtpValue}>
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
-                  </InputOTPGroup>
-                </InputOTP>
-              </div>
-              <Button 
-                className="w-full" 
-                onClick={handleVerifyOtp}
-                disabled={verifyingOtp || otpValue.length !== 6}
-              >
-                {verifyingOtp ? 'Verifying...' : 'Verify Code'}
-              </Button>
-              <p className="text-center text-sm text-muted-foreground">
-                Didn't receive the code?{' '}
-                <Button 
-                  variant="link" 
-                  className="px-0 h-auto"
-                  onClick={otpType === 'email' ? handleSendEmailOtp : handleSendPhoneOtp}
-                  disabled={isSubmitting}
-                >
-                  Resend
-                </Button>
-              </p>
             </CardContent>
           </Card>
         </div>
@@ -785,52 +616,14 @@ export default function Auth() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="signup-email">Email</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="signup-email"
-                          type="email"
-                          placeholder="you@example.com"
-                          value={signupEmail}
-                          onChange={(e) => setSignupEmail(e.target.value)}
-                          required
-                          className="flex-1"
-                        />
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="sm"
-                          onClick={handleSendEmailOtp}
-                          disabled={isSubmitting || !signupEmail}
-                          className="shrink-0"
-                        >
-                          <Mail className="w-4 h-4 mr-1" />
-                          Verify
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-phone">Phone (Optional)</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="signup-phone"
-                          type="tel"
-                          placeholder="9876543210"
-                          value={signupPhone}
-                          onChange={(e) => setSignupPhone(e.target.value)}
-                          className="flex-1"
-                        />
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="sm"
-                          onClick={handleSendPhoneOtp}
-                          disabled={isSubmitting || !signupPhone}
-                          className="shrink-0"
-                        >
-                          <Phone className="w-4 h-4 mr-1" />
-                          Verify
-                        </Button>
-                      </div>
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={signupEmail}
+                        onChange={(e) => setSignupEmail(e.target.value)}
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="signup-password">Password</Label>

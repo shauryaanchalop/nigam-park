@@ -12,44 +12,6 @@ interface CreateReservationData {
   amount: number;
 }
 
-interface CreateReservationWithSMS extends CreateReservationData {
-  lotName?: string;
-  userPhone?: string;
-  smsEnabled?: boolean;
-}
-
-async function sendReservationSMS(
-  phone: string,
-  lotName: string,
-  date: string,
-  startTime: string,
-  endTime: string,
-  vehicleNumber: string,
-  amount: number
-) {
-  try {
-    const message = `✅ NIGAM-Park Reservation Confirmed!\n\n📍 ${lotName}\n📅 ${date}\n⏰ ${startTime} - ${endTime}\n🚗 ${vehicleNumber}\n💰 ₹${amount}\n\nShow this SMS at entry. Safe travels!`;
-    
-    await supabase.functions.invoke('send-sms', {
-      body: { to: phone, message, type: 'reservation' },
-    });
-  } catch (error) {
-    console.error('Failed to send reservation SMS:', error);
-  }
-}
-
-async function sendCancellationSMS(phone: string, lotName: string, date: string) {
-  try {
-    const message = `❌ NIGAM-Park Reservation Cancelled\n\n📍 ${lotName}\n📅 ${date}\n\nYour reservation has been cancelled. Any applicable refund will be processed within 3-5 business days.`;
-    
-    await supabase.functions.invoke('send-sms', {
-      body: { to: phone, message, type: 'reservation' },
-    });
-  } catch (error) {
-    console.error('Failed to send cancellation SMS:', error);
-  }
-}
-
 export function useReservations() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -88,15 +50,13 @@ export function useReservations() {
   });
 
   const createReservation = useMutation({
-    mutationFn: async (data: CreateReservationWithSMS) => {
+    mutationFn: async (data: CreateReservationData) => {
       if (!user) throw new Error('Must be logged in to create a reservation');
-
-      const { lotName, userPhone, smsEnabled, ...reservationData } = data;
 
       const { data: reservation, error } = await supabase
         .from('reservations')
         .insert({
-          ...reservationData,
+          ...data,
           user_id: user.id,
           status: 'confirmed',
         })
@@ -104,20 +64,6 @@ export function useReservations() {
         .single();
 
       if (error) throw error;
-
-      // Send SMS if enabled and phone available
-      if (smsEnabled && userPhone && lotName) {
-        sendReservationSMS(
-          userPhone,
-          lotName,
-          data.reservation_date,
-          data.start_time,
-          data.end_time,
-          data.vehicle_number,
-          data.amount
-        );
-      }
-
       return reservation;
     },
     onSuccess: () => {
@@ -132,30 +78,13 @@ export function useReservations() {
   });
 
   const cancelReservation = useMutation({
-    mutationFn: async ({ 
-      reservationId, 
-      lotName, 
-      date, 
-      userPhone, 
-      smsEnabled 
-    }: { 
-      reservationId: string; 
-      lotName?: string; 
-      date?: string; 
-      userPhone?: string; 
-      smsEnabled?: boolean;
-    }) => {
+    mutationFn: async ({ reservationId }: { reservationId: string }) => {
       const { error } = await supabase
         .from('reservations')
         .update({ status: 'cancelled' })
         .eq('id', reservationId);
 
       if (error) throw error;
-
-      // Send cancellation SMS if enabled
-      if (smsEnabled && userPhone && lotName && date) {
-        sendCancellationSMS(userPhone, lotName, date);
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reservations'] });
