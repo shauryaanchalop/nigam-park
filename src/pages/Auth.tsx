@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { Eye, EyeOff, LogIn, UserPlus, User, KeyRound, Mail, ArrowLeft, Lock } from 'lucide-react';
+import { Shield, Eye, EyeOff, LogIn, UserPlus, User, Play, KeyRound, Mail, ArrowLeft, Lock } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,7 @@ const signupSchema = loginSchema.extend({
   fullName: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
 });
 
+type DemoRole = 'admin' | 'attendant' | 'citizen';
 type AuthView = 'main' | 'forgot-password' | 'reset-sent' | 'update-password';
 
 export default function Auth() {
@@ -30,6 +31,7 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [demoLoading, setDemoLoading] = useState<DemoRole | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [authView, setAuthView] = useState<AuthView>('main');
   
@@ -208,6 +210,49 @@ export default function Auth() {
       toast.success('Account created successfully! You are now logged in as a Citizen.');
     }
   };
+
+  const handleDemoLogin = async (role: DemoRole) => {
+    setDemoLoading(role);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('demo-login', {
+        body: { role },
+      });
+
+      if (error) {
+        console.error('Demo login error:', error);
+        toast.error('Failed to setup demo account. Please try again.');
+        setDemoLoading(null);
+        return;
+      }
+
+      if (data?.email && data?.password) {
+        const { error: signInError } = await signIn(data.email, data.password);
+        
+        if (signInError) {
+          toast.error('Failed to sign in with demo account');
+        } else {
+          const roleLabels = {
+            admin: 'MCD Commissioner',
+            attendant: 'Parking Attendant',
+            citizen: 'Citizen',
+          };
+          toast.success(`Welcome! Logged in as ${roleLabels[role]}`);
+        }
+      }
+    } catch (err) {
+      console.error('Demo login error:', err);
+      toast.error('Demo login failed. Please try again.');
+    } finally {
+      setDemoLoading(null);
+    }
+  };
+
+  const demoButtons = [
+    { role: 'admin' as DemoRole, label: 'Admin Demo', icon: Shield, description: 'Full dashboard access' },
+    { role: 'attendant' as DemoRole, label: 'Attendant Demo', icon: Shield, description: 'POS terminal access' },
+    { role: 'citizen' as DemoRole, label: 'Citizen Demo', icon: User, description: 'Public portal access' },
+  ];
 
   // Forgot Password View
   if (authView === 'forgot-password') {
@@ -402,6 +447,50 @@ export default function Auth() {
       {/* Auth Form */}
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-4">
+          {/* Demo Mode Card */}
+          <Card className="border-accent/50 bg-accent/5">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Play className="w-5 h-5 text-accent" />
+                <CardTitle className="text-lg">Demo Mode</CardTitle>
+              </div>
+              <CardDescription>
+                Try the system instantly with pre-configured accounts
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-2">
+                {demoButtons.map(({ role, label, icon: Icon, description }) => (
+                  <Button
+                    key={role}
+                    variant="outline"
+                    className="h-auto py-2 px-1.5 flex flex-col items-center gap-1 hover:bg-accent/10 hover:border-accent transition-all overflow-hidden"
+                    onClick={() => handleDemoLogin(role)}
+                    disabled={demoLoading !== null}
+                  >
+                    {demoLoading === role ? (
+                      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Icon className="w-4 h-4 text-primary shrink-0" />
+                    )}
+                    <span className="font-semibold text-[10px] sm:text-xs truncate w-full text-center">{label}</span>
+                    <span className="text-[9px] sm:text-[10px] text-muted-foreground text-center leading-tight truncate w-full">{description}</span>
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <Separator />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
           {/* Main Auth Card */}
           <Card>
             <CardHeader className="text-center">
@@ -411,8 +500,8 @@ export default function Auth() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="login">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
+              <Tabs defaultValue="login" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="login" className="gap-2">
                     <LogIn className="w-4 h-4" />
                     Sign In
@@ -422,9 +511,8 @@ export default function Auth() {
                     Sign Up
                   </TabsTrigger>
                 </TabsList>
-
-                {/* Login Tab */}
-                <TabsContent value="login">
+                
+                <TabsContent value="login" className="mt-4">
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="login-email">Email</Label>
@@ -438,25 +526,12 @@ export default function Auth() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="login-password">Password</Label>
-                        <Button
-                          type="button"
-                          variant="link"
-                          className="px-0 h-auto text-xs"
-                          onClick={() => {
-                            setResetEmail(loginEmail);
-                            setAuthView('forgot-password');
-                          }}
-                        >
-                          Forgot password?
-                        </Button>
-                      </div>
+                      <Label htmlFor="login-password">Password</Label>
                       <div className="relative">
                         <Input
                           id="login-password"
                           type={showPassword ? 'text' : 'password'}
-                          placeholder="••••••••"
+                          placeholder="Enter your password"
                           value={loginPassword}
                           onChange={(e) => setLoginPassword(e.target.value)}
                           required
@@ -464,55 +539,31 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="ghost"
-                          size="icon"
-                          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3"
                           onClick={() => setShowPassword(!showPassword)}
                         >
-                          {showPassword ? (
-                            <EyeOff className="w-4 h-4 text-muted-foreground" />
-                          ) : (
-                            <Eye className="w-4 h-4 text-muted-foreground" />
-                          )}
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </Button>
                       </div>
+                    </div>
+                    <div className="flex justify-end">
+                      <Button 
+                        type="button" 
+                        variant="link" 
+                        className="px-0 text-sm"
+                        onClick={() => setAuthView('forgot-password')}
+                      >
+                        Forgot password?
+                      </Button>
                     </div>
                     <Button type="submit" className="w-full" disabled={isSubmitting}>
                       {isSubmitting ? 'Signing in...' : 'Sign In'}
                     </Button>
-                    
-                    <div className="relative my-4">
-                      <div className="absolute inset-0 flex items-center">
-                        <Separator />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">Or</span>
-                      </div>
-                    </div>
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full gap-2"
-                      onClick={handleGoogleSignIn}
-                      disabled={googleLoading}
-                    >
-                      {googleLoading ? (
-                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24">
-                          <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                          <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                          <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                          <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                        </svg>
-                      )}
-                      Continue with Google
-                    </Button>
                   </form>
                 </TabsContent>
-
-                {/* Signup Tab */}
-                <TabsContent value="signup">
+                
+                <TabsContent value="signup" className="mt-4">
                   <form onSubmit={handleSignup} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="signup-name">Full Name</Label>
@@ -542,61 +593,32 @@ export default function Auth() {
                         <Input
                           id="signup-password"
                           type={showPassword ? 'text' : 'password'}
-                          placeholder="••••••••"
+                          placeholder="Create a password"
                           value={signupPassword}
                           onChange={(e) => setSignupPassword(e.target.value)}
                           required
+                          minLength={6}
                         />
                         <Button
                           type="button"
                           variant="ghost"
-                          size="icon"
-                          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3"
                           onClick={() => setShowPassword(!showPassword)}
                         >
-                          {showPassword ? (
-                            <EyeOff className="w-4 h-4 text-muted-foreground" />
-                          ) : (
-                            <Eye className="w-4 h-4 text-muted-foreground" />
-                          )}
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </Button>
                       </div>
+                      <p className="text-xs text-muted-foreground">
+                        Must be at least 6 characters
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      New users are registered as Citizens. Contact an administrator to request elevated access.
-                    </p>
                     <Button type="submit" className="w-full" disabled={isSubmitting}>
                       {isSubmitting ? 'Creating account...' : 'Create Account'}
                     </Button>
-                    
-                    <div className="relative my-4">
-                      <div className="absolute inset-0 flex items-center">
-                        <Separator />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">Or</span>
-                      </div>
-                    </div>
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full gap-2"
-                      onClick={handleGoogleSignIn}
-                      disabled={googleLoading}
-                    >
-                      {googleLoading ? (
-                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24">
-                          <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                          <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                          <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                          <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                        </svg>
-                      )}
-                      Continue with Google
-                    </Button>
+                    <p className="text-xs text-center text-muted-foreground">
+                      New users are registered as Citizens by default
+                    </p>
                   </form>
                 </TabsContent>
               </Tabs>
