@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   TrendingUp, IndianRupee, Car, Calendar, BarChart3, 
-  ArrowUpRight, ArrowDownRight, Download, ChevronLeft 
+  ArrowUpRight, ArrowDownRight, ChevronLeft 
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
@@ -132,10 +132,6 @@ export default function AdminAnalytics() {
               <TabsTrigger value="monthly">Monthly</TabsTrigger>
             </TabsList>
           </Tabs>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Download className="w-4 h-4" />
-            Export Report
-          </Button>
         </div>
 
         {/* Charts Grid */}
