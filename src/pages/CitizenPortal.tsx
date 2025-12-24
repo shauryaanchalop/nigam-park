@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus } from 'lucide-react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,9 +29,37 @@ export default function CitizenPortal() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLot, setSelectedLot] = useState<ParkingLot | null>(null);
   const [reservationOpen, setReservationOpen] = useState(false);
-  const { data: lots, isLoading } = useParkingLots();
+  const { data: lots, isLoading, refetch, isFetching } = useParkingLots();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [pullDistance, setPullDistance] = useState(0);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      setTouchStart(e.touches[0].clientY);
+    }
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (touchStart === null) return;
+    const currentTouch = e.touches[0].clientY;
+    const distance = currentTouch - touchStart;
+    if (distance > 0 && window.scrollY === 0) {
+      setPullDistance(Math.min(distance, 100));
+    }
+  }, [touchStart]);
+
+  const handleTouchEnd = useCallback(async () => {
+    if (pullDistance > 60) {
+      setIsRefreshing(true);
+      await refetch();
+      setIsRefreshing(false);
+    }
+    setTouchStart(null);
+    setPullDistance(0);
+  }, [pullDistance, refetch]);
 
   const popularLocations = ['Connaught Place', 'Karol Bagh', 'Lajpat Nagar', 'Sarojini Nagar'];
 
@@ -75,7 +103,31 @@ export default function CitizenPortal() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div 
+      className="min-h-screen bg-background"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Pull to Refresh Indicator */}
+      <div 
+        className="flex items-center justify-center overflow-hidden transition-all duration-200"
+        style={{ height: pullDistance > 0 ? pullDistance : 0 }}
+      >
+        <RefreshCw 
+          className={cn(
+            "w-6 h-6 text-primary transition-transform",
+            (isRefreshing || isFetching) && "animate-spin",
+            pullDistance > 60 && "text-success"
+          )} 
+        />
+        {pullDistance > 0 && (
+          <span className="ml-2 text-sm text-muted-foreground">
+            {pullDistance > 60 ? 'Release to refresh' : 'Pull to refresh'}
+          </span>
+        )}
+      </div>
+
       <GovHeader 
         title="NIGAM-Park" 
         subtitle="Find Parking in Delhi"
