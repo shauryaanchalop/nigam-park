@@ -36,7 +36,7 @@ const roleConfig = {
 };
 
 export default function Index() {
-  const { user, loading, userRole, isSwitchingRole } = useAuth();
+  const { user, loading, userRole, isSwitchingRole, targetRole } = useAuth();
   const { profile } = useProfile();
   const { playRoleSwitchSound } = useRoleSwitchSound();
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -93,8 +93,12 @@ export default function Index() {
     }
   }, [userRole, displayedRole, isSwitchingRole, loading, playRoleSwitchSound, profile, hasShownWelcome]);
 
+  // Use target role during switching, otherwise current role
+  const displayRoleForLoading = isSwitchingRole && targetRole ? targetRole : userRole;
+  const loadingRoleConfig = roleConfig[displayRoleForLoading as keyof typeof roleConfig] || roleConfig.citizen;
+  const LoadingRoleIcon = loadingRoleConfig.icon;
+
   const currentRoleConfig = roleConfig[userRole as keyof typeof roleConfig] || roleConfig.citizen;
-  const RoleIcon = currentRoleConfig.icon;
 
   // Show loading state during initial load OR during role switching
   if (loading || isSwitchingRole) {
@@ -108,7 +112,7 @@ export default function Index() {
         <div 
           className="absolute inset-0 opacity-20 transition-colors duration-500"
           style={{ 
-            background: `radial-gradient(circle at center, ${currentRoleConfig.color} 0%, transparent 70%)` 
+            background: `radial-gradient(circle at center, ${loadingRoleConfig.color} 0%, transparent 70%)` 
           }}
         />
         
@@ -121,17 +125,17 @@ export default function Index() {
             />
             {/* Role icon badge */}
             <div 
-              className={`absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentRoleConfig.bgColor} ${currentRoleConfig.borderColor}`}
+              className={`absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center border-2 ${loadingRoleConfig.bgColor} ${loadingRoleConfig.borderColor}`}
               style={{ 
                 animation: 'pulse 1.5s ease-in-out infinite',
               }}
             >
-              <RoleIcon className="w-4 h-4" style={{ color: currentRoleConfig.color }} />
+              <LoadingRoleIcon className="w-4 h-4" style={{ color: loadingRoleConfig.color }} />
             </div>
           </div>
           
           <div className="w-12 h-12 border-4 border-t-transparent rounded-full chakra-spinner mx-auto mb-4"
-            style={{ borderColor: `${currentRoleConfig.color} transparent ${currentRoleConfig.color} ${currentRoleConfig.color}` }}
+            style={{ borderColor: `${loadingRoleConfig.color} transparent ${loadingRoleConfig.color} ${loadingRoleConfig.color}` }}
           />
           
           <p className="text-muted-foreground">
@@ -140,9 +144,9 @@ export default function Index() {
                 <span>Switching to</span>
                 <span 
                   className="font-semibold"
-                  style={{ color: currentRoleConfig.color }}
+                  style={{ color: loadingRoleConfig.color }}
                 >
-                  {currentRoleConfig.label}
+                  {loadingRoleConfig.label}
                 </span>
               </span>
             ) : (
