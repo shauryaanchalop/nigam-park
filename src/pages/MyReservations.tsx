@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { ReservationSkeleton } from '@/components/ui/ParkingLotSkeleton';
 import { useReservations } from '@/hooks/useReservations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -158,15 +159,15 @@ export default function MyReservations() {
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <GovHeader title="My Reservations" subtitle="Loading..." />
+        <GovHeader title="My Reservations" subtitle="Loading your bookings..." />
         <main className="container mx-auto px-4 py-6 max-w-4xl">
+          <div className="flex items-center justify-between mb-4">
+            <div className="h-10 w-40 bg-muted rounded animate-pulse" />
+            <div className="h-10 w-32 bg-muted rounded animate-pulse" />
+          </div>
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <Card key={i} className="animate-pulse">
-                <CardContent className="p-6">
-                  <div className="h-24 bg-muted rounded"></div>
-                </CardContent>
-              </Card>
+              <ReservationSkeleton key={i} />
             ))}
           </div>
         </main>
