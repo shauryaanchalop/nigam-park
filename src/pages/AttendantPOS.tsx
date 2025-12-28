@@ -407,6 +407,18 @@ export default function AttendantPOS() {
 
         {/* Action Buttons */}
         <div className="space-y-4">
+          {/* Mobile Check-in Mode */}
+          <Button 
+            className="w-full h-14 text-base gap-3" 
+            variant="outline"
+            asChild
+          >
+            <a href="/attendant/checkin">
+              <QrCode className="w-5 h-5" />
+              Open Mobile Check-in Mode
+            </a>
+          </Button>
+
           {/* Scan Reservation QR */}
           <Button 
             className="w-full h-16 text-lg gap-3 bg-success hover:bg-success/90 text-success-foreground" 

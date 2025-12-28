@@ -49,6 +49,7 @@ export default function AdminDashboard() {
   const quickActions = [
     { label: 'Vision AI', icon: Eye, href: '/vision-dashboard', color: 'primary' },
     { label: 'Fraud Hunter', icon: AlertTriangle, href: '/fraud-hunter', color: 'destructive' },
+    { label: 'Violations', icon: AlertTriangle, href: '/admin/violations', color: 'warning' },
     { label: 'Fines', icon: Receipt, href: '/admin/fines', color: 'warning' },
     { label: 'Analytics', icon: BarChart3, href: '/admin/analytics', color: 'accent' },
     { label: 'Realtime', icon: Radio, href: '/admin/realtime', color: 'primary' },

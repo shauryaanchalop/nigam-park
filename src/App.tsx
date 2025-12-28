@@ -26,6 +26,8 @@ import NotificationPreferences from "./pages/NotificationPreferences";
 import RealTimeAnalytics from "./pages/RealTimeAnalytics";
 import ReportViolation from "./pages/ReportViolation";
 import LotDetails from "./pages/LotDetails";
+import AdminViolations from "./pages/AdminViolations";
+import AttendantCheckIn from "./pages/AttendantCheckIn";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +60,8 @@ const App = () => (
               <Route path="/admin/realtime" element={<RealTimeAnalytics />} />
               <Route path="/report-violation" element={<ReportViolation />} />
               <Route path="/lot/:lotId" element={<LotDetails />} />
+              <Route path="/admin/violations" element={<AdminViolations />} />
+              <Route path="/attendant/checkin" element={<AttendantCheckIn />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
