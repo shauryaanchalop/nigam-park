@@ -15,6 +15,7 @@ import {
   Shield,
   Receipt,
   Radio,
+  Zap,
 } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { StatCard } from '@/components/ui/StatCard';
@@ -51,6 +52,7 @@ export default function AdminDashboard() {
     { label: 'Fraud Hunter', icon: AlertTriangle, href: '/fraud-hunter', color: 'destructive' },
     { label: 'Violations', icon: AlertTriangle, href: '/admin/violations', color: 'warning' },
     { label: 'Fines', icon: Receipt, href: '/admin/fines', color: 'warning' },
+    { label: 'Surge Pricing', icon: Zap, href: '/admin/surge-pricing', color: 'warning' },
     { label: 'Analytics', icon: BarChart3, href: '/admin/analytics', color: 'accent' },
     { label: 'Realtime', icon: Radio, href: '/admin/realtime', color: 'primary' },
     { label: 'Manage Lots', icon: MapPinned, href: '/admin/parking-lots', color: 'success' },
