@@ -23,6 +23,7 @@ import LiveParkingMap from "./pages/LiveParkingMap";
 import KioskMode from "./pages/KioskMode";
 import AttendantPerformance from "./pages/AttendantPerformance";
 import NotificationPreferences from "./pages/NotificationPreferences";
+import RealTimeAnalytics from "./pages/RealTimeAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/kiosk" element={<KioskMode />} />
               <Route path="/attendant/performance" element={<AttendantPerformance />} />
               <Route path="/notifications" element={<NotificationPreferences />} />
+              <Route path="/admin/realtime" element={<RealTimeAnalytics />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

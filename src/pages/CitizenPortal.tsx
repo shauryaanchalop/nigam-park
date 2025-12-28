@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History } from 'lucide-react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -182,6 +182,12 @@ export default function CitizenPortal() {
             <Link to="/my-reservations">
               <History className="w-4 h-4 mr-2" />
               My Reservations
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/notifications">
+              <Bell className="w-4 h-4 mr-2" />
+              Alerts Settings
             </Link>
           </Button>
         </div>

@@ -737,11 +737,18 @@ export default function Profile() {
           <TabsContent value="notifications">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="w-5 h-5" />
-                  Notification Preferences
-                </CardTitle>
-                <CardDescription>Choose how you want to receive updates and reminders</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Bell className="w-5 h-5" />
+                      Notification Preferences
+                    </CardTitle>
+                    <CardDescription>Choose how you want to receive updates and reminders</CardDescription>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => navigate('/notifications')}>
+                    Advanced Settings
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {preferencesLoading ? (

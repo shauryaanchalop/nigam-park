@@ -13,7 +13,8 @@ import {
   TrendingUp,
   Clock,
   Shield,
-  Receipt
+  Receipt,
+  Radio,
 } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { StatCard } from '@/components/ui/StatCard';
@@ -22,6 +23,7 @@ import { ParkingMap } from '@/components/dashboard/ParkingMap';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { RealTimeOccupancyWidget } from '@/components/dashboard/RealTimeOccupancyWidget';
 import { RevenueTargetWidget } from '@/components/admin/RevenueTargetWidget';
+import { AdminBroadcastPanel } from '@/components/admin/AdminBroadcastPanel';
 
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTodayStats } from '@/hooks/useTransactions';
@@ -49,6 +51,7 @@ export default function AdminDashboard() {
     { label: 'Fraud Hunter', icon: AlertTriangle, href: '/fraud-hunter', color: 'destructive' },
     { label: 'Fines', icon: Receipt, href: '/admin/fines', color: 'warning' },
     { label: 'Analytics', icon: BarChart3, href: '/admin/analytics', color: 'accent' },
+    { label: 'Realtime', icon: Radio, href: '/admin/realtime', color: 'primary' },
     { label: 'Manage Lots', icon: MapPinned, href: '/admin/parking-lots', color: 'success' },
     { label: 'Users', icon: Users, href: '/admin/users', color: 'primary' },
     { label: 'Shifts', icon: Clock, href: '/admin/shifts', color: 'primary' },
@@ -222,20 +225,28 @@ export default function AdminDashboard() {
         {/* Revenue Target Widget */}
         <RevenueTargetWidget />
 
-        {/* Revenue Chart Section */}
-        <Card className="overflow-hidden border-border/50 hover:border-primary/20 transition-colors">
-          <CardHeader className="pb-2 sm:pb-4">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <div className="p-1.5 sm:p-2 rounded-lg bg-success/10">
-                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
-              </div>
-              Revenue Analytics
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-2 sm:p-6">
-            <RevenueChart />
-          </CardContent>
-        </Card>
+        {/* Broadcast + Revenue Chart Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Broadcast Panel */}
+          <div className="lg:col-span-1">
+            <AdminBroadcastPanel />
+          </div>
+
+          {/* Revenue Chart Section */}
+          <Card className="lg:col-span-2 overflow-hidden border-border/50 hover:border-primary/20 transition-colors">
+            <CardHeader className="pb-2 sm:pb-4">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <div className="p-1.5 sm:p-2 rounded-lg bg-success/10">
+                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
+                </div>
+                Revenue Analytics
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-2 sm:p-6">
+              <RevenueChart />
+            </CardContent>
+          </Card>
+        </div>
       </main>
     </div>
   );
