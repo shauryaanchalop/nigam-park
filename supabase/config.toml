@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.send-violation-notification]
 verify_jwt = true
+
+[functions.parking-assistant]
+verify_jwt = false
+
+[functions.send-review-reply-notification]
+verify_jwt = true

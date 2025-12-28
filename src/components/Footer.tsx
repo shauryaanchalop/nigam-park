@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, ExternalLink } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useLanguage } from '@/contexts/LanguageContext';
+import logo from '@/assets/logo.png';
 
 export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   function Footer(props, ref) {
@@ -41,29 +42,31 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
 
     return (
       <footer ref={ref} className="bg-muted/50 border-t mt-auto" {...props}>
-        <div className="container py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+        <div className="container py-8 md:py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 md:gap-8">
             {/* Brand */}
             <div className="col-span-2 md:col-span-4 lg:col-span-1">
-              <Link to="/" className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">NP</span>
-                </div>
+              <Link to="/" className="flex items-center gap-3 mb-4">
+                <img 
+                  src={logo} 
+                  alt="NIGAM-Park Logo" 
+                  className="w-10 h-10 rounded-full object-cover border-2 border-primary/20" 
+                />
                 <span className="font-bold text-lg">{isHindi ? 'निगम-पार्क' : 'NIGAM-Park'}</span>
               </Link>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
                 {isHindi 
                   ? 'दिल्ली नगर निगम का आधिकारिक स्मार्ट पार्किंग सिस्टम। रियल-टाइम में पार्किंग खोजें, बुक करें और भुगतान करें।'
                   : 'Official smart parking system by Municipal Corporation of Delhi. Find, book, and pay for parking in real-time.'}
               </p>
               <div className="flex flex-col gap-2 text-sm text-muted-foreground">
                 <a href="tel:1800XXXXXXX" className="flex items-center gap-2 hover:text-foreground transition-colors">
-                  <Phone className="h-4 w-4" />
-                  1800-XXX-XXXX ({isHindi ? 'टोल फ्री' : 'Toll Free'})
+                  <Phone className="h-4 w-4 flex-shrink-0" />
+                  <span>1800-XXX-XXXX ({isHindi ? 'टोल फ्री' : 'Toll Free'})</span>
                 </a>
                 <a href="mailto:support@nigampark.in" className="flex items-center gap-2 hover:text-foreground transition-colors">
-                  <Mail className="h-4 w-4" />
-                  support@nigampark.in
+                  <Mail className="h-4 w-4 flex-shrink-0" />
+                  <span>support@nigampark.in</span>
                 </a>
               </div>
             </div>

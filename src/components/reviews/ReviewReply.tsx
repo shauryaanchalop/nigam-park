@@ -20,14 +20,34 @@ interface ReviewReplyProps {
   replies: Reply[];
   onReplyAdded: () => void;
   canReply: boolean;
+  lotName?: string;
 }
 
-export function ReviewReply({ reviewId, replies, onReplyAdded, canReply }: ReviewReplyProps) {
+export function ReviewReply({ reviewId, replies, onReplyAdded, canReply, lotName }: ReviewReplyProps) {
   const { user } = useAuth();
   const [isReplying, setIsReplying] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const sendNotification = async (replyText: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('send-review-reply-notification', {
+        body: { 
+          review_id: reviewId, 
+          reply_text: replyText,
+          lot_name: lotName || 'Parking Lot'
+        }
+      });
+      if (error) {
+        console.warn('Failed to send notification:', error);
+      } else {
+        console.log('Notification sent successfully');
+      }
+    } catch (err) {
+      console.warn('Notification error:', err);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!replyText.trim() || !user) return;
@@ -49,6 +69,9 @@ export function ReviewReply({ reviewId, replies, onReplyAdded, canReply }: Revie
         
         if (error) throw error;
         toast.success('Reply added');
+        
+        // Send email notification for new replies
+        await sendNotification(replyText);
       }
       
       setReplyText('');
