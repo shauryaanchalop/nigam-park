@@ -738,6 +738,7 @@ export type Database = {
           id: string
           is_verified: boolean
           lot_id: string
+          photo_url: string | null
           rating: number
           review_text: string | null
           updated_at: string
@@ -749,6 +750,7 @@ export type Database = {
           id?: string
           is_verified?: boolean
           lot_id: string
+          photo_url?: string | null
           rating: number
           review_text?: string | null
           updated_at?: string
@@ -760,6 +762,7 @@ export type Database = {
           id?: string
           is_verified?: boolean
           lot_id?: string
+          photo_url?: string | null
           rating?: number
           review_text?: string | null
           updated_at?: string
@@ -978,6 +981,35 @@ export type Database = {
             columns: ["lot_id"]
             isOneToOne: false
             referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_helpful_votes: {
+        Row: {
+          created_at: string
+          id: string
+          review_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          review_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          review_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_helpful_votes_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "parking_reviews"
             referencedColumns: ["id"]
           },
         ]
