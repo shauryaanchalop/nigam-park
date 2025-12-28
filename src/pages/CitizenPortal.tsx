@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users, Building2, Star } from 'lucide-react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users, Building2, Star, TrendingUp } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { useSurgePricing, calculateSurgePrice } from '@/hooks/useSurgePricing';
+import { SurgePricingBadge } from '@/components/SurgePricingBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +46,7 @@ export default function CitizenPortal() {
   const [selectedLot, setSelectedLot] = useState<ParkingLot | null>(null);
   const [reservationOpen, setReservationOpen] = useState(false);
   const { data: lots, isLoading, refetch, isFetching } = useParkingLots();
+  const { data: surgePricingRules } = useSurgePricing();
   const { user } = useAuth();
   const { isHindi, t } = useLanguage();
   const navigate = useNavigate();
@@ -384,6 +387,13 @@ export default function CitizenPortal() {
             {filteredLots?.map(lot => {
               const status = getAvailabilityStatus(lot.current_occupancy, lot.capacity);
               const travelTime = travelTimes[lot.id];
+              const surgeInfo = calculateSurgePrice(
+                lot.hourly_rate,
+                lot.current_occupancy,
+                lot.capacity,
+                surgePricingRules,
+                lot.id
+              );
               
               return (
                 <Card key={lot.id} className="data-card overflow-hidden">
@@ -456,11 +466,24 @@ export default function CitizenPortal() {
                           </div>
                           <div className="flex items-center gap-1 text-sm">
                             <IndianRupee className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-muted-foreground">
-                              ₹{lot.hourly_rate}/{isHindi ? 'घंटा' : 'hr'}
-                            </span>
+                            {surgeInfo.isSurge ? (
+                              <span className="flex items-center gap-1">
+                                <span className="text-muted-foreground line-through text-xs">₹{lot.hourly_rate}</span>
+                                <span className="text-warning font-medium">₹{surgeInfo.price}/{isHindi ? 'घंटा' : 'hr'}</span>
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">
+                                ₹{lot.hourly_rate}/{isHindi ? 'घंटा' : 'hr'}
+                              </span>
+                            )}
                           </div>
                         </div>
+                        <SurgePricingBadge 
+                          multiplier={surgeInfo.multiplier}
+                          isSurge={surgeInfo.isSurge}
+                          originalPrice={lot.hourly_rate}
+                          surgePrice={surgeInfo.price}
+                        />
                       </div>
 
                       {/* Travel Time Display */}

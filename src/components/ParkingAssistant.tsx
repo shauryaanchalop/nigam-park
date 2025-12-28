@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageCircle, X, Send, Bot, User, Loader2, Mic, MicOff } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, User, Loader2, Mic, MicOff, Shield, Briefcase, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -45,7 +46,8 @@ export function ParkingAssistant() {
   const [isListening, setIsListening] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
+  const { userRole } = useAuth();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -107,7 +109,10 @@ export function ParkingAssistant() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ 
+          messages: [...messages, userMessage],
+          userRole: userRole || 'citizen'
+        }),
       });
 
       if (!response.ok) {
@@ -172,7 +177,7 @@ export function ParkingAssistant() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, messages, isLoading, language]);
+  }, [input, messages, isLoading, language, userRole]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -181,9 +186,39 @@ export function ParkingAssistant() {
     }
   };
 
-  const welcomeMessage = language === 'hi' 
-    ? 'नमस्ते! मैं NIGAM-Park AI सहायक हूं। पार्किंग खोजने, बुकिंग, या किसी भी सवाल में मैं आपकी मदद कर सकता हूं।'
-    : "Hello! I'm NIGAM-Park AI Assistant. I can help you find parking, make bookings, or answer any questions.";
+  const getRoleInfo = () => {
+    switch (userRole) {
+      case 'admin':
+        return {
+          icon: <Shield className="w-4 h-4" />,
+          label: language === 'hi' ? 'व्यवस्थापक सहायक' : 'Admin Assistant',
+          color: 'bg-destructive',
+          welcome: language === 'hi'
+            ? 'नमस्ते व्यवस्थापक! मैं राजस्व विश्लेषण, स्टाफ प्रबंधन, और सिस्टम कॉन्फ़िगरेशन में आपकी मदद कर सकता हूं।'
+            : "Hello Admin! I can help you with revenue analytics, staff management, and system configuration."
+        };
+      case 'attendant':
+        return {
+          icon: <Briefcase className="w-4 h-4" />,
+          label: language === 'hi' ? 'परिचारक सहायक' : 'Attendant Assistant',
+          color: 'bg-warning',
+          welcome: language === 'hi'
+            ? 'नमस्ते! मैं चेक-इन/आउट, भुगतान, और शिफ्ट संबंधी प्रश्नों में आपकी मदद कर सकता हूं।'
+            : "Hello! I can help you with check-in/out procedures, payments, and shift-related questions."
+        };
+      default:
+        return {
+          icon: <UserCircle className="w-4 h-4" />,
+          label: language === 'hi' ? 'NIGAM-Park सहायक' : 'NIGAM-Park Assistant',
+          color: 'bg-primary',
+          welcome: language === 'hi'
+            ? 'नमस्ते! मैं NIGAM-Park AI सहायक हूं। पार्किंग खोजने, बुकिंग, या किसी भी सवाल में मैं आपकी मदद कर सकता हूं।'
+            : "Hello! I'm NIGAM-Park AI Assistant. I can help you find parking, make bookings, or answer any questions."
+        };
+    }
+  };
+
+  const roleInfo = getRoleInfo();
 
   return (
     <>
@@ -202,10 +237,13 @@ export function ParkingAssistant() {
       {/* Chat Window */}
       {isOpen && (
         <Card className="fixed bottom-36 right-4 md:bottom-24 md:right-6 z-50 w-[calc(100vw-2rem)] max-w-md shadow-2xl">
-          <CardHeader className="pb-3 bg-primary text-primary-foreground rounded-t-lg">
+          <CardHeader className={cn("pb-3 text-primary-foreground rounded-t-lg", roleInfo.color)}>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Bot className="h-5 w-5" />
-              {language === 'hi' ? 'NIGAM-Park सहायक' : 'NIGAM-Park Assistant'}
+              {roleInfo.label}
+              <span className="ml-auto flex items-center gap-1 text-xs opacity-80">
+                {roleInfo.icon}
+              </span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -213,7 +251,7 @@ export function ParkingAssistant() {
               {messages.length === 0 && (
                 <div className="text-center text-muted-foreground py-4">
                   <Bot className="h-12 w-12 mx-auto mb-2 text-primary/50" />
-                  <p className="text-sm">{welcomeMessage}</p>
+                  <p className="text-sm">{roleInfo.welcome}</p>
                 </div>
               )}
               <div className="space-y-4">
