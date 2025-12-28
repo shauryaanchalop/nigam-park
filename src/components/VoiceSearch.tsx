@@ -11,7 +11,7 @@ interface VoiceSearchProps {
 }
 
 export function VoiceSearch({ onResult, className }: VoiceSearchProps) {
-  const { isHindi, language } = useLanguage();
+  const { isHindi, language, t } = useLanguage();
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isSupported, setIsSupported] = useState(true);
@@ -58,9 +58,9 @@ export function VoiceSearch({ onResult, className }: VoiceSearchProps) {
       setIsListening(false);
       
       if (event.error === 'not-allowed') {
-        toast.error(isHindi ? 'माइक्रोफोन की अनुमति नहीं है' : 'Microphone permission denied');
+        toast.error(t('voice.permissionDenied'));
       } else if (event.error !== 'aborted') {
-        toast.error(isHindi ? 'आवाज़ पहचान में त्रुटि' : 'Voice recognition error');
+        toast.error(t('voice.error'));
       }
     };
 
@@ -95,16 +95,12 @@ export function VoiceSearch({ onResult, className }: VoiceSearchProps) {
       setTranscript('');
       recognitionRef.current.start();
       setIsListening(true);
-      toast.info(
-        isHindi 
-          ? 'बोलना शुरू करें... उदाहरण: "इंडिया गेट के पास पार्किंग खोजें"' 
-          : 'Start speaking... e.g., "Find parking near India Gate"'
-      );
+      toast.info(t('voice.speakNow'));
     } catch (error) {
       console.error('Failed to start recognition:', error);
-      toast.error(isHindi ? 'माइक्रोफोन शुरू नहीं हुआ' : 'Failed to start microphone');
+      toast.error(t('voice.micFailed'));
     }
-  }, [isHindi]);
+  }, [t]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
@@ -124,7 +120,7 @@ export function VoiceSearch({ onResult, className }: VoiceSearchProps) {
         size="icon"
         className={cn("opacity-50 cursor-not-allowed", className)}
         disabled
-        title={isHindi ? 'आवाज़ खोज उपलब्ध नहीं है' : 'Voice search not available'}
+        title={t('voice.notSupported')}
       >
         <MicOff className="h-4 w-4" />
       </Button>
@@ -142,7 +138,7 @@ export function VoiceSearch({ onResult, className }: VoiceSearchProps) {
           className
         )}
         onClick={isListening ? stopListening : startListening}
-        title={isHindi ? (isListening ? 'रोकें' : 'आवाज़ से खोजें') : (isListening ? 'Stop' : 'Voice search')}
+        title={isListening ? t('voice.stop') : t('voice.search')}
       >
         {isListening ? (
           <div className="relative">
@@ -169,7 +165,7 @@ export function VoiceSearch({ onResult, className }: VoiceSearchProps) {
                 <span className="w-1 h-5 bg-primary rounded animate-pulse" style={{ animationDelay: '450ms' }}></span>
               </div>
               <span className="text-xs text-muted-foreground flex-1">
-                {isHindi ? 'सुन रहा हूँ...' : 'Listening...'}
+                {t('voice.listening')}
               </span>
               <Button
                 variant="ghost"

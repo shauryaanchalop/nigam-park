@@ -67,6 +67,13 @@ const translations: Translations = {
   'parking.moderateTraffic': { en: 'moderate traffic', hi: 'मध्यम ट्रैफ़िक' },
   'parking.heavyTraffic': { en: 'heavy traffic', hi: 'भारी ट्रैफ़िक' },
   'parking.min': { en: 'min', hi: 'मिनट' },
+  'parking.evCharging': { en: 'EV Charging', hi: 'EV चार्जिंग' },
+  'parking.covered': { en: 'Covered', hi: 'ढकी पार्किंग' },
+  'parking.nearMetro': { en: 'Near Metro', hi: 'मेट्रो के पास' },
+  'parking.monthlyPass': { en: 'Monthly Pass', hi: 'मासिक पास' },
+  'parking.referral': { en: 'Referral', hi: 'रेफरल' },
+  'parking.parkingTips': { en: 'Parking Tips', hi: 'पार्किंग टिप्स' },
+  'parking.findByArea': { en: 'Find parking by area:', hi: 'क्षेत्र के अनुसार पार्किंग खोजें:' },
 
   // Admin
   'admin.dashboard': { en: 'Command Center', hi: 'कमांड सेंटर' },
@@ -110,11 +117,86 @@ const translations: Translations = {
   'aqi.description': { en: 'Efficient parking reduces vehicle idling and helps improve Delhi\'s air quality', hi: 'कुशल पार्किंग वाहनों के इंतजार को कम करती है और दिल्ली की वायु गुणवत्ता में सुधार करती है' },
   'aqi.current': { en: 'Current AQI', hi: 'वर्तमान AQI' },
 
+  // Voice Search
+  'voice.search': { en: 'Voice search', hi: 'आवाज़ से खोजें' },
+  'voice.listening': { en: 'Listening...', hi: 'सुन रहा हूँ...' },
+  'voice.stop': { en: 'Stop', hi: 'रोकें' },
+  'voice.speakNow': { en: 'Start speaking... e.g., "Find parking near India Gate"', hi: 'बोलना शुरू करें... उदाहरण: "इंडिया गेट के पास पार्किंग खोजें"' },
+  'voice.notSupported': { en: 'Voice search not available', hi: 'आवाज़ खोज उपलब्ध नहीं है' },
+  'voice.permissionDenied': { en: 'Microphone permission denied', hi: 'माइक्रोफोन की अनुमति नहीं है' },
+  'voice.error': { en: 'Voice recognition error', hi: 'आवाज़ पहचान में त्रुटि' },
+  'voice.micFailed': { en: 'Failed to start microphone', hi: 'माइक्रोफोन शुरू नहीं हुआ' },
+
+  // Business Account
+  'business.title': { en: 'Business Accounts', hi: 'व्यापार खाते' },
+  'business.subtitle': { en: 'Corporate Parking Management', hi: 'कॉर्पोरेट पार्किंग प्रबंधन' },
+  'business.solutions': { en: 'Business Solutions', hi: 'व्यापार समाधान' },
+  'business.contactSales': { en: 'Contact Sales', hi: 'संपर्क करें' },
+  'business.viewPlans': { en: 'View Plans', hi: 'प्लान देखें' },
+  'business.features': { en: 'Business Account Features', hi: 'व्यापार खाते की विशेषताएं' },
+  'business.plans': { en: 'Business Plans', hi: 'व्यापार प्लान' },
+  'business.chooseSize': { en: 'Choose based on your company size', hi: 'अपनी कंपनी के आकार के अनुसार चुनें' },
+  'business.mostPopular': { en: 'Most Popular', hi: 'सबसे लोकप्रिय' },
+  'business.employees': { en: 'employees', hi: 'कर्मचारी' },
+  'business.month': { en: 'month', hi: 'माह' },
+  'business.customPricing': { en: 'Custom Pricing', hi: 'कस्टम मूल्य' },
+  'business.getStarted': { en: 'Get Started', hi: 'शुरू करें' },
+  'business.contactUs': { en: 'Contact Us', hi: 'संपर्क करें' },
+  'business.contactForm': { en: 'Contact for Business Account', hi: 'व्यापार खाते के लिए संपर्क करें' },
+  'business.formDescription': { en: 'Fill in your details and our team will contact you within 24 hours', hi: 'अपनी जानकारी भरें और हमारी टीम 24 घंटे में संपर्क करेगी' },
+  'business.companyName': { en: 'Company Name', hi: 'कंपनी का नाम' },
+  'business.contactPerson': { en: 'Contact Person', hi: 'संपर्क व्यक्ति' },
+  'business.email': { en: 'Email', hi: 'ईमेल' },
+  'business.phone': { en: 'Phone', hi: 'फ़ोन' },
+  'business.numEmployees': { en: 'Number of Employees', hi: 'कर्मचारियों की संख्या' },
+  'business.submitRequest': { en: 'Submit Request', hi: 'अनुरोध भेजें' },
+  'business.trustedBy': { en: 'Trusted by leading organizations', hi: 'इनके द्वारा विश्वसनीय' },
+  'business.thankYou': { en: 'Thank you! Our team will contact you shortly.', hi: 'धन्यवाद! हमारी टीम जल्द ही संपर्क करेगी।' },
+
+  // Weather
+  'weather.recommendation': { en: 'Weather Recommendation', hi: 'मौसम सिफारिश' },
+  'weather.hot': { en: 'Hot weather today! Look for covered parking to protect your vehicle.', hi: 'आज गर्म मौसम! अपने वाहन की सुरक्षा के लिए ढकी पार्किंग खोजें।' },
+  'weather.rain': { en: 'Rain expected. Covered parking recommended.', hi: 'बारिश की संभावना। ढकी पार्किंग की सिफारिश है।' },
+  'weather.pleasant': { en: 'Pleasant weather for outdoor parking.', hi: 'बाहरी पार्किंग के लिए सुहावना मौसम।' },
+
+  // Filters
+  'filter.evCharging': { en: 'EV Charging', hi: 'EV चार्जिंग' },
+  'filter.covered': { en: 'Covered', hi: 'ढकी हुई' },
+  'filter.nearMetro': { en: 'Near Metro', hi: 'मेट्रो के पास' },
+
+  // Header
+  'header.signIn': { en: 'Sign In', hi: 'साइन इन करें' },
+  'header.signOut': { en: 'Sign Out', hi: 'साइन आउट' },
+  'header.myReservations': { en: 'My Reservations', hi: 'मेरी बुकिंग' },
+  'header.profileSettings': { en: 'Profile Settings', hi: 'प्रोफाइल सेटिंग्स' },
+  'header.switchRole': { en: 'Switch Role', hi: 'भूमिका बदलें' },
+
+  // Footer
+  'footer.quickLinks': { en: 'Quick Links', hi: 'त्वरित लिंक' },
+  'footer.findParking': { en: 'Find Parking', hi: 'पार्किंग खोजें' },
+  'footer.myBookings': { en: 'My Bookings', hi: 'मेरी बुकिंग' },
+  'footer.reportIssue': { en: 'Report Issue', hi: 'समस्या रिपोर्ट करें' },
+  'footer.contactUs': { en: 'Contact Us', hi: 'संपर्क करें' },
+  'footer.legal': { en: 'Legal', hi: 'कानूनी' },
+  'footer.privacyPolicy': { en: 'Privacy Policy', hi: 'गोपनीयता नीति' },
+  'footer.termsOfService': { en: 'Terms of Service', hi: 'सेवा की शर्तें' },
+  'footer.faq': { en: 'FAQ', hi: 'सामान्य प्रश्न' },
+  'footer.contactInfo': { en: 'Contact', hi: 'संपर्क' },
+  'footer.helpline': { en: 'Helpline', hi: 'हेल्पलाइन' },
+  'footer.email': { en: 'Email', hi: 'ईमेल' },
+  'footer.copyright': { en: 'All rights reserved', hi: 'सर्वाधिकार सुरक्षित' },
+  'footer.madeWith': { en: 'Made with', hi: 'इसके साथ बनाया' },
+  'footer.forDelhi': { en: 'for Delhi', hi: 'दिल्ली के लिए' },
+
   // Accessibility
   'a11y.skipToContent': { en: 'Skip to main content', hi: 'मुख्य सामग्री पर जाएं' },
   'a11y.openMenu': { en: 'Open menu', hi: 'मेनू खोलें' },
   'a11y.closeMenu': { en: 'Close menu', hi: 'मेनू बंद करें' },
   'a11y.loading': { en: 'Loading content', hi: 'सामग्री लोड हो रही है' },
+
+  // Ads
+  'ads.sponsored': { en: 'Sponsored', hi: 'प्रायोजित' },
+  'ads.localBusiness': { en: 'Local Business', hi: 'स्थानीय व्यापार' },
 };
 
 interface LanguageContextType {

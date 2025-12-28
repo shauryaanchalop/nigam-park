@@ -263,6 +263,12 @@ export default function CitizenPortal() {
               {isHindi ? 'पार्किंग टिप्स' : 'Parking Tips'}
             </Link>
           </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/business">
+              <Building2 className="w-4 h-4 mr-2" />
+              {isHindi ? 'व्यापार खाते' : 'Business Accounts'}
+            </Link>
+          </Button>
         </div>
 
         {/* Zone Links for SEO */}
@@ -322,13 +328,19 @@ export default function CitizenPortal() {
 
         {/* Search Section */}
         <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder={isHindi ? 'पास में पार्किंग खोजें...' : 'Find parking near...'}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-12 text-lg"
+          <div className="relative flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder={isHindi ? 'पास में पार्किंग खोजें...' : 'Find parking near...'}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-12 text-lg"
+              />
+            </div>
+            <VoiceSearch 
+              onResult={(transcript) => setSearchQuery(transcript)} 
+              className="h-12 w-12"
             />
           </div>
           
@@ -347,6 +359,11 @@ export default function CitizenPortal() {
               </Button>
             ))}
           </div>
+        </div>
+
+        {/* Advertising Slot */}
+        <div className="mb-6">
+          <AdvertisingSlot type="banner" />
         </div>
 
         {/* Parking Filters */}
@@ -516,6 +533,10 @@ export default function CitizenPortal() {
             </p>
           </div>
         )}
+        {/* Bottom Advertising Slot */}
+        <div className="mt-8 mb-6">
+          <AdvertisingSlot type="card" />
+        </div>
       </main>
 
       <Footer />
