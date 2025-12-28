@@ -416,24 +416,48 @@ export default function AttendantPOS() {
                   {parkedVehicles.map((vehicle) => (
                     <div 
                       key={vehicle.id}
-                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg group"
                     >
                       <div>
                         <p className="font-mono font-semibold text-sm">{vehicle.vehicle_number}</p>
                         <p className="text-xs text-muted-foreground">
                           {vehicle.start_time} - {vehicle.end_time}
                         </p>
-                      </div>
-                      <div className="text-right">
-                        <Badge variant="outline" className="border-success text-success text-xs">
-                          Checked In
-                        </Badge>
                         {vehicle.checked_in_at && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {format(new Date(vehicle.checked_in_at), 'HH:mm')}
+                          <p className="text-xs text-muted-foreground">
+                            In since {format(new Date(vehicle.checked_in_at), 'HH:mm')}
                           </p>
                         )}
                       </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="bg-amber-600 hover:bg-amber-700 text-white border-0 text-xs"
+                        disabled={isProcessing}
+                        onClick={async () => {
+                          setIsProcessing(true);
+                          try {
+                            await checkoutByVehicle.mutateAsync({
+                              vehicleNumber: vehicle.vehicle_number,
+                              lotId: assignedLot!.id,
+                            });
+                            await createSensorLog.mutateAsync({
+                              lot_id: assignedLot!.id,
+                              event_type: 'exit',
+                              vehicle_detected: vehicle.vehicle_number,
+                              has_payment: true,
+                            });
+                            await updateOccupancy.mutateAsync({ lotId: assignedLot!.id, delta: -1 });
+                          } catch (error) {
+                            console.error('Quick checkout error:', error);
+                          } finally {
+                            setIsProcessing(false);
+                          }
+                        }}
+                      >
+                        <LogOut className="w-3 h-3 mr-1" />
+                        Checkout
+                      </Button>
                     </div>
                   ))}
                 </div>
