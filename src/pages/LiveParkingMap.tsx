@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { MapPin, Navigation, Clock, Car, ChevronLeft, Locate, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { MapPin, Clock, Car, ChevronLeft } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,66 +8,6 @@ import { Progress } from '@/components/ui/progress';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-
-// Fix Leaflet marker icons
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-});
-
-// Custom marker icons based on occupancy
-const createMarkerIcon = (occupancyPercent: number) => {
-  const color = occupancyPercent >= 90 ? '#ef4444' : occupancyPercent >= 70 ? '#f59e0b' : '#22c55e';
-  return L.divIcon({
-    className: 'custom-marker',
-    html: `
-      <div style="
-        width: 36px;
-        height: 36px;
-        background: ${color};
-        border-radius: 50%;
-        border: 3px solid white;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 11px;
-      ">
-        ${Math.round(100 - occupancyPercent)}%
-      </div>
-    `,
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
-  });
-};
-
-function LocationMarker({ onLocationFound }: { onLocationFound: (latlng: L.LatLng) => void }) {
-  const map = useMap();
-  
-  const handleLocate = () => {
-    map.locate({ setView: true, maxZoom: 15 });
-  };
-
-  useEffect(() => {
-    map.on('locationfound', (e) => {
-      onLocationFound(e.latlng);
-    });
-  }, [map, onLocationFound]);
-
-  return (
-    <div className="leaflet-top leaflet-right" style={{ marginTop: '10px', marginRight: '10px' }}>
-      <div className="leaflet-control">
-        <Button size="sm" variant="secondary" onClick={handleLocate}>
-          <Locate className="w-4 h-4" />
-        </Button>
-      </div>
-    </div>
-  );
-}
 
 export default function LiveParkingMap() {
   const { data: lots, isLoading } = useParkingLots();
