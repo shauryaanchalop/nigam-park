@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { format, parseISO, subDays } from 'date-fns';
 import { 
   AlertTriangle, IndianRupee, CheckCircle, XCircle, 
-  Edit2, Search, Filter, TrendingUp, ChevronLeft, CalendarIcon, Check
+  Edit2, Search, Filter, TrendingUp, ChevronLeft, CalendarIcon, Check, CheckSquare
 } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Dialog,
@@ -42,7 +43,7 @@ import { cn } from '@/lib/utils';
 
 export default function AdminFines() {
   const navigate = useNavigate();
-  const { fines, isLoading, waiveFine, resolveFine, adjustFine, fineStats } = useAdminFines();
+  const { fines, isLoading, waiveFine, resolveFine, bulkResolveFines, bulkWaiveFines, adjustFine, fineStats } = useAdminFines();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedFine, setSelectedFine] = useState<FineWithUser | null>(null);
@@ -50,6 +51,7 @@ export default function AdminFines() {
   const [newAmount, setNewAmount] = useState('');
   const [dateRange, setDateRange] = useState<'all' | '7days' | '30days' | 'custom'>('all');
   const [customDate, setCustomDate] = useState<Date | undefined>(undefined);
+  const [selectedFineIds, setSelectedFineIds] = useState<Set<string>>(new Set());
 
   const filteredFines = fines.filter(fine => {
     const matchesSearch = 
@@ -72,6 +74,43 @@ export default function AdminFines() {
     
     return matchesSearch && matchesStatus && matchesDate;
   });
+
+  // Get pending fines that can be selected for bulk actions
+  const pendingFilteredFines = filteredFines.filter(f => f.status === 'pending');
+  const allPendingSelected = pendingFilteredFines.length > 0 && 
+    pendingFilteredFines.every(f => selectedFineIds.has(f.id));
+
+  const toggleFineSelection = (fineId: string) => {
+    setSelectedFineIds(prev => {
+      const next = new Set(prev);
+      if (next.has(fineId)) {
+        next.delete(fineId);
+      } else {
+        next.add(fineId);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (allPendingSelected) {
+      setSelectedFineIds(new Set());
+    } else {
+      setSelectedFineIds(new Set(pendingFilteredFines.map(f => f.id)));
+    }
+  };
+
+  const handleBulkResolve = async () => {
+    if (selectedFineIds.size === 0) return;
+    await bulkResolveFines.mutateAsync({ fineIds: Array.from(selectedFineIds) });
+    setSelectedFineIds(new Set());
+  };
+
+  const handleBulkWaive = async () => {
+    if (selectedFineIds.size === 0) return;
+    await bulkWaiveFines.mutateAsync({ fineIds: Array.from(selectedFineIds) });
+    setSelectedFineIds(new Set());
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -246,10 +285,37 @@ export default function AdminFines() {
         {/* Fines Table */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-warning" />
-              All Fines ({filteredFines.length})
-            </CardTitle>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-warning" />
+                All Fines ({filteredFines.length})
+              </CardTitle>
+              {selectedFineIds.size > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {selectedFineIds.size} selected
+                  </span>
+                  <Button
+                    size="sm"
+                    className="bg-success hover:bg-success/90"
+                    onClick={handleBulkResolve}
+                    disabled={bulkResolveFines.isPending}
+                  >
+                    <Check className="w-3 h-3 mr-1" />
+                    Resolve All
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleBulkWaive}
+                    disabled={bulkWaiveFines.isPending}
+                  >
+                    <XCircle className="w-3 h-3 mr-1" />
+                    Waive All
+                  </Button>
+                </div>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {filteredFines.length === 0 ? (
@@ -267,6 +333,14 @@ export default function AdminFines() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-10">
+                        <Checkbox
+                          checked={allPendingSelected}
+                          onCheckedChange={toggleSelectAll}
+                          disabled={pendingFilteredFines.length === 0}
+                          aria-label="Select all pending fines"
+                        />
+                      </TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead>Vehicle</TableHead>
                       <TableHead>Location</TableHead>
@@ -278,7 +352,18 @@ export default function AdminFines() {
                   </TableHeader>
                   <TableBody>
                     {filteredFines.map((fine) => (
-                      <TableRow key={fine.id}>
+                      <TableRow key={fine.id} className={selectedFineIds.has(fine.id) ? 'bg-muted/50' : ''}>
+                        <TableCell>
+                          {fine.status === 'pending' ? (
+                            <Checkbox
+                              checked={selectedFineIds.has(fine.id)}
+                              onCheckedChange={() => toggleFineSelection(fine.id)}
+                              aria-label={`Select fine ${fine.id}`}
+                            />
+                          ) : (
+                            <div className="w-4" />
+                          )}
+                        </TableCell>
                         <TableCell className="whitespace-nowrap">
                           {format(parseISO(fine.created_at), 'MMM d, yyyy')}
                           <br />

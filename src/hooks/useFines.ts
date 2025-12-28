@@ -195,6 +195,52 @@ export function useAdminFines() {
     },
   });
 
+  const bulkResolveFines = useMutation({
+    mutationFn: async ({ fineIds }: { fineIds: string[] }) => {
+      const { error } = await supabase
+        .from('user_fines')
+        .update({ 
+          status: 'resolved',
+          resolved_at: new Date().toISOString(),
+        })
+        .in('id', fineIds);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, { fineIds }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['user-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-fines'] });
+      toast.success(`${fineIds.length} fines marked as resolved`);
+    },
+    onError: (error) => {
+      toast.error(`Failed to resolve fines: ${error.message}`);
+    },
+  });
+
+  const bulkWaiveFines = useMutation({
+    mutationFn: async ({ fineIds }: { fineIds: string[] }) => {
+      const { error } = await supabase
+        .from('user_fines')
+        .update({ 
+          status: 'waived',
+          resolved_at: new Date().toISOString(),
+        })
+        .in('id', fineIds);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, { fineIds }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['user-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-fines'] });
+      toast.success(`${fineIds.length} fines waived`);
+    },
+    onError: (error) => {
+      toast.error(`Failed to waive fines: ${error.message}`);
+    },
+  });
+
   const adjustFine = useMutation({
     mutationFn: async ({ fineId, newAmount }: { fineId: string; newAmount: number }) => {
       const { error } = await supabase
@@ -229,6 +275,8 @@ export function useAdminFines() {
     isLoading: allFinesQuery.isLoading,
     waiveFine,
     resolveFine,
+    bulkResolveFines,
+    bulkWaiveFines,
     adjustFine,
     fineStats,
   };
