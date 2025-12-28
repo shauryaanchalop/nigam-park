@@ -676,6 +676,7 @@ export type Database = {
       }
       parking_lots: {
         Row: {
+          average_rating: number | null
           capacity: number
           created_at: string
           current_occupancy: number
@@ -688,10 +689,12 @@ export type Database = {
           metro_station: string | null
           name: string
           near_metro: boolean | null
+          review_count: number | null
           status: string
           zone: string
         }
         Insert: {
+          average_rating?: number | null
           capacity?: number
           created_at?: string
           current_occupancy?: number
@@ -704,10 +707,12 @@ export type Database = {
           metro_station?: string | null
           name: string
           near_metro?: boolean | null
+          review_count?: number | null
           status?: string
           zone: string
         }
         Update: {
+          average_rating?: number | null
           capacity?: number
           created_at?: string
           current_occupancy?: number
@@ -720,10 +725,55 @@ export type Database = {
           metro_station?: string | null
           name?: string
           near_metro?: boolean | null
+          review_count?: number | null
           status?: string
           zone?: string
         }
         Relationships: []
+      }
+      parking_reviews: {
+        Row: {
+          created_at: string
+          helpful_count: number
+          id: string
+          is_verified: boolean
+          lot_id: string
+          rating: number
+          review_text: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          helpful_count?: number
+          id?: string
+          is_verified?: boolean
+          lot_id: string
+          rating: number
+          review_text?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          helpful_count?: number
+          id?: string
+          is_verified?: boolean
+          lot_id?: string
+          rating?: number
+          review_text?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parking_reviews_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
