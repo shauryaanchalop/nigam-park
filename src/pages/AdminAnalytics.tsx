@@ -22,7 +22,9 @@ import {
   useReservationAnalytics,
   useSummaryStats,
   useOverstayReport,
-  TimeRange 
+  useOverstayTrends,
+  TimeRange,
+  OverstayTrendRange
 } from '@/hooks/useAnalytics';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -32,11 +34,13 @@ const COLORS = ['hsl(var(--primary))', 'hsl(var(--warning))', 'hsl(var(--success
 export default function AdminAnalytics() {
   const [timeRange, setTimeRange] = useState<TimeRange>('daily');
   const [overstayDate, setOverstayDate] = useState<Date>(new Date());
+  const [overstayTrendRange, setOverstayTrendRange] = useState<OverstayTrendRange>('weekly');
   const { data: revenueData, isLoading: revenueLoading } = useRevenueAnalytics(timeRange);
   const { data: occupancyData, isLoading: occupancyLoading } = useOccupancyAnalytics();
   const { data: reservationStats } = useReservationAnalytics(timeRange);
   const { data: summaryStats } = useSummaryStats();
   const { data: overstayReport, isLoading: overstayLoading } = useOverstayReport(overstayDate);
+  const { data: overstayTrends, isLoading: overstayTrendsLoading } = useOverstayTrends(overstayTrendRange);
   
   const isToday = format(overstayDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
 
@@ -265,6 +269,86 @@ export default function AdminAnalytics() {
                 </BarChart>
               </ResponsiveContainer>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Overstay Trends Chart */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-destructive" />
+                  Overstay Fee Trends
+                </CardTitle>
+                <CardDescription>
+                  Revenue from overstay penalties over time
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-4">
+                <Tabs value={overstayTrendRange} onValueChange={(v) => setOverstayTrendRange(v as OverstayTrendRange)}>
+                  <TabsList className="h-8">
+                    <TabsTrigger value="weekly" className="text-xs px-3">7 Days</TabsTrigger>
+                    <TabsTrigger value="monthly" className="text-xs px-3">30 Days</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                <div className="text-right hidden sm:block">
+                  <p className="text-lg font-bold text-destructive">
+                    ₹{(overstayTrends?.totalAmount ?? 0).toLocaleString('en-IN')}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {overstayTrends?.totalCount ?? 0} vehicles • Avg ₹{overstayTrends?.avgPerDay ?? 0}/day
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {overstayTrendsLoading ? (
+              <div className="h-[250px] flex items-center justify-center">
+                <p className="text-muted-foreground">Loading...</p>
+              </div>
+            ) : !overstayTrends?.data?.length ? (
+              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                <p>No overstay data available</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={overstayTrends.data}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="displayDate" className="text-xs" />
+                  <YAxis className="text-xs" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                    formatter={(value: number, name: string) => [
+                      name === 'amount' ? `₹${value.toLocaleString('en-IN')}` : `${value} vehicles`,
+                      name === 'amount' ? 'Revenue' : 'Vehicles'
+                    ]}
+                  />
+                  <Legend />
+                  <Bar dataKey="amount" name="Revenue" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="count" name="Vehicles" fill="hsl(var(--destructive) / 0.5)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+            <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-border sm:hidden">
+              <div className="text-center">
+                <p className="text-lg font-bold text-destructive">₹{(overstayTrends?.totalAmount ?? 0).toLocaleString('en-IN')}</p>
+                <p className="text-xs text-muted-foreground">Total</p>
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-bold">{overstayTrends?.totalCount ?? 0}</p>
+                <p className="text-xs text-muted-foreground">Vehicles</p>
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-bold">₹{overstayTrends?.avgPerDay ?? 0}</p>
+                <p className="text-xs text-muted-foreground">Avg/Day</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
