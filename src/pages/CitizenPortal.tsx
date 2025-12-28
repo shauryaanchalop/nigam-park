@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen } from 'lucide-react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,12 +10,15 @@ import { useParkingLots } from '@/hooks/useParkingLots';
 import { ReservationDialog } from '@/components/citizen/ReservationDialog';
 import { PendingFinesBanner } from '@/components/citizen/PendingFinesBanner';
 import { Footer } from '@/components/Footer';
+import { ParkingFilters } from '@/components/ParkingFilters';
+import { WeatherRecommendation } from '@/components/WeatherRecommendation';
 import { estimateTravelTime } from '@/lib/travelTime';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 import { useNavigate, Link } from 'react-router-dom';
 
-interface ParkingLot {
+type ParkingLot = {
   id: string;
   name: string;
   zone: string;
@@ -25,7 +28,11 @@ interface ParkingLot {
   current_occupancy: number;
   hourly_rate: number;
   status: string;
-}
+  has_ev_charging?: boolean | null;
+  has_covered_parking?: boolean | null;
+  near_metro?: boolean | null;
+  metro_station?: string | null;
+};
 
 export default function CitizenPortal() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,10 +40,16 @@ export default function CitizenPortal() {
   const [reservationOpen, setReservationOpen] = useState(false);
   const { data: lots, isLoading, refetch, isFetching } = useParkingLots();
   const { user } = useAuth();
+  const { isHindi, t } = useLanguage();
   const navigate = useNavigate();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [pullDistance, setPullDistance] = useState(0);
+  const [filters, setFilters] = useState({
+    evCharging: false,
+    coveredParking: false,
+    nearMetro: false,
+  });
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (window.scrollY === 0) {
@@ -85,12 +98,29 @@ export default function CitizenPortal() {
     setPullDistance(0);
   }, [pullDistance, refetch, triggerHapticFeedback]);
 
-  const popularLocations = ['Connaught Place', 'Karol Bagh', 'Lajpat Nagar', 'Sarojini Nagar'];
+  const popularLocations = isHindi 
+    ? ['कनॉट प्लेस', 'करोल बाग', 'लाजपत नगर', 'सरोजिनी नगर']
+    : ['Connaught Place', 'Karol Bagh', 'Lajpat Nagar', 'Sarojini Nagar'];
 
-  const filteredLots = lots?.filter(lot => 
-    lot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    lot.zone.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredLots = useMemo(() => {
+    let result = (lots as ParkingLot[] | undefined)?.filter(lot => 
+      lot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lot.zone.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+    // Apply feature filters
+    if (filters.evCharging) {
+      result = result?.filter(lot => lot.has_ev_charging);
+    }
+    if (filters.coveredParking) {
+      result = result?.filter(lot => lot.has_covered_parking);
+    }
+    if (filters.nearMetro) {
+      result = result?.filter(lot => lot.near_metro);
+    }
+    
+    return result;
+  }, [lots, searchQuery, filters]);
 
   // Memoize travel times so they don't change on every render
   const travelTimes = useMemo(() => {
@@ -104,9 +134,9 @@ export default function CitizenPortal() {
 
   const getAvailabilityStatus = (current: number, capacity: number) => {
     const percentage = (current / capacity) * 100;
-    if (percentage >= 95) return { label: 'Full', color: 'destructive' as const, available: 0 };
-    if (percentage >= 80) return { label: 'Limited', color: 'warning' as const, available: capacity - current };
-    return { label: 'Available', color: 'success' as const, available: capacity - current };
+    if (percentage >= 95) return { label: isHindi ? 'भरा हुआ' : 'Full', color: 'destructive' as const, available: 0 };
+    if (percentage >= 80) return { label: isHindi ? 'सीमित' : 'Limited', color: 'warning' as const, available: capacity - current };
+    return { label: isHindi ? 'उपलब्ध' : 'Available', color: 'success' as const, available: capacity - current };
   };
 
   const handleReserve = (lot: ParkingLot) => {
@@ -124,6 +154,17 @@ export default function CitizenPortal() {
       case 'moderate': return 'text-warning';
       case 'heavy': return 'text-destructive';
     }
+  };
+
+  const getTrafficLabel = (traffic: 'light' | 'moderate' | 'heavy') => {
+    if (isHindi) {
+      switch (traffic) {
+        case 'light': return 'हल्का ट्रैफ़िक';
+        case 'moderate': return 'मध्यम ट्रैफ़िक';
+        case 'heavy': return 'भारी ट्रैफ़िक';
+      }
+    }
+    return `${traffic} traffic`;
   };
 
   return (
@@ -147,14 +188,16 @@ export default function CitizenPortal() {
         />
         {pullDistance > 0 && (
           <span className="ml-2 text-sm text-muted-foreground">
-            {pullDistance > 60 ? 'Release to refresh' : 'Pull to refresh'}
+            {pullDistance > 60 
+              ? (isHindi ? 'रिफ्रेश करने के लिए छोड़ें' : 'Release to refresh') 
+              : (isHindi ? 'रिफ्रेश करने के लिए खींचें' : 'Pull to refresh')}
           </span>
         )}
       </div>
 
       <GovHeader 
-        title="NIGAM-Park" 
-        subtitle="Find Parking in Delhi"
+        title={isHindi ? 'निगम-पार्क' : 'NIGAM-Park'} 
+        subtitle={isHindi ? 'दिल्ली में पार्किंग खोजें' : 'Find Parking in Delhi'}
       />
 
       <main className="container mx-auto px-4 py-6 max-w-4xl">
@@ -165,67 +208,84 @@ export default function CitizenPortal() {
           </div>
         )}
 
+        {/* Weather Recommendation */}
+        <WeatherRecommendation />
+
         {/* Quick Actions for Citizens */}
         <div className="flex flex-wrap gap-2 mb-6">
           <Button variant="outline" size="sm" asChild>
             <Link to="/live-map">
               <Map className="w-4 h-4 mr-2" />
-              Live Map
+              {isHindi ? 'लाइव मैप' : 'Live Map'}
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/loyalty">
               <Gift className="w-4 h-4 mr-2" />
-              Loyalty Rewards
+              {isHindi ? 'लॉयल्टी पुरस्कार' : 'Loyalty Rewards'}
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/my-reservations">
               <History className="w-4 h-4 mr-2" />
-              My Reservations
+              {isHindi ? 'मेरी बुकिंग' : 'My Reservations'}
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/monthly-pass">
+              <CreditCard className="w-4 h-4 mr-2" />
+              {isHindi ? 'मासिक पास' : 'Monthly Pass'}
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/referral">
+              <Users className="w-4 h-4 mr-2" />
+              {isHindi ? 'रेफरल' : 'Referral'}
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/notifications">
               <Bell className="w-4 h-4 mr-2" />
-              Alerts Settings
+              {isHindi ? 'अलर्ट सेटिंग्स' : 'Alerts Settings'}
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild className="border-destructive/50 text-destructive hover:bg-destructive/10">
             <Link to="/report-violation">
               <AlertTriangle className="w-4 h-4 mr-2" />
-              Report Violation
+              {isHindi ? 'उल्लंघन रिपोर्ट करें' : 'Report Violation'}
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/blog">
               <BookOpen className="w-4 h-4 mr-2" />
-              Parking Tips
+              {isHindi ? 'पार्किंग टिप्स' : 'Parking Tips'}
             </Link>
           </Button>
         </div>
 
         {/* Zone Links for SEO */}
         <div className="mb-6">
-          <p className="text-sm text-muted-foreground mb-2">Find parking by area:</p>
+          <p className="text-sm text-muted-foreground mb-2">
+            {isHindi ? 'क्षेत्र के अनुसार पार्किंग खोजें:' : 'Find parking by area:'}
+          </p>
           <div className="flex flex-wrap gap-2">
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/parking/connaught-place">CP</Link>
+              <Link to="/parking/connaught-place">{isHindi ? 'सीपी' : 'CP'}</Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/parking/karol-bagh">Karol Bagh</Link>
+              <Link to="/parking/karol-bagh">{isHindi ? 'करोल बाग' : 'Karol Bagh'}</Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/parking/chandni-chowk">Chandni Chowk</Link>
+              <Link to="/parking/chandni-chowk">{isHindi ? 'चांदनी चौक' : 'Chandni Chowk'}</Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/parking/lajpat-nagar">Lajpat Nagar</Link>
+              <Link to="/parking/lajpat-nagar">{isHindi ? 'लाजपत नगर' : 'Lajpat Nagar'}</Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/parking/nehru-place">Nehru Place</Link>
+              <Link to="/parking/nehru-place">{isHindi ? 'नेहरू प्लेस' : 'Nehru Place'}</Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/parking/sarojini-nagar">Sarojini Nagar</Link>
+              <Link to="/parking/sarojini-nagar">{isHindi ? 'सरोजिनी नगर' : 'Sarojini Nagar'}</Link>
             </Button>
           </div>
         </div>
@@ -238,15 +298,19 @@ export default function CitizenPortal() {
                 <Leaf className="w-5 h-5 text-success" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-success">Park Smartly, Reduce AQI</p>
+                <p className="font-medium text-success">
+                  {isHindi ? 'स्मार्ट पार्किंग, AQI कम करें' : 'Park Smartly, Reduce AQI'}
+                </p>
                 <p className="text-sm text-muted-foreground">
-                  Efficient parking reduces vehicle idling and helps improve Delhi's air quality
+                  {isHindi 
+                    ? 'कुशल पार्किंग वाहनों के इंतजार को कम करती है और दिल्ली की वायु गुणवत्ता में सुधार करती है'
+                    : 'Efficient parking reduces vehicle idling and helps improve Delhi\'s air quality'}
                 </p>
               </div>
               <div className="text-right hidden sm:block">
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   <Wind className="w-4 h-4" />
-                  <span>Current AQI: </span>
+                  <span>{isHindi ? 'वर्तमान AQI:' : 'Current AQI:'} </span>
                   <Badge variant="outline" className="border-warning text-warning">156</Badge>
                 </div>
               </div>
@@ -259,7 +323,7 @@ export default function CitizenPortal() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
-              placeholder="Find parking near..."
+              placeholder={isHindi ? 'पास में पार्किंग खोजें...' : 'Find parking near...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-12 text-lg"
@@ -268,9 +332,9 @@ export default function CitizenPortal() {
           
           {/* Quick Select */}
           <div className="flex flex-wrap gap-2 mt-3">
-            {popularLocations.map(location => (
+            {popularLocations.map((location, index) => (
               <Button
-                key={location}
+                key={index}
                 variant="outline"
                 size="sm"
                 onClick={() => setSearchQuery(location)}
@@ -282,6 +346,9 @@ export default function CitizenPortal() {
             ))}
           </div>
         </div>
+
+        {/* Parking Filters */}
+        <ParkingFilters filters={filters} onChange={setFilters} />
 
         {/* Parking Lots Grid */}
         {isLoading ? (
@@ -327,19 +394,41 @@ export default function CitizenPortal() {
                           {status.label}
                         </Badge>
                       </div>
+
+                      {/* Feature Badges */}
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        {lot.has_ev_charging && (
+                          <Badge variant="outline" className="text-xs bg-green-500/10 border-green-500/30 text-green-600">
+                            <Zap className="w-3 h-3 mr-1" />
+                            {isHindi ? 'EV चार्जिंग' : 'EV Charging'}
+                          </Badge>
+                        )}
+                        {lot.has_covered_parking && (
+                          <Badge variant="outline" className="text-xs bg-blue-500/10 border-blue-500/30 text-blue-600">
+                            <Umbrella className="w-3 h-3 mr-1" />
+                            {isHindi ? 'ढकी पार्किंग' : 'Covered'}
+                          </Badge>
+                        )}
+                        {lot.near_metro && lot.metro_station && (
+                          <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30 text-primary">
+                            <Train className="w-3 h-3 mr-1" />
+                            {lot.metro_station}
+                          </Badge>
+                        )}
+                      </div>
                       
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-4">
                           <div className="flex items-center gap-1 text-sm">
                             <Car className="w-4 h-4 text-muted-foreground" />
                             <span className="text-muted-foreground">
-                              {status.available} spots
+                              {status.available} {isHindi ? 'स्थान' : 'spots'}
                             </span>
                           </div>
                           <div className="flex items-center gap-1 text-sm">
                             <IndianRupee className="w-4 h-4 text-muted-foreground" />
                             <span className="text-muted-foreground">
-                              ₹{lot.hourly_rate}/hr
+                              ₹{lot.hourly_rate}/{isHindi ? 'घंटा' : 'hr'}
                             </span>
                           </div>
                         </div>
@@ -350,14 +439,14 @@ export default function CitizenPortal() {
                         <div className="flex items-center gap-2 mb-3 p-2 rounded-md bg-muted/50">
                           <Clock className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm">
-                            <span className="font-medium">{travelTime.minutes} min</span>
+                            <span className="font-medium">{travelTime.minutes} {isHindi ? 'मिनट' : 'min'}</span>
                             <span className="text-muted-foreground"> • {travelTime.distance}</span>
                           </span>
                           <Badge 
                             variant="outline" 
                             className={cn('ml-auto text-xs capitalize', getTrafficColor(travelTime.traffic))}
                           >
-                            {travelTime.traffic} traffic
+                            {getTrafficLabel(travelTime.traffic)}
                           </Badge>
                         </div>
                       )}
@@ -365,7 +454,7 @@ export default function CitizenPortal() {
                       {/* Capacity Bar */}
                       <div className="mb-4">
                         <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                          <span>Occupancy</span>
+                          <span>{isHindi ? 'अधिभोग' : 'Occupancy'}</span>
                           <span>{lot.current_occupancy}/{lot.capacity}</span>
                         </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -392,7 +481,7 @@ export default function CitizenPortal() {
                           }}
                         >
                           <Navigation className="w-4 h-4" />
-                          Directions
+                          {isHindi ? 'दिशा' : 'Directions'}
                         </Button>
                         <Button 
                           className="flex-1 gap-2"
@@ -401,7 +490,9 @@ export default function CitizenPortal() {
                           onClick={() => handleReserve(lot)}
                         >
                           <CalendarPlus className="w-4 h-4" />
-                          {status.color === 'destructive' ? 'Full' : 'Reserve'}
+                          {status.color === 'destructive' 
+                            ? (isHindi ? 'भरा हुआ' : 'Full') 
+                            : (isHindi ? 'बुक करें' : 'Reserve')}
                         </Button>
                       </div>
                     </div>
@@ -415,8 +506,12 @@ export default function CitizenPortal() {
         {filteredLots?.length === 0 && (
           <div className="text-center py-12">
             <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-lg font-medium text-foreground">No parking lots found</p>
-            <p className="text-muted-foreground">Try searching for a different location</p>
+            <p className="text-lg font-medium text-foreground">
+              {isHindi ? 'कोई पार्किंग स्थल नहीं मिला' : 'No parking lots found'}
+            </p>
+            <p className="text-muted-foreground">
+              {isHindi ? 'किसी अन्य स्थान की खोज करें' : 'Try searching for a different location'}
+            </p>
           </div>
         )}
       </main>
