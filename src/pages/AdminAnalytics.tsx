@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   TrendingUp, IndianRupee, Car, Calendar, BarChart3, 
-  ArrowUpRight, ArrowDownRight, ChevronLeft, AlertTriangle, Clock, CalendarIcon
+  ArrowUpRight, ArrowDownRight, ChevronLeft, AlertTriangle, Clock, CalendarIcon,
+  Brain
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
@@ -28,6 +29,9 @@ import {
 } from '@/hooks/useAnalytics';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { RevenueForecastChart } from '@/components/analytics/RevenueForecastChart';
+import { FraudDetectionPanel } from '@/components/analytics/FraudDetectionPanel';
+import { UsageHeatmap } from '@/components/analytics/UsageHeatmap';
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--warning))', 'hsl(var(--success))', 'hsl(var(--destructive))'];
 
@@ -477,11 +481,31 @@ export default function AdminAnalytics() {
             </div>
             <div className="mt-4 p-4 bg-muted/30 rounded-lg">
               <p className="text-sm text-muted-foreground">
-                Total reservation revenue: <span className="font-semibold text-foreground">₹{(reservationStats?.totalRevenue ?? 0).toLocaleString('en-IN')}</span>
+              Total reservation revenue: <span className="font-semibold text-foreground">₹{(reservationStats?.totalRevenue ?? 0).toLocaleString('en-IN')}</span>
               </p>
             </div>
           </CardContent>
         </Card>
+
+        {/* AI-Powered Analytics Section */}
+        <div className="mt-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Brain className="w-6 h-6 text-primary" />
+            <h2 className="text-xl font-bold">AI-Powered Insights</h2>
+            <Badge variant="secondary">Beta</Badge>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Revenue Forecast */}
+            <RevenueForecastChart />
+            
+            {/* Fraud Detection */}
+            <FraudDetectionPanel />
+          </div>
+          
+          {/* Usage Heatmap */}
+          <UsageHeatmap />
+        </div>
       </main>
     </div>
   );
