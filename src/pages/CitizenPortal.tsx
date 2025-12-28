@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users } from 'lucide-react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users, Building2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,6 +12,8 @@ import { PendingFinesBanner } from '@/components/citizen/PendingFinesBanner';
 import { Footer } from '@/components/Footer';
 import { ParkingFilters } from '@/components/ParkingFilters';
 import { WeatherRecommendation } from '@/components/WeatherRecommendation';
+import { VoiceSearch } from '@/components/VoiceSearch';
+import { AdvertisingSlot } from '@/components/ads/AdvertisingSlot';
 import { estimateTravelTime } from '@/lib/travelTime';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';

@@ -40,8 +40,8 @@ import TermsOfService from "./pages/TermsOfService";
 import ContactPage from "./pages/ContactPage";
 import MonthlyPassPage from "./pages/MonthlyPassPage";
 import ReferralPage from "./pages/ReferralPage";
+import BusinessAccountPage from "./pages/BusinessAccountPage";
 import { ParkingAssistant } from "./components/ParkingAssistant";
-
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -85,6 +85,7 @@ const App = () => (
                   <Route path="/contact" element={<ContactPage />} />
                   <Route path="/monthly-pass" element={<MonthlyPassPage />} />
                   <Route path="/referral" element={<ReferralPage />} />
+                  <Route path="/business" element={<BusinessAccountPage />} />
                   <Route path="/admin/violations" element={<AdminViolations />} />
                   <Route path="/attendant/checkin" element={<AttendantCheckIn />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
