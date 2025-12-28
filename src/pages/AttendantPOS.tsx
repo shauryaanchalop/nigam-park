@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Car, CreditCard, Banknote, QrCode, CheckCircle2, Clock, LogOut, ScanLine } from 'lucide-react';
+import { Car, CreditCard, Banknote, QrCode, CheckCircle2, Clock, LogOut, ScanLine, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,15 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { QRScannerDialog } from '@/components/attendant/QRScannerDialog';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTransactions, useTodayStats } from '@/hooks/useTransactions';
 import { useSensorLogs } from '@/hooks/useSensorLogs';
 import { useReservations } from '@/hooks/useReservations';
+import { useParkedVehicles } from '@/hooks/useParkedVehicles';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 export default function AttendantPOS() {
   const [vehicleNumber, setVehicleNumber] = useState('');
@@ -25,6 +28,7 @@ export default function AttendantPOS() {
   const [checkInDialogOpen, setCheckInDialogOpen] = useState(false);
   const [checkoutDialogOpen, setCheckoutDialogOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [checkoutScannerOpen, setCheckoutScannerOpen] = useState(false);
 
   const { data: lots } = useParkingLots();
   const { createTransaction } = useTransactions();
@@ -35,6 +39,8 @@ export default function AttendantPOS() {
 
   // Assuming attendant is assigned to first lot for demo
   const assignedLot = lots?.[0];
+  
+  const { parkedVehicles, isLoading: isLoadingParked } = useParkedVehicles(assignedLot?.id);
 
   // Refresh QR every 30 seconds
   useEffect(() => {
@@ -180,6 +186,23 @@ export default function AttendantPOS() {
     } finally {
       setIsProcessing(false);
     }
+  const handleQRCheckoutComplete = async (reservation: any) => {
+    if (!assignedLot) return;
+    
+    try {
+      // Log the exit event
+      await createSensorLog.mutateAsync({
+        lot_id: reservation.lot_id,
+        event_type: 'exit',
+        vehicle_detected: reservation.vehicle_number,
+        has_payment: true,
+      });
+
+      // Decrease occupancy
+      await updateOccupancy.mutateAsync({ lotId: reservation.lot_id, delta: -1 });
+    } catch (error) {
+      console.error('Error logging exit:', error);
+    }
   };
 
   return (
@@ -249,15 +272,25 @@ export default function AttendantPOS() {
             Scan Reservation QR
           </Button>
 
+          {/* Scan to Checkout */}
+          <Button 
+            className="w-full h-16 text-lg gap-3 bg-amber-600 hover:bg-amber-700 text-white" 
+            size="lg"
+            onClick={() => setCheckoutScannerOpen(true)}
+          >
+            <ScanLine className="w-6 h-6" />
+            Scan QR to Checkout
+          </Button>
+
           {/* Check-in */}
           <Dialog open={checkInDialogOpen} onOpenChange={setCheckInDialogOpen}>
             <DialogTrigger asChild>
               <Button 
-                className="w-full h-16 text-lg gap-3 gradient-primary" 
+                className="w-full h-14 text-base gap-3 gradient-primary" 
                 size="lg"
               >
-                <Car className="w-6 h-6" />
-                Check-in Vehicle
+                <Car className="w-5 h-5" />
+                Manual Check-in
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -286,20 +319,21 @@ export default function AttendantPOS() {
             </DialogContent>
           </Dialog>
 
-          {/* Checkout */}
+          {/* Manual Checkout */}
           <Dialog open={checkoutDialogOpen} onOpenChange={setCheckoutDialogOpen}>
             <DialogTrigger asChild>
               <Button 
-                className="w-full h-16 text-lg gap-3 bg-amber-600 hover:bg-amber-700 text-white" 
+                variant="outline"
+                className="w-full h-14 text-base gap-3" 
                 size="lg"
               >
-                <LogOut className="w-6 h-6" />
-                Checkout Vehicle
+                <LogOut className="w-5 h-5" />
+                Manual Checkout
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Checkout Vehicle</DialogTitle>
+                <DialogTitle>Manual Checkout</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 pt-4">
                 <div>
@@ -326,71 +360,104 @@ export default function AttendantPOS() {
             </DialogContent>
           </Dialog>
 
-          {/* FASTag */}
-          <Button 
-            className="w-full h-16 text-lg gap-3 bg-primary/90 hover:bg-primary" 
-            size="lg"
-            onClick={() => handlePayment('FASTag')}
-            disabled={isProcessing}
-          >
-            <CreditCard className="w-6 h-6" />
-            Scan FASTag
-            <Badge variant="secondary" className="ml-auto">
-              ₹{assignedLot?.hourly_rate ?? 0}/hr
-            </Badge>
-          </Button>
+          {/* Payment Section */}
+          <div className="pt-4 border-t border-border">
+            <p className="text-sm text-muted-foreground mb-3">Walk-in Payments</p>
+            <div className="grid grid-cols-3 gap-2">
+              <Button 
+                className="h-14 flex-col gap-1 bg-primary/90 hover:bg-primary" 
+                onClick={() => handlePayment('FASTag')}
+                disabled={isProcessing}
+              >
+                <CreditCard className="w-5 h-5" />
+                <span className="text-xs">FASTag</span>
+              </Button>
 
-          {/* Cash */}
-          <Button 
-            className="w-full h-16 text-lg gap-3 gradient-saffron text-accent-foreground hover:opacity-90" 
-            size="lg"
-            onClick={() => handlePayment('Cash')}
-            disabled={isProcessing}
-          >
-            <Banknote className="w-6 h-6" />
-            Cash Entry
-            <Badge variant="secondary" className="ml-auto bg-accent-foreground/20">
-              ₹{assignedLot?.hourly_rate ?? 0}/hr
-            </Badge>
-          </Button>
+              <Button 
+                className="h-14 flex-col gap-1 gradient-saffron text-accent-foreground hover:opacity-90" 
+                onClick={() => handlePayment('Cash')}
+                disabled={isProcessing}
+              >
+                <Banknote className="w-5 h-5" />
+                <span className="text-xs">Cash</span>
+              </Button>
 
-          {/* UPI */}
-          <Button 
-            variant="outline"
-            className="w-full h-16 text-lg gap-3" 
-            size="lg"
-            onClick={() => handlePayment('UPI')}
-            disabled={isProcessing}
-          >
-            <QrCode className="w-6 h-6" />
-            UPI Payment
-            <Badge variant="outline" className="ml-auto">
-              ₹{assignedLot?.hourly_rate ?? 0}/hr
-            </Badge>
-          </Button>
+              <Button 
+                variant="outline"
+                className="h-14 flex-col gap-1" 
+                onClick={() => handlePayment('UPI')}
+                disabled={isProcessing}
+              >
+                <QrCode className="w-5 h-5" />
+                <span className="text-xs">UPI</span>
+              </Button>
+            </div>
+          </div>
         </div>
 
-        {/* Current Status */}
+        {/* Currently Parked Vehicles */}
         <Card className="mt-6">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              Current Lot Status
+              <Users className="w-4 h-4" />
+              Currently Parked ({parkedVehicles.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {isLoadingParked ? (
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            ) : parkedVehicles.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No vehicles currently parked with reservations</p>
+            ) : (
+              <ScrollArea className="h-[200px]">
+                <div className="space-y-2">
+                  {parkedVehicles.map((vehicle) => (
+                    <div 
+                      key={vehicle.id}
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                    >
+                      <div>
+                        <p className="font-mono font-semibold text-sm">{vehicle.vehicle_number}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {vehicle.start_time} - {vehicle.end_time}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant="outline" className="border-success text-success text-xs">
+                          Checked In
+                        </Badge>
+                        {vehicle.checked_in_at && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {format(new Date(vehicle.checked_in_at), 'HH:mm')}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+          </CardContent>
+        </Card>
+        {/* Current Lot Status */}
+        <Card className="mt-4">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-foreground">{assignedLot?.name}</p>
-                <p className="text-sm text-muted-foreground">{assignedLot?.zone}</p>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                <div>
+                  <p className="font-semibold text-foreground text-sm">{assignedLot?.name}</p>
+                  <p className="text-xs text-muted-foreground">{assignedLot?.zone}</p>
+                </div>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-foreground">
+                <p className="text-xl font-bold text-foreground">
                   {assignedLot?.current_occupancy}/{assignedLot?.capacity}
                 </p>
                 <Badge 
                   variant="outline"
                   className={cn(
+                    "text-xs",
                     assignedLot && (assignedLot.current_occupancy / assignedLot.capacity) >= 0.9 
                       ? 'border-destructive text-destructive' 
                       : 'border-success text-success'
@@ -404,11 +471,20 @@ export default function AttendantPOS() {
         </Card>
       </main>
 
-      {/* QR Scanner Dialog */}
+      {/* QR Scanner Dialog - Check-in */}
       <QRScannerDialog 
         open={scannerOpen} 
         onOpenChange={setScannerOpen}
+        mode="checkin"
         onReservationVerified={handleReservationVerified}
+      />
+
+      {/* QR Scanner Dialog - Checkout */}
+      <QRScannerDialog 
+        open={checkoutScannerOpen} 
+        onOpenChange={setCheckoutScannerOpen}
+        mode="checkout"
+        onCheckoutComplete={handleQRCheckoutComplete}
       />
     </div>
   );
