@@ -196,6 +196,37 @@ export default function CitizenPortal() {
               Report Violation
             </Link>
           </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/blog">
+              <MapPin className="w-4 h-4 mr-2" />
+              Parking Tips
+            </Link>
+          </Button>
+        </div>
+
+        {/* Zone Links for SEO */}
+        <div className="mb-6">
+          <p className="text-sm text-muted-foreground mb-2">Find parking by area:</p>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/parking/connaught-place">CP</Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/parking/karol-bagh">Karol Bagh</Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/parking/chandni-chowk">Chandni Chowk</Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/parking/lajpat-nagar">Lajpat Nagar</Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/parking/nehru-place">Nehru Place</Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/parking/sarojini-nagar">Sarojini Nagar</Link>
+            </Button>
+          </div>
         </div>
 
         {/* AQI Banner */}

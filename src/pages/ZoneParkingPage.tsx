@@ -118,7 +118,7 @@ export default function ZoneParkingPage() {
         title={`Parking in ${zoneConfig.name}`}
         description={zoneConfig.metaDescription}
         keywords={`${zoneConfig.name} parking, ${zoneConfig.zone} parking Delhi, parking near ${zoneConfig.landmarks.join(', ')}, MCD parking ${zoneConfig.name}`}
-        canonicalUrl={`https://nigampark.in/parking/${zoneSlug}`}
+        canonicalUrl={`https://nigam-park.vercel.app/parking/${zoneSlug}`}
         structuredData={structuredData}
       />
       
