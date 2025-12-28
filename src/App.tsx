@@ -17,6 +17,9 @@ import VisionDashboard from "./pages/VisionDashboard";
 import FraudHunter from "./pages/FraudHunter";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import ShiftScheduling from "./pages/ShiftScheduling";
+import LoyaltyProgram from "./pages/LoyaltyProgram";
+import LiveParkingMap from "./pages/LiveParkingMap";
 
 const queryClient = new QueryClient();
 
@@ -35,11 +38,14 @@ const App = () => (
               <Route path="/admin/analytics" element={<AdminAnalytics />} />
               <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
               <Route path="/admin/fines" element={<AdminFines />} />
+              <Route path="/admin/shifts" element={<ShiftScheduling />} />
               <Route path="/my-reservations" element={<MyReservations />} />
               <Route path="/parking-history" element={<ParkingHistory />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/vision-dashboard" element={<VisionDashboard />} />
               <Route path="/fraud-hunter" element={<FraudHunter />} />
+              <Route path="/loyalty" element={<LoyaltyProgram />} />
+              <Route path="/live-map" element={<LiveParkingMap />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
