@@ -15,7 +15,7 @@ const transactionSchema = z.object({
   lot_id: z.string().uuid('Invalid lot ID'),
   vehicle_number: vehicleNumberSchema,
   amount: z.number().int().positive('Amount must be positive').max(100000, 'Amount exceeds maximum'),
-  payment_method: z.enum(['FASTag', 'Cash', 'UPI'], { errorMap: () => ({ message: 'Invalid payment method' }) }),
+  payment_method: z.enum(['FASTag', 'Cash', 'UPI', 'Overstay Fee'], { errorMap: () => ({ message: 'Invalid payment method' }) }),
   status: z.enum(['pending', 'completed', 'failed']),
   entry_time: z.string(),
   exit_time: z.string().nullable(),

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Car, CreditCard, Banknote, QrCode, CheckCircle2, Clock, LogOut, ScanLine, Users, AlertTriangle } from 'lucide-react';
+import { Car, CreditCard, Banknote, QrCode, CheckCircle2, Clock, LogOut, ScanLine, Users, AlertTriangle, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -73,7 +73,9 @@ const formatDuration = (checkedInAt: string) => {
 };
 
 // Audio alert using Web Audio API
-const playAlertSound = (type: 'warning' | 'overdue') => {
+const playAlertSound = (type: 'warning' | 'overdue', muted: boolean) => {
+  if (muted) return;
+  
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
@@ -139,6 +141,21 @@ export default function AttendantPOS() {
 
   // Track alerted vehicles to avoid repeated alerts
   const [alertedVehicles, setAlertedVehicles] = useState<Set<string>>(new Set());
+  
+  // Audio mute toggle - persist in localStorage
+  const [audioMuted, setAudioMuted] = useState(() => {
+    const saved = localStorage.getItem('pos-audio-muted');
+    return saved === 'true';
+  });
+  
+  const toggleAudioMute = () => {
+    setAudioMuted(prev => {
+      const newValue = !prev;
+      localStorage.setItem('pos-audio-muted', String(newValue));
+      toast.info(newValue ? 'Audio alerts muted' : 'Audio alerts enabled');
+      return newValue;
+    });
+  };
 
   // Refresh QR every 30 seconds
   useEffect(() => {
@@ -157,7 +174,7 @@ export default function AttendantPOS() {
       const alertKey = `${vehicle.id}-${status}`;
       
       if ((status === 'warning' || status === 'overdue') && !alertedVehicles.has(alertKey)) {
-        playAlertSound(status);
+        playAlertSound(status, audioMuted);
         setAlertedVehicles(prev => new Set([...prev, alertKey]));
         
         if (status === 'overdue') {
@@ -173,7 +190,7 @@ export default function AttendantPOS() {
         }
       }
     });
-  }, [parkedVehicles, alertedVehicles]);
+  }, [parkedVehicles, alertedVehicles, audioMuted]);
 
   const generateVehicleNumber = () => {
     const states = ['DL', 'HR', 'UP', 'RJ'];
@@ -525,10 +542,24 @@ export default function AttendantPOS() {
         {/* Currently Parked Vehicles */}
         <Card className="mt-6">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Currently Parked ({parkedVehicles.length})
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Currently Parked ({parkedVehicles.length})
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleAudioMute}
+                className={cn(
+                  "h-8 w-8 p-0",
+                  audioMuted ? "text-muted-foreground" : "text-amber-500"
+                )}
+                title={audioMuted ? "Unmute audio alerts" : "Mute audio alerts"}
+              >
+                {audioMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {isLoadingParked ? (
@@ -647,7 +678,17 @@ export default function AttendantPOS() {
                                     });
                                     await updateOccupancy.mutateAsync({ lotId: assignedLot!.id, delta: -1 });
                                     
+                                    // Record overstay fee as a transaction
                                     if (overstay.fee > 0) {
+                                      await createTransaction.mutateAsync({
+                                        lot_id: assignedLot!.id,
+                                        vehicle_number: vehicle.vehicle_number,
+                                        amount: overstay.fee,
+                                        payment_method: 'Overstay Fee',
+                                        status: 'completed',
+                                        entry_time: vehicle.checked_in_at || new Date().toISOString(),
+                                        exit_time: new Date().toISOString(),
+                                      });
                                       toast.success(`Collected ₹${overstay.fee} overstay fee`, {
                                         description: `Vehicle ${vehicle.vehicle_number} checked out`,
                                       });
