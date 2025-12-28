@@ -114,6 +114,11 @@ const handler = async (req: Request): Promise<Response> => {
           .eq('id', notificationLog.id);
       }
 
+      // Provide user-friendly error for trial account limitation
+      if (result.code === 21608) {
+        throw new Error('SMS service is in trial mode. Please verify this phone number in the Twilio console or upgrade to a paid account to send messages to unverified numbers.');
+      }
+
       throw new Error(result.message || 'Failed to send notification');
     }
 
