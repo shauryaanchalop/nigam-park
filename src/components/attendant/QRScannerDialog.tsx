@@ -41,10 +41,18 @@ interface ScannedReservation {
 interface QRScannerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  mode?: 'checkin' | 'checkout';
   onReservationVerified?: (reservation: ScannedReservation) => void;
+  onCheckoutComplete?: (reservation: ScannedReservation) => void;
 }
 
-export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: QRScannerDialogProps) {
+export function QRScannerDialog({ 
+  open, 
+  onOpenChange, 
+  mode = 'checkin',
+  onReservationVerified, 
+  onCheckoutComplete 
+}: QRScannerDialogProps) {
   const [scanning, setScanning] = useState(false);
   const [scannedData, setScannedData] = useState<ScannedReservation | null>(null);
   const [verificationStatus, setVerificationStatus] = useState<'idle' | 'verifying' | 'valid' | 'invalid' | 'permission_denied'>('idle');
@@ -170,10 +178,15 @@ export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: Q
         return;
       }
       
-      // Check if reservation is valid
+      // Check if reservation is valid based on mode
       const today = format(new Date(), 'yyyy-MM-dd');
       const isValidDate = reservation.reservation_date === today;
-      const isValidStatus = ['confirmed', 'pending'].includes(reservation.status);
+      
+      // For check-in: must be confirmed/pending
+      // For checkout: must be checked_in
+      const validStatusForCheckin = ['confirmed', 'pending'].includes(reservation.status);
+      const validStatusForCheckout = reservation.status === 'checked_in';
+      const isValidStatus = mode === 'checkout' ? validStatusForCheckout : validStatusForCheckin;
       
       if (!isValidDate) {
         setVerificationStatus('invalid');
@@ -182,8 +195,13 @@ export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: Q
       }
       
       if (!isValidStatus) {
-        setVerificationStatus('invalid');
-        setErrorMessage(`Reservation status is "${reservation.status}"`);
+        if (mode === 'checkout' && reservation.status !== 'checked_in') {
+          setVerificationStatus('invalid');
+          setErrorMessage(`Vehicle must be checked in first. Current status: "${reservation.status}"`);
+        } else {
+          setVerificationStatus('invalid');
+          setErrorMessage(`Reservation status is "${reservation.status}"`);
+        }
         return;
       }
       
@@ -229,6 +247,29 @@ export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: Q
     }
   };
 
+  const handleCheckout = async () => {
+    if (!scannedData) return;
+    
+    try {
+      const { error } = await supabase
+        .from('reservations')
+        .update({ status: 'completed' })
+        .eq('id', scannedData.id);
+      
+      if (error) throw error;
+      
+      toast.success('Vehicle checked out successfully!', {
+        description: `${scannedData.vehicle_number} - Reservation completed`,
+      });
+      
+      onCheckoutComplete?.(scannedData);
+      onOpenChange(false);
+      
+    } catch (error: any) {
+      toast.error('Failed to checkout: ' + error.message);
+    }
+  };
+
   const handleRescan = () => {
     setScannedData(null);
     setVerificationStatus('idle');
@@ -236,13 +277,15 @@ export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: Q
     startScanning();
   };
 
+  const isCheckoutMode = mode === 'checkout';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Camera className="w-5 h-5" />
-            Scan Reservation QR
+            {isCheckoutMode ? 'Scan QR to Checkout' : 'Scan Reservation QR'}
           </DialogTitle>
         </DialogHeader>
 
@@ -292,7 +335,9 @@ export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: Q
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <CheckCircle className="w-6 h-6 text-success" />
-                  <span className="font-semibold text-success">Valid Reservation</span>
+                  <span className="font-semibold text-success">
+                    {isCheckoutMode ? 'Ready for Checkout' : 'Valid Reservation'}
+                  </span>
                 </div>
                 
                 <div className="space-y-2 text-sm">
@@ -318,9 +363,15 @@ export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: Q
                   <Button variant="outline" className="flex-1" onClick={handleRescan}>
                     Scan Another
                   </Button>
-                  <Button className="flex-1" onClick={handleCheckIn}>
-                    Check In Vehicle
-                  </Button>
+                  {isCheckoutMode ? (
+                    <Button className="flex-1 bg-amber-600 hover:bg-amber-700" onClick={handleCheckout}>
+                      Confirm Checkout
+                    </Button>
+                  ) : (
+                    <Button className="flex-1" onClick={handleCheckIn}>
+                      Check In Vehicle
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -349,7 +400,10 @@ export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: Q
           {/* Help Text */}
           {verificationStatus === 'idle' && (
             <p className="text-xs text-muted-foreground text-center">
-              Position the QR code from the citizen's reservation within the camera frame
+              {isCheckoutMode 
+                ? "Scan the QR code from the citizen's reservation to complete checkout"
+                : "Position the QR code from the citizen's reservation within the camera frame"
+              }
             </p>
           )}
         </div>
