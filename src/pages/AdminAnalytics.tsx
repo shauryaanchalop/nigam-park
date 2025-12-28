@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   TrendingUp, IndianRupee, Car, Calendar, BarChart3, 
-  ArrowUpRight, ArrowDownRight, ChevronLeft 
+  ArrowUpRight, ArrowDownRight, ChevronLeft, AlertTriangle, Clock
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
@@ -13,16 +13,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   useRevenueAnalytics, 
   useOccupancyAnalytics, 
   useReservationAnalytics,
   useSummaryStats,
+  useOverstayReport,
   TimeRange 
 } from '@/hooks/useAnalytics';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
-const COLORS = ['hsl(var(--primary))', 'hsl(var(--warning))', 'hsl(var(--success))'];
+const COLORS = ['hsl(var(--primary))', 'hsl(var(--warning))', 'hsl(var(--success))', 'hsl(var(--destructive))'];
 
 export default function AdminAnalytics() {
   const [timeRange, setTimeRange] = useState<TimeRange>('daily');
@@ -30,12 +33,14 @@ export default function AdminAnalytics() {
   const { data: occupancyData, isLoading: occupancyLoading } = useOccupancyAnalytics();
   const { data: reservationStats } = useReservationAnalytics(timeRange);
   const { data: summaryStats } = useSummaryStats();
+  const { data: overstayReport, isLoading: overstayLoading } = useOverstayReport();
 
   const paymentMethodData = revenueData ? [
     { name: 'FASTag', value: revenueData.reduce((sum, d) => sum + d.fastag, 0) },
     { name: 'Cash', value: revenueData.reduce((sum, d) => sum + d.cash, 0) },
     { name: 'UPI', value: revenueData.reduce((sum, d) => sum + d.upi, 0) },
-  ] : [];
+    { name: 'Overstay Fee', value: revenueData.reduce((sum, d) => sum + d.overstayFee, 0) },
+  ].filter(d => d.value > 0) : [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -170,6 +175,7 @@ export default function AdminAnalytics() {
                     <Bar dataKey="fastag" name="FASTag" fill="hsl(var(--primary))" stackId="a" />
                     <Bar dataKey="cash" name="Cash" fill="hsl(var(--warning))" stackId="a" />
                     <Bar dataKey="upi" name="UPI" fill="hsl(var(--success))" stackId="a" />
+                    <Bar dataKey="overstayFee" name="Overstay Fee" fill="hsl(var(--destructive))" stackId="a" />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -253,6 +259,72 @@ export default function AdminAnalytics() {
                   />
                 </BarChart>
               </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Today's Overstay Report */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-destructive" />
+                  Today's Overstay Report
+                </CardTitle>
+                <CardDescription>
+                  Vehicles that incurred overstay fees today
+                </CardDescription>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-destructive">
+                  ₹{(overstayReport?.totalAmount ?? 0).toLocaleString('en-IN')}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {overstayReport?.totalVehicles ?? 0} vehicles
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {overstayLoading ? (
+              <div className="h-[200px] flex items-center justify-center">
+                <p className="text-muted-foreground">Loading...</p>
+              </div>
+            ) : !overstayReport?.records?.length ? (
+              <div className="h-[100px] flex items-center justify-center text-muted-foreground">
+                <p>No overstay fees recorded today</p>
+              </div>
+            ) : (
+              <ScrollArea className="h-[250px]">
+                <div className="space-y-2">
+                  {overstayReport.records.map((record) => (
+                    <div 
+                      key={record.id}
+                      className="flex items-center justify-between p-3 rounded-lg bg-destructive/5 border border-destructive/20"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-mono font-semibold text-sm">{record.vehicle_number}</p>
+                          <Badge variant="destructive" className="text-[10px]">
+                            Overstay
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {record.parking_lots?.name} • {record.parking_lots?.zone}
+                        </p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {format(new Date(record.created_at), 'h:mm a')}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-destructive">₹{record.amount}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
             )}
           </CardContent>
         </Card>

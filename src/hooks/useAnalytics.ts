@@ -11,6 +11,7 @@ interface RevenueDataPoint {
   fastag: number;
   cash: number;
   upi: number;
+  overstayFee: number;
 }
 
 interface OccupancyDataPoint {
@@ -80,6 +81,7 @@ export function useRevenueAnalytics(timeRange: TimeRange) {
             fastag: 0,
             cash: 0,
             upi: 0,
+            overstayFee: 0,
           };
         }
 
@@ -95,6 +97,9 @@ export function useRevenueAnalytics(timeRange: TimeRange) {
             break;
           case 'UPI':
             groupedData[key].upi += transaction.amount;
+            break;
+          case 'Overstay Fee':
+            groupedData[key].overstayFee += transaction.amount;
             break;
         }
       });
@@ -226,6 +231,51 @@ export function useSummaryStats() {
         revenueChange,
         transactionsToday: todayData?.length ?? 0,
         transactionsWeek: weekData?.length ?? 0,
+      };
+    },
+    refetchInterval: 30000,
+  });
+}
+
+export interface OverstayRecord {
+  id: string;
+  vehicle_number: string;
+  amount: number;
+  entry_time: string;
+  exit_time: string | null;
+  created_at: string;
+  parking_lots?: {
+    name: string;
+    zone: string;
+  };
+}
+
+export function useOverstayReport(date?: Date) {
+  const targetDate = date || new Date();
+  
+  return useQuery({
+    queryKey: ['overstay-report', format(targetDate, 'yyyy-MM-dd')],
+    queryFn: async () => {
+      const dayStart = startOfDay(targetDate);
+      const dayEnd = endOfDay(targetDate);
+      
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('id, vehicle_number, amount, entry_time, exit_time, created_at, parking_lots(name, zone)')
+        .eq('payment_method', 'Overstay Fee')
+        .gte('created_at', dayStart.toISOString())
+        .lte('created_at', dayEnd.toISOString())
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      const totalAmount = data?.reduce((sum, r) => sum + r.amount, 0) ?? 0;
+      const totalVehicles = data?.length ?? 0;
+      
+      return {
+        records: data as OverstayRecord[],
+        totalAmount,
+        totalVehicles,
       };
     },
     refetchInterval: 30000,
