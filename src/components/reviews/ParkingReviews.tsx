@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Star, User, ThumbsUp, Edit2, Trash2, CheckCircle, Camera, X, SlidersHorizontal, Image as ImageIcon } from 'lucide-react';
+import { Star, User, ThumbsUp, Edit2, Trash2, CheckCircle, Camera, X, SlidersHorizontal } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,10 +12,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { PhotoLightbox } from './PhotoLightbox';
+import { RatingBreakdown } from './RatingBreakdown';
+import { ReviewReply } from './ReviewReply';
 
 interface ParkingReviewsProps {
   lotId: string;
   lotName: string;
+  canReply?: boolean;
 }
 
 function StarRating({ 
@@ -66,7 +70,7 @@ function StarRating({
   );
 }
 
-export function ParkingReviews({ lotId, lotName }: ParkingReviewsProps) {
+export function ParkingReviews({ lotId, lotName, canReply = false }: ParkingReviewsProps) {
   const { user } = useAuth();
   const { 
     reviews, 
@@ -91,6 +95,9 @@ export function ParkingReviews({ lotId, lotName }: ParkingReviewsProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [filterBy, setFilterBy] = useState<FilterOption>('all');
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,8 +174,24 @@ export function ParkingReviews({ lotId, lotName }: ParkingReviewsProps) {
     await voteHelpful.mutateAsync(reviewId);
   };
 
+  const openLightbox = (imageUrl: string) => {
+    const allImages = reviews
+      .filter(r => r.photo_url)
+      .map(r => r.photo_url as string);
+    const index = allImages.indexOf(imageUrl);
+    setLightboxImages(allImages);
+    setLightboxIndex(index >= 0 ? index : 0);
+    setLightboxOpen(true);
+  };
+
   const filteredReviews = getSortedAndFilteredReviews(sortBy, filterBy)
     .filter(r => r.id !== userReview?.id);
+
+  const queryClient = useParkingReviews(lotId);
+  const refetchReviews = () => {
+    queryClient.reviews; // This triggers a refetch via the hook
+    window.location.reload(); // Simple refetch for now
+  };
 
   return (
     <Card>
@@ -184,6 +207,15 @@ export function ParkingReviews({ lotId, lotName }: ParkingReviewsProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Rating Breakdown */}
+        {reviews.length > 0 && (
+          <RatingBreakdown 
+            reviews={reviews} 
+            averageRating={averageRating} 
+            totalReviews={reviewCount} 
+          />
+        )}
+
         {/* Write Review Section */}
         {user && !hasUserReviewed && !isWriting && (
           <Button 
@@ -225,7 +257,8 @@ export function ParkingReviews({ lotId, lotName }: ParkingReviewsProps) {
                   <img 
                     src={photoUrl} 
                     alt="Review photo" 
-                    className="w-32 h-32 object-cover rounded-lg border"
+                    className="w-32 h-32 object-cover rounded-lg border cursor-pointer"
+                    onClick={() => openLightbox(photoUrl)}
                   />
                   <Button
                     variant="destructive"
@@ -302,7 +335,8 @@ export function ParkingReviews({ lotId, lotName }: ParkingReviewsProps) {
               <img 
                 src={userReview.photo_url} 
                 alt="Review photo" 
-                className="mt-2 w-full max-w-xs h-48 object-cover rounded-lg border"
+                className="mt-2 w-full max-w-xs h-48 object-cover rounded-lg border cursor-pointer hover:opacity-90"
+                onClick={() => openLightbox(userReview.photo_url!)}
               />
             )}
             <p className="text-xs text-muted-foreground mt-2">
@@ -387,7 +421,8 @@ export function ParkingReviews({ lotId, lotName }: ParkingReviewsProps) {
                     <img 
                       src={review.photo_url} 
                       alt="Review photo" 
-                      className="w-full max-w-xs h-40 object-cover rounded-lg border mb-2"
+                      className="w-full max-w-xs h-40 object-cover rounded-lg border mb-2 cursor-pointer hover:opacity-90"
+                      onClick={() => openLightbox(review.photo_url!)}
                     />
                   )}
                   <Button
@@ -403,6 +438,14 @@ export function ParkingReviews({ lotId, lotName }: ParkingReviewsProps) {
                     <ThumbsUp className={cn("w-3 h-3 mr-1", review.user_has_voted && "fill-current")} />
                     Helpful ({review.helpful_count})
                   </Button>
+
+                  {/* Review Reply Section */}
+                  <ReviewReply
+                    reviewId={review.id}
+                    replies={review.replies || []}
+                    onReplyAdded={refetchReviews}
+                    canReply={canReply}
+                  />
                 </div>
               </div>
             ))}
@@ -414,6 +457,15 @@ export function ParkingReviews({ lotId, lotName }: ParkingReviewsProps) {
             Sign in to leave a review
           </p>
         )}
+
+        {/* Photo Lightbox */}
+        <PhotoLightbox
+          images={lightboxImages}
+          currentIndex={lightboxIndex}
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          onNavigate={setLightboxIndex}
+        />
       </CardContent>
     </Card>
   );

@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { SEOHead } from '@/components/SEOHead';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +30,7 @@ import { useState } from 'react';
 export default function LotDetails() {
   const { lotId } = useParams<{ lotId: string }>();
   const navigate = useNavigate();
+  const { userRole } = useAuth();
   const { data: parkingLots, isLoading } = useParkingLots();
   const [reservationOpen, setReservationOpen] = useState(false);
 
@@ -257,7 +259,7 @@ export default function LotDetails() {
 
         {/* Reviews Section */}
         <div className="mt-6">
-          <ParkingReviews lotId={lot.id} lotName={lot.name} />
+          <ParkingReviews lotId={lot.id} lotName={lot.name} canReply={userRole === 'admin' || userRole === 'attendant'} />
         </div>
 
         {/* Reservation Dialog */}
