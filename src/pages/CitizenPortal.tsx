@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle } from 'lucide-react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,6 +9,7 @@ import { ParkingLotSkeleton } from '@/components/ui/ParkingLotSkeleton';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { ReservationDialog } from '@/components/citizen/ReservationDialog';
 import { PendingFinesBanner } from '@/components/citizen/PendingFinesBanner';
+import { Footer } from '@/components/Footer';
 import { estimateTravelTime } from '@/lib/travelTime';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -198,7 +199,7 @@ export default function CitizenPortal() {
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/blog">
-              <MapPin className="w-4 h-4 mr-2" />
+              <BookOpen className="w-4 h-4 mr-2" />
               Parking Tips
             </Link>
           </Button>
@@ -419,6 +420,8 @@ export default function CitizenPortal() {
           </div>
         )}
       </main>
+
+      <Footer />
 
       <ReservationDialog
         open={reservationOpen}
