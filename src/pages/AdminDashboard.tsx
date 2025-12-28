@@ -233,21 +233,6 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </main>
-
-      {/* Mobile Bottom Navigation */}
-      <div className="sm:hidden mobile-action-bar">
-        {quickActions.slice(0, 5).map((action) => (
-          <Link
-            key={action.label}
-            to={action.href}
-            className="flex flex-col items-center gap-1 px-3 py-1 text-muted-foreground hover:text-primary transition-colors"
-          >
-            <action.icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium">{action.label.split(' ')[0]}</span>
-          </Link>
-        ))}
-      </div>
-
     </div>
   );
 }
