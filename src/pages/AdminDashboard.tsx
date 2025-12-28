@@ -20,6 +20,7 @@ import { StatCard } from '@/components/ui/StatCard';
 import { VigilanceFeed } from '@/components/dashboard/VigilanceFeed';
 import { ParkingMap } from '@/components/dashboard/ParkingMap';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
+import { RealTimeOccupancyWidget } from '@/components/dashboard/RealTimeOccupancyWidget';
 
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTodayStats } from '@/hooks/useTransactions';
@@ -195,8 +196,11 @@ export default function AdminDashboard() {
           </div>
 
           {/* Vigilance Feed */}
-          <div className="xl:col-span-1 order-1 xl:order-2">
-            <Card className="h-full overflow-hidden border-border/50 hover:border-primary/20 transition-colors">
+          <div className="xl:col-span-1 order-1 xl:order-2 space-y-4 sm:space-y-6">
+            {/* Real-Time Occupancy Widget */}
+            <RealTimeOccupancyWidget />
+            
+            <Card className="overflow-hidden border-border/50 hover:border-primary/20 transition-colors">
               <CardHeader className="pb-2 sm:pb-4">
                 <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                   <div className="p-1.5 sm:p-2 rounded-lg bg-accent/10">
@@ -206,7 +210,7 @@ export default function AdminDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="h-[280px] sm:h-[350px] lg:h-[400px] overflow-hidden">
+                <div className="h-[280px] sm:h-[300px] overflow-hidden">
                   <VigilanceFeed />
                 </div>
               </CardContent>
