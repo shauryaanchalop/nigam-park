@@ -8,6 +8,7 @@ interface SendNotificationParams {
   type: 'sms' | 'whatsapp';
   user_id?: string;
   reservation_id?: string;
+  demo_mode?: boolean;
 }
 
 export function useNotifications() {
@@ -20,8 +21,14 @@ export function useNotifications() {
       if (error) throw error;
       return data;
     },
-    onSuccess: (_, variables) => {
-      toast.success(`${variables.type === 'whatsapp' ? 'WhatsApp' : 'SMS'} sent successfully`);
+    onSuccess: (data, variables) => {
+      if (data?.demo_mode) {
+        toast.success(`Demo: ${variables.type === 'whatsapp' ? 'WhatsApp' : 'SMS'} logged`, {
+          description: 'Message recorded but not sent (demo mode)',
+        });
+      } else {
+        toast.success(`${variables.type === 'whatsapp' ? 'WhatsApp' : 'SMS'} sent successfully`);
+      }
     },
     onError: (error) => {
       toast.error(`Failed to send notification: ${error.message}`);
@@ -38,6 +45,7 @@ export function useNotifications() {
       type = 'sms',
       userId,
       reservationId,
+      demoMode = false,
     }: { 
       phone: string;
       vehicleNumber: string;
@@ -46,6 +54,7 @@ export function useNotifications() {
       type?: 'sms' | 'whatsapp';
       userId?: string;
       reservationId?: string;
+      demoMode?: boolean;
     }) => {
       const message = `🚗 NigamPark Reminder: Your parking for ${vehicleNumber} at ${lotName} ends at ${endTime}. Please exit on time to avoid overstay charges.`;
       
@@ -55,6 +64,7 @@ export function useNotifications() {
         type,
         user_id: userId,
         reservation_id: reservationId,
+        demo_mode: demoMode,
       });
     },
   });
@@ -69,6 +79,7 @@ export function useNotifications() {
       transactionId,
       type = 'sms',
       userId,
+      demoMode = false,
     }: { 
       phone: string;
       vehicleNumber: string;
@@ -77,6 +88,7 @@ export function useNotifications() {
       transactionId: string;
       type?: 'sms' | 'whatsapp';
       userId?: string;
+      demoMode?: boolean;
     }) => {
       const message = `✅ NigamPark Receipt\n\n🚗 Vehicle: ${vehicleNumber}\n📍 Location: ${lotName}\n💰 Amount: ₹${amount}\n🧾 Ref: ${transactionId.slice(0, 8).toUpperCase()}\n\nThank you for using NigamPark!`;
       
@@ -85,6 +97,7 @@ export function useNotifications() {
         message,
         type,
         user_id: userId,
+        demo_mode: demoMode,
       });
     },
   });
@@ -102,6 +115,7 @@ export function useNotifications() {
       type = 'sms',
       userId,
       reservationId,
+      demoMode = false,
     }: { 
       phone: string;
       vehicleNumber: string;
@@ -113,6 +127,7 @@ export function useNotifications() {
       type?: 'sms' | 'whatsapp';
       userId?: string;
       reservationId?: string;
+      demoMode?: boolean;
     }) => {
       const message = `🎫 NigamPark Reservation Confirmed!\n\n🚗 ${vehicleNumber}\n📍 ${lotName}\n📅 ${date}\n⏰ ${startTime} - ${endTime}\n💰 ₹${amount}\n\nShow this message at the parking gate.`;
       
@@ -122,6 +137,7 @@ export function useNotifications() {
         type,
         user_id: userId,
         reservation_id: reservationId,
+        demo_mode: demoMode,
       });
     },
   });

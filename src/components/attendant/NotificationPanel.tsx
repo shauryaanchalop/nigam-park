@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { MessageSquare, Phone, Send, Loader2 } from 'lucide-react';
+import { MessageSquare, Phone, Send, Loader2, FlaskConical } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import {
   Tabs,
@@ -33,6 +34,7 @@ export function NotificationPanel({
   const [phone, setPhone] = useState(defaultPhone);
   const [customMessage, setCustomMessage] = useState('');
   const [selectedType, setSelectedType] = useState<'sms' | 'whatsapp'>('sms');
+  const [demoMode, setDemoMode] = useState(true);
 
   const { 
     sendParkingReminder, 
@@ -56,6 +58,7 @@ export function NotificationPanel({
       type: selectedType,
       userId,
       reservationId,
+      demoMode,
     });
   };
 
@@ -73,6 +76,7 @@ export function NotificationPanel({
       transactionId: crypto.randomUUID(),
       type: selectedType,
       userId,
+      demoMode,
     });
   };
 
@@ -88,6 +92,7 @@ export function NotificationPanel({
       type: selectedType,
       user_id: userId,
       reservation_id: reservationId,
+      demo_mode: demoMode,
     });
     setCustomMessage('');
   };
@@ -95,14 +100,37 @@ export function NotificationPanel({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-primary" />
-          Send Notification
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-primary" />
+            Send Notification
+          </CardTitle>
+          {demoMode && (
+            <Badge variant="secondary" className="gap-1">
+              <FlaskConical className="w-3 h-3" />
+              Demo
+            </Badge>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Demo Mode Toggle */}
+        <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border">
+          <div className="space-y-0.5">
+            <Label htmlFor="demo-mode" className="font-medium">Demo Mode</Label>
+            <p className="text-xs text-muted-foreground">
+              Log messages without sending (for testing)
+            </p>
+          </div>
+          <Switch
+            id="demo-mode"
+            checked={demoMode}
+            onCheckedChange={setDemoMode}
+          />
+        </div>
+
         {/* Channel Selection */}
-        <Tabs value={selectedType} onValueChange={(v) => setSelectedType(v as any)}>
+        <Tabs value={selectedType} onValueChange={(v) => setSelectedType(v as 'sms' | 'whatsapp')}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="sms" className="gap-2">
               <Phone className="w-4 h-4" />
@@ -170,13 +198,16 @@ export function NotificationPanel({
             ) : (
               <Send className="w-4 h-4 mr-2" />
             )}
-            Send {selectedType === 'whatsapp' ? 'WhatsApp' : 'SMS'}
+            {demoMode ? 'Log' : 'Send'} {selectedType === 'whatsapp' ? 'WhatsApp' : 'SMS'}
           </Button>
         </div>
 
         {/* Info */}
         <p className="text-xs text-muted-foreground text-center">
-          Messages are sent via Twilio. Standard rates apply.
+          {demoMode 
+            ? 'Demo mode: Messages are logged but not sent. Check edge function logs to see messages.'
+            : 'Messages are sent via Twilio. Standard rates apply.'
+          }
         </p>
       </CardContent>
     </Card>

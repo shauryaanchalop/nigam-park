@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Html5Qrcode, Html5QrcodeScanner } from 'html5-qrcode';
-import { Camera, X, CheckCircle, AlertCircle, Loader2, CameraOff } from 'lucide-react';
+import React, { useEffect, useRef, useState, forwardRef } from 'react';
+import { Html5Qrcode } from 'html5-qrcode';
+import { Camera, CameraOff, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -46,13 +45,13 @@ interface QRScannerDialogProps {
   onCheckoutComplete?: (reservation: ScannedReservation) => void;
 }
 
-export function QRScannerDialog({ 
+export const QRScannerDialog = forwardRef<HTMLDivElement, QRScannerDialogProps>(({ 
   open, 
   onOpenChange, 
   mode = 'checkin',
   onReservationVerified, 
   onCheckoutComplete 
-}: QRScannerDialogProps) {
+}, ref) => {
   const [scanning, setScanning] = useState(false);
   const [scannedData, setScannedData] = useState<ScannedReservation | null>(null);
   const [verificationStatus, setVerificationStatus] = useState<'idle' | 'verifying' | 'valid' | 'invalid' | 'permission_denied'>('idle');
@@ -88,12 +87,13 @@ export function QRScannerDialog({
       
       // Start scanning after permission granted
       startScanning();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Camera permission error:', error);
       setVerificationStatus('permission_denied');
-      if (error.name === 'NotAllowedError') {
+      const err = error as { name?: string };
+      if (err.name === 'NotAllowedError') {
         setErrorMessage('Camera access was denied. Please allow camera access to scan QR codes.');
-      } else if (error.name === 'NotFoundError') {
+      } else if (err.name === 'NotFoundError') {
         setErrorMessage('No camera found. Please ensure your device has a camera.');
       } else {
         setErrorMessage('Could not access camera. Please check your permissions.');
@@ -119,11 +119,11 @@ export function QRScannerDialog({
           qrbox: { width: 250, height: 250 },
         },
         handleQRCodeSuccess,
-        (errorMessage) => {
+        () => {
           // Ignore scan errors, they happen constantly when no QR is in view
         }
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error starting scanner:', error);
       setScanning(false);
       setVerificationStatus('permission_denied');
@@ -212,10 +212,11 @@ export function QRScannerDialog({
       // Send in-app notification to user
       toast.success('Reservation verified successfully!');
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('QR verification error:', error);
       setVerificationStatus('invalid');
-      setErrorMessage(error.message || 'Failed to verify QR code');
+      const err = error as { message?: string };
+      setErrorMessage(err.message || 'Failed to verify QR code');
     }
   };
 
@@ -242,8 +243,9 @@ export function QRScannerDialog({
       onReservationVerified?.(scannedData);
       onOpenChange(false);
       
-    } catch (error: any) {
-      toast.error('Failed to check in: ' + error.message);
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      toast.error('Failed to check in: ' + err.message);
     }
   };
 
@@ -265,8 +267,9 @@ export function QRScannerDialog({
       onCheckoutComplete?.(scannedData);
       onOpenChange(false);
       
-    } catch (error: any) {
-      toast.error('Failed to checkout: ' + error.message);
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      toast.error('Failed to checkout: ' + err.message);
     }
   };
 
@@ -281,7 +284,7 @@ export function QRScannerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" ref={ref}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Camera className="w-5 h-5" />
@@ -410,4 +413,6 @@ export function QRScannerDialog({
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+QRScannerDialog.displayName = 'QRScannerDialog';

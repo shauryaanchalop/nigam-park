@@ -12,6 +12,7 @@ interface NotificationRequest {
   type: 'sms' | 'whatsapp';
   user_id?: string;
   reservation_id?: string;
+  demo_mode?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -24,22 +25,11 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-    const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-    const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
-
-    if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber) {
-      console.error("Twilio credentials not configured");
-      throw new Error("SMS service not configured");
-    }
-
-    const { phone, message, type, user_id, reservation_id }: NotificationRequest = await req.json();
+    const { phone, message, type, user_id, reservation_id, demo_mode }: NotificationRequest = await req.json();
 
     if (!phone || !message) {
       throw new Error("Phone and message are required");
     }
-
-    console.log(`Sending ${type} to ${phone}: ${message.substring(0, 50)}...`);
 
     // Format phone number
     let formattedPhone = phone.replace(/\D/g, '');
@@ -50,13 +40,22 @@ const handler = async (req: Request): Promise<Response> => {
       formattedPhone = `+${formattedPhone}`;
     }
 
+    console.log(`Sending ${type} to ${formattedPhone}: ${message.substring(0, 50)}...`);
+
+    // Check if demo mode is enabled (either explicitly or via missing Twilio credentials)
+    const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
+    const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
+    const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
+
+    const isDemoMode = demo_mode || !twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber;
+
     // Log the notification attempt
     const { data: notificationLog, error: logError } = await supabase
       .from('notification_logs')
       .insert({
         user_id,
         reservation_id,
-        notification_type: type,
+        notification_type: isDemoMode ? `${type}_demo` : type,
         recipient: formattedPhone,
         message,
         status: 'pending',
@@ -68,6 +67,43 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("Error logging notification:", logError);
     }
 
+    // Demo mode - simulate sending without actually calling Twilio
+    if (isDemoMode) {
+      console.log("📱 DEMO MODE - Message logged but not sent:");
+      console.log("━".repeat(50));
+      console.log(`📞 To: ${formattedPhone}`);
+      console.log(`📝 Type: ${type.toUpperCase()}`);
+      console.log(`💬 Message:\n${message}`);
+      console.log("━".repeat(50));
+
+      // Update notification log with demo success
+      if (notificationLog) {
+        await supabase
+          .from('notification_logs')
+          .update({
+            status: 'demo_sent',
+            external_id: `demo_${Date.now()}`,
+            sent_at: new Date().toISOString(),
+          })
+          .eq('id', notificationLog.id);
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          demo_mode: true,
+          message: 'Message logged in demo mode (not actually sent)',
+          sid: `demo_${Date.now()}`,
+          recipient: formattedPhone,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Production mode - send via Twilio
     let endpoint: string;
     let body: URLSearchParams;
 
@@ -116,7 +152,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       // Provide user-friendly error for trial account limitation
       if (result.code === 21608) {
-        throw new Error('SMS service is in trial mode. Please verify this phone number in the Twilio console or upgrade to a paid account to send messages to unverified numbers.');
+        throw new Error('SMS service is in trial mode. The recipient phone number must be verified in Twilio console, or upgrade to a paid Twilio account.');
       }
 
       throw new Error(result.message || 'Failed to send notification');
