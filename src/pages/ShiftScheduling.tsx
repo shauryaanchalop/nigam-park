@@ -257,8 +257,8 @@ export default function ShiftScheduling() {
                 </SelectTrigger>
                 <SelectContent>
                   {attendants.map((user) => (
-                    <SelectItem key={user.user_id} value={user.user_id}>
-                      {user.full_name || user.email}
+                    <SelectItem key={user.id} value={user.id}>
+                      {user.full_name || user.email || user.id}
                     </SelectItem>
                   ))}
                 </SelectContent>
