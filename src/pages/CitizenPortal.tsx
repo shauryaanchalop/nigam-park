@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users, Building2 } from 'lucide-react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users, Building2, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,6 +14,7 @@ import { ParkingFilters } from '@/components/ParkingFilters';
 import { WeatherRecommendation } from '@/components/WeatherRecommendation';
 import { VoiceSearch } from '@/components/VoiceSearch';
 import { AdvertisingSlot } from '@/components/ads/AdvertisingSlot';
+import { RatingBadge } from '@/components/reviews/RatingBadge';
 import { estimateTravelTime } from '@/lib/travelTime';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -34,6 +35,8 @@ type ParkingLot = {
   has_covered_parking?: boolean | null;
   near_metro?: boolean | null;
   metro_station?: string | null;
+  average_rating?: number | null;
+  review_count?: number | null;
 };
 
 export default function CitizenPortal() {
@@ -401,6 +404,13 @@ export default function CitizenPortal() {
                             <MapPin className="w-3 h-3" />
                             {lot.zone}
                           </p>
+                          {/* Rating */}
+                          <div className="mt-1">
+                            <RatingBadge 
+                              rating={lot.average_rating ? Number(lot.average_rating) : null} 
+                              reviewCount={lot.review_count || 0}
+                            />
+                          </div>
                         </div>
                         <Badge 
                           variant={status.color === 'success' ? 'default' : 'outline'}

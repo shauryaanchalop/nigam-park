@@ -11,6 +11,12 @@ export interface ParkingLot {
   hourly_rate: number;
   status: string;
   created_at: string;
+  has_ev_charging?: boolean | null;
+  has_covered_parking?: boolean | null;
+  near_metro?: boolean | null;
+  metro_station?: string | null;
+  average_rating?: number | null;
+  review_count?: number | null;
 }
 
 export interface Transaction {

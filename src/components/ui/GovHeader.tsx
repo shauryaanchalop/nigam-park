@@ -3,7 +3,6 @@ import { LogOut, User, CalendarCheck, Repeat, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { LanguageToggle } from '@/components/ui/LanguageToggle';
 import { AccessibilityToggle } from '@/components/ui/AccessibilityWrapper';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -164,9 +163,6 @@ export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
 
               {/* Accessibility Toggle */}
               <AccessibilityToggle />
-
-              {/* Language Toggle */}
-              <LanguageToggle className="text-primary-foreground hover:bg-primary-foreground/10" />
 
               {/* Theme Toggle */}
               <ThemeToggle className="text-primary-foreground hover:bg-primary-foreground/10" />

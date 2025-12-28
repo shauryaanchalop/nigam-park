@@ -15,10 +15,15 @@ import {
   CalendarPlus,
   ArrowLeft,
   Phone,
-  AlertTriangle
+  AlertTriangle,
+  Zap,
+  Umbrella,
+  Train
 } from 'lucide-react';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { ReservationDialog } from '@/components/citizen/ReservationDialog';
+import { ParkingReviews } from '@/components/reviews/ParkingReviews';
+import { RatingBadge } from '@/components/reviews/RatingBadge';
 import { useState } from 'react';
 
 export default function LotDetails() {
@@ -147,6 +152,13 @@ export default function LotDetails() {
                     <MapPin className="h-4 w-4" />
                     {lot.zone}
                   </CardDescription>
+                  <div className="mt-2">
+                    <RatingBadge 
+                      rating={lot.average_rating ? Number(lot.average_rating) : null} 
+                      reviewCount={lot.review_count || 0}
+                      size="md"
+                    />
+                  </div>
                 </div>
                 {getStatusBadge(lot.status)}
               </div>
@@ -241,6 +253,11 @@ export default function LotDetails() {
               </p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-6">
+          <ParkingReviews lotId={lot.id} lotName={lot.name} />
         </div>
 
         {/* Reservation Dialog */}
