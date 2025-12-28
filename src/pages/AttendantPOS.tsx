@@ -186,6 +186,8 @@ export default function AttendantPOS() {
     } finally {
       setIsProcessing(false);
     }
+  };
+
   const handleQRCheckoutComplete = async (reservation: any) => {
     if (!assignedLot) return;
     
