@@ -12,7 +12,8 @@ import {
   Activity,
   TrendingUp,
   Clock,
-  Shield
+  Shield,
+  Receipt
 } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { StatCard } from '@/components/ui/StatCard';
@@ -44,6 +45,7 @@ export default function AdminDashboard() {
   const quickActions = [
     { label: 'Vision AI', icon: Eye, href: '/vision-dashboard', color: 'primary' },
     { label: 'Fraud Hunter', icon: AlertTriangle, href: '/fraud-hunter', color: 'destructive' },
+    { label: 'Fines', icon: Receipt, href: '/admin/fines', color: 'warning' },
     { label: 'Analytics', icon: BarChart3, href: '/admin/analytics', color: 'accent' },
     { label: 'Manage Lots', icon: MapPinned, href: '/admin/parking-lots', color: 'success' },
     { label: 'Users', icon: Users, href: '/admin/users', color: 'primary' },

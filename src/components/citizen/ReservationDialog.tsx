@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { format, addHours } from 'date-fns';
-import { Calendar, Clock, Car, IndianRupee, Save } from 'lucide-react';
+import { Calendar, Clock, Car, IndianRupee, Save, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { useReservations } from '@/hooks/useReservations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSavedVehicles, useProfile, useUserPreferences } from '@/hooks/useProfile';
+import { useFines } from '@/hooks/useFines';
 import { toast } from 'sonner';
 
 interface ParkingLot {
@@ -49,6 +50,7 @@ export function ReservationDialog({ open, onOpenChange, parkingLot }: Reservatio
   const { vehicles, isLoading: vehiclesLoading, addVehicle } = useSavedVehicles();
   const { profile } = useProfile();
   const { preferences } = useUserPreferences();
+  const { pendingFines, pendingFinesTotal, resolveFines } = useFines();
   
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [startTime, setStartTime] = useState('09:00');
@@ -86,7 +88,8 @@ export function ReservationDialog({ open, onOpenChange, parkingLot }: Reservatio
   if (!parkingLot) return null;
 
   const durationHours = parseInt(duration);
-  const estimatedCost = parkingLot.hourly_rate * durationHours;
+  const parkingCost = parkingLot.hourly_rate * durationHours;
+  const totalCost = parkingCost + pendingFinesTotal;
 
   const handleVehicleSelect = (vehicleId: string) => {
     if (vehicleId === 'custom') {
@@ -149,14 +152,26 @@ export function ReservationDialog({ open, onOpenChange, parkingLot }: Reservatio
     startDate.setHours(hours, minutes, 0, 0);
     const endDate = addHours(startDate, durationHours);
 
-    await createReservation.mutateAsync({
+    const reservation = await createReservation.mutateAsync({
       lot_id: parkingLot.id,
       vehicle_number: cleanedVehicleNumber,
       reservation_date: format(date, 'yyyy-MM-dd'),
       start_time: startTime,
       end_time: format(endDate, 'HH:mm'),
-      amount: estimatedCost,
+      amount: totalCost, // Include fines in the total
     });
+
+    // Mark pending fines as resolved with this reservation
+    if (pendingFines.length > 0 && reservation) {
+      try {
+        await resolveFines.mutateAsync({
+          fineIds: pendingFines.map(f => f.id),
+        });
+        toast.success('Pending fines have been cleared with this reservation');
+      } catch (error) {
+        console.error('Failed to resolve fines:', error);
+      }
+    }
 
     onOpenChange(false);
   };
@@ -355,17 +370,32 @@ export function ReservationDialog({ open, onOpenChange, parkingLot }: Reservatio
           </div>
 
           {/* Cost Summary */}
-          <div className="rounded-lg bg-muted p-4">
+          <div className="rounded-lg bg-muted p-4 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Estimated Cost</span>
-              <div className="flex items-center gap-1 font-semibold text-lg">
-                <IndianRupee className="w-4 h-4" />
-                <span>{estimatedCost}</span>
-              </div>
+              <span className="text-sm text-muted-foreground">Parking Fee</span>
+              <span className="text-sm">₹{parkingCost}</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground">
               ₹{parkingLot.hourly_rate}/hr × {durationHours} hours
             </p>
+            
+            {pendingFinesTotal > 0 && (
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <div className="flex items-center gap-2 text-warning">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span className="text-sm">Pending Fine</span>
+                </div>
+                <span className="text-sm text-warning font-medium">₹{pendingFinesTotal}</span>
+              </div>
+            )}
+            
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <span className="text-sm font-medium">Total</span>
+              <div className="flex items-center gap-1 font-semibold text-lg">
+                <IndianRupee className="w-4 h-4" />
+                <span>{totalCost}</span>
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">

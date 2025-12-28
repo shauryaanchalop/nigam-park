@@ -205,10 +205,14 @@ export function QRScannerDialog({ open, onOpenChange, onReservationVerified }: Q
     if (!scannedData) return;
     
     try {
-      // Update reservation status to checked_in
+      // Update reservation status to checked_in and set checked_in_at timestamp
+      // This prevents the no-show fine from being applied
       const { error } = await supabase
         .from('reservations')
-        .update({ status: 'checked_in' })
+        .update({ 
+          status: 'checked_in',
+          checked_in_at: new Date().toISOString(),
+        })
         .eq('id', scannedData.id);
       
       if (error) throw error;
