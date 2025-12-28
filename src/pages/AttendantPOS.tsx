@@ -28,6 +28,7 @@ import { useSensorLogs } from '@/hooks/useSensorLogs';
 import { useReservations } from '@/hooks/useReservations';
 import { useParkedVehicles } from '@/hooks/useParkedVehicles';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { format, differenceInMinutes, parse } from 'date-fns';
@@ -134,6 +135,7 @@ export default function AttendantPOS() {
   const { createSensorLog } = useSensorLogs();
   const { updateOccupancy } = useParkingLots();
   const { checkoutByVehicle } = useReservations();
+  const { t, isHindi } = useLanguage();
 
   // Assuming attendant is assigned to first lot for demo
   const assignedLot = lots?.[0];
@@ -558,7 +560,7 @@ export default function AttendantPOS() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Users className="w-4 h-4" />
-                Currently Parked ({parkedVehicles.length})
+                {t('attendant.currentlyParked')} ({parkedVehicles.length})
               </CardTitle>
               <Button
                 variant="ghost"
@@ -576,9 +578,9 @@ export default function AttendantPOS() {
           </CardHeader>
           <CardContent>
             {isLoadingParked ? (
-              <p className="text-sm text-muted-foreground">Loading...</p>
+              <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
             ) : parkedVehicles.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No vehicles currently parked with reservations</p>
+              <p className="text-sm text-muted-foreground">{t('attendant.noVehiclesParked')}</p>
             ) : (
               <ScrollArea className="h-[220px]">
                 <div className="space-y-2">
@@ -603,27 +605,27 @@ export default function AttendantPOS() {
                             {timeStatus === 'overdue' && (
                               <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
                                 <AlertTriangle className="w-2.5 h-2.5 mr-0.5" />
-                                Overdue
+                                {t('attendant.overdue')}
                               </Badge>
                             )}
                             {timeStatus === 'warning' && (
                               <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0">
                                 <Clock className="w-2.5 h-2.5 mr-0.5" />
-                                Ending soon
+                                {t('attendant.endingSoon')}
                               </Badge>
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground">
-                            Slot: {vehicle.start_time} - {vehicle.end_time}
+                            {t('attendant.slot')}: {vehicle.start_time} - {vehicle.end_time}
                           </p>
                           {duration && (
                             <p className="text-xs text-muted-foreground">
-                              Parked: {duration}
+                              {t('attendant.parked')}: {duration}
                             </p>
                           )}
                           {overstay.fee > 0 && (
                             <p className="text-xs font-semibold text-destructive">
-                              Overstay: {overstay.minutes}min → +₹{overstay.fee}
+                              {t('attendant.overstay')}: {overstay.minutes}{isHindi ? 'मिनट' : 'min'} → +₹{overstay.fee}
                             </p>
                           )}
                         </div>
@@ -641,12 +643,12 @@ export default function AttendantPOS() {
                               disabled={isProcessing}
                             >
                               <LogOut className="w-3 h-3 mr-1" />
-                              {overstay.fee > 0 ? `₹${overstay.fee}` : 'Checkout'}
+                              {overstay.fee > 0 ? `₹${overstay.fee}` : t('attendant.checkout')}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Confirm Checkout</AlertDialogTitle>
+                              <AlertDialogTitle>{t('attendant.confirmCheckout')}</AlertDialogTitle>
                               <AlertDialogDescription asChild>
                                 <div className="space-y-3">
                                   <p>
