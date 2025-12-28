@@ -1138,6 +1138,44 @@ export type Database = {
         }
         Relationships: []
       }
+      surge_pricing_rules: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          lot_id: string | null
+          max_occupancy_percent: number
+          min_occupancy_percent: number
+          multiplier: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          lot_id?: string | null
+          max_occupancy_percent?: number
+          min_occupancy_percent?: number
+          multiplier?: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          lot_id?: string | null
+          max_occupancy_percent?: number
+          min_occupancy_percent?: number
+          multiplier?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surge_pricing_rules_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number

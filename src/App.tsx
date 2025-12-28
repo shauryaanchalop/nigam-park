@@ -42,6 +42,7 @@ import MonthlyPassPage from "./pages/MonthlyPassPage";
 import ReferralPage from "./pages/ReferralPage";
 import BusinessAccountPage from "./pages/BusinessAccountPage";
 import ReviewModeration from "./pages/ReviewModeration";
+import InstallApp from "./pages/InstallApp";
 import { ParkingAssistant } from "./components/ParkingAssistant";
 const queryClient = new QueryClient();
 
@@ -90,6 +91,7 @@ const App = () => (
                   <Route path="/admin/violations" element={<AdminViolations />} />
                   <Route path="/admin/reviews" element={<ReviewModeration />} />
                   <Route path="/attendant/checkin" element={<AttendantCheckIn />} />
+                  <Route path="/install" element={<InstallApp />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
