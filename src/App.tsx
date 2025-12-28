@@ -38,6 +38,9 @@ import FAQPage from "./pages/FAQPage";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import ContactPage from "./pages/ContactPage";
+import MonthlyPassPage from "./pages/MonthlyPassPage";
+import ReferralPage from "./pages/ReferralPage";
+import { ParkingAssistant } from "./components/ParkingAssistant";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +83,8 @@ const App = () => (
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/terms" element={<TermsOfService />} />
                   <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/monthly-pass" element={<MonthlyPassPage />} />
+                  <Route path="/referral" element={<ReferralPage />} />
                   <Route path="/admin/violations" element={<AdminViolations />} />
                   <Route path="/attendant/checkin" element={<AttendantCheckIn />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
@@ -87,6 +92,7 @@ const App = () => (
                 </Routes>
               </div>
               <MobileNav />
+              <ParkingAssistant />
             </BrowserRouter>
           </AuthProvider>
         </AccessibilityProvider>
