@@ -1,5 +1,5 @@
 import React, { useState, forwardRef } from 'react';
-import { LogOut, User, CalendarCheck, Repeat, Settings } from 'lucide-react';
+import { LogOut, User, CalendarCheck, Repeat, Settings, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -7,6 +7,7 @@ import { AccessibilityToggle } from '@/components/ui/AccessibilityWrapper';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -30,8 +31,13 @@ export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
   function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance & Smart Parking System" }, ref) {
     const { user, userRole, signOut, signIn, setIsSwitchingRole } = useAuth();
     const { profile } = useProfile();
+    const { language, setLanguage, t } = useLanguage();
     const navigate = useNavigate();
     const [switchLoading, setSwitchLoading] = useState<DemoRole | null>(null);
+
+    const toggleLanguage = () => {
+      setLanguage(language === 'en' ? 'hi' : 'en');
+    };
 
     const roleLabels: Record<string, string> = {
       admin: 'MCD Commissioner',
@@ -160,6 +166,18 @@ export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
+
+              {/* Language Toggle */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleLanguage}
+                className="text-primary-foreground hover:bg-primary-foreground/10 gap-1"
+                aria-label={language === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+              >
+                <Languages className="w-4 h-4" />
+                <span className="hidden sm:inline">{language === 'en' ? 'हिंदी' : 'EN'}</span>
+              </Button>
 
               {/* Accessibility Toggle */}
               <AccessibilityToggle />

@@ -3,6 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
+interface ReviewReply {
+  id: string;
+  review_id: string;
+  user_id: string;
+  reply_text: string;
+  created_at: string;
+}
+
 interface ParkingReview {
   id: string;
   lot_id: string;
@@ -19,6 +27,7 @@ interface ParkingReview {
     avatar_url: string | null;
   } | null;
   user_has_voted?: boolean;
+  replies?: ReviewReply[];
 }
 
 interface CreateReviewInput {
@@ -73,6 +82,23 @@ export function useParkingReviews(lotId?: string) {
         userVotes = votes?.map(v => v.review_id) || [];
       }
 
+      // Fetch replies for all reviews
+      const reviewIds = reviews.map(r => r.id);
+      const { data: repliesData } = await supabase
+        .from('review_replies')
+        .select('*')
+        .in('review_id', reviewIds)
+        .order('created_at', { ascending: true });
+
+      // Map replies to reviews
+      const repliesMap = new Map<string, ReviewReply[]>();
+      repliesData?.forEach(reply => {
+        if (!repliesMap.has(reply.review_id)) {
+          repliesMap.set(reply.review_id, []);
+        }
+        repliesMap.get(reply.review_id)!.push(reply);
+      });
+
       // Map profiles to reviews
       const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
       
@@ -80,6 +106,7 @@ export function useParkingReviews(lotId?: string) {
         ...review,
         profiles: profileMap.get(review.user_id) || null,
         user_has_voted: userVotes.includes(review.id),
+        replies: repliesMap.get(review.id) || [],
       })) as ParkingReview[];
     },
     enabled: !!lotId,
