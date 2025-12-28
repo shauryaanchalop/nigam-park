@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { CameraCard } from '@/components/vision/CameraCard';
+import { VisionDetectionDemo } from '@/components/vision/VisionDetectionDemo';
 import { useCameras } from '@/hooks/useCameras';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Camera, Wifi, WifiOff, AlertCircle, ChevronLeft } from 'lucide-react';
+import { Camera, Wifi, WifiOff, AlertCircle, ChevronLeft, Maximize } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -42,13 +43,21 @@ export default function VisionDashboard() {
       <GovHeader />
       
       <main className="container mx-auto px-4 py-6">
-        {/* Back Button */}
-        <Button variant="ghost" asChild className="mb-4">
-          <Link to="/">
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back to Dashboard
-          </Link>
-        </Button>
+        {/* Back Button & Kiosk Mode */}
+        <div className="flex items-center justify-between mb-4">
+          <Button variant="ghost" asChild>
+            <Link to="/">
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Back to Dashboard
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/kiosk">
+              <Maximize className="w-4 h-4 mr-2" />
+              Kiosk Mode
+            </Link>
+          </Button>
+        </div>
 
         {/* Page Header */}
         <div className="mb-6">
@@ -112,37 +121,39 @@ export default function VisionDashboard() {
           </Card>
         </div>
 
-        {/* Camera Grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <Card key={i}>
-                <CardHeader className="pb-2">
-                  <Skeleton className="h-4 w-32" />
-                </CardHeader>
-                <CardContent className="p-0">
-                  <Skeleton className="aspect-video w-full" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {cameras?.map((camera) => (
-              <CameraCard key={camera.id} camera={camera} />
-            ))}
-          </div>
-        )}
-
-        {cameras && cameras.length === 0 && !isLoading && (
-          <Card className="text-center py-12">
-            <CardContent>
-              <Camera className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-lg font-medium">No cameras configured</p>
-              <p className="text-muted-foreground">Add cameras to start monitoring with Vision AI</p>
+        {/* Main Grid - Detection Feed + Cameras */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* ANPR Detection Demo */}
+          <VisionDetectionDemo />
+          
+          {/* Camera Grid */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Camera Feeds</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {isLoading ? (
+                <div className="grid grid-cols-2 gap-2 p-4">
+                  {[...Array(4)].map((_, i) => (
+                    <Skeleton key={i} className="aspect-video w-full rounded-lg" />
+                  ))}
+                </div>
+              ) : cameras && cameras.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2 p-4 max-h-[400px] overflow-y-auto">
+                  {cameras.map((camera) => (
+                    <CameraCard key={camera.id} camera={camera} compact />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 px-4">
+                  <Camera className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-lg font-medium">No cameras configured</p>
+                  <p className="text-muted-foreground text-sm">Add cameras to start monitoring</p>
+                </div>
+              )}
             </CardContent>
           </Card>
-        )}
+        </div>
       </main>
     </div>
   );

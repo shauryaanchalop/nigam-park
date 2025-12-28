@@ -8,9 +8,10 @@ import { useState, useEffect } from 'react';
 
 interface CameraCardProps {
   camera: CameraWithEvents;
+  compact?: boolean;
 }
 
-export function CameraCard({ camera }: CameraCardProps) {
+export function CameraCard({ camera, compact = false }: CameraCardProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Update time every second for real-time display
