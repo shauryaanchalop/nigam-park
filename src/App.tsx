@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import AdminUserManagement from "./pages/AdminUserManagement";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminParkingLots from "./pages/AdminParkingLots";
+import AdminFines from "./pages/AdminFines";
 import MyReservations from "./pages/MyReservations";
 import ParkingHistory from "./pages/ParkingHistory";
 import VisionDashboard from "./pages/VisionDashboard";
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/admin/users" element={<AdminUserManagement />} />
               <Route path="/admin/analytics" element={<AdminAnalytics />} />
               <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
+              <Route path="/admin/fines" element={<AdminFines />} />
               <Route path="/my-reservations" element={<MyReservations />} />
               <Route path="/parking-history" element={<ParkingHistory />} />
               <Route path="/profile" element={<Profile />} />

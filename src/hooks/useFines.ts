@@ -15,6 +15,18 @@ export interface UserFine {
   resolved_at: string | null;
 }
 
+export interface FineWithUser extends UserFine {
+  profiles?: {
+    full_name: string | null;
+  };
+  reservations?: {
+    vehicle_number: string;
+    parking_lots?: {
+      name: string;
+    };
+  };
+}
+
 export function useFines() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -71,9 +83,33 @@ export function useFines() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-fines'] });
       queryClient.invalidateQueries({ queryKey: ['pending-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-fines'] });
     },
     onError: (error) => {
       toast.error(`Failed to resolve fine: ${error.message}`);
+    },
+  });
+
+  const resolveFines = useMutation({
+    mutationFn: async ({ fineIds, transactionId }: { fineIds: string[]; transactionId?: string }) => {
+      const { error } = await supabase
+        .from('user_fines')
+        .update({ 
+          status: 'resolved',
+          resolved_at: new Date().toISOString(),
+          applied_to_transaction_id: transactionId || null,
+        })
+        .in('id', fineIds);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-fines'] });
+    },
+    onError: (error) => {
+      toast.error(`Failed to resolve fines: ${error.message}`);
     },
   });
 
@@ -84,5 +120,92 @@ export function useFines() {
     isLoading: finesQuery.isLoading,
     isPendingLoading: pendingFinesQuery.isLoading,
     resolveFine,
+    resolveFines,
+  };
+}
+
+// Admin hook for managing all fines
+export function useAdminFines() {
+  const queryClient = useQueryClient();
+
+  const allFinesQuery = useQuery({
+    queryKey: ['admin-fines'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_fines')
+        .select(`
+          *,
+          reservations (
+            vehicle_number,
+            parking_lots (
+              name
+            )
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as FineWithUser[];
+    },
+  });
+
+  const waiveFine = useMutation({
+    mutationFn: async ({ fineId }: { fineId: string }) => {
+      const { error } = await supabase
+        .from('user_fines')
+        .update({ 
+          status: 'waived',
+          resolved_at: new Date().toISOString(),
+        })
+        .eq('id', fineId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['user-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-fines'] });
+      toast.success('Fine waived successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to waive fine: ${error.message}`);
+    },
+  });
+
+  const adjustFine = useMutation({
+    mutationFn: async ({ fineId, newAmount }: { fineId: string; newAmount: number }) => {
+      const { error } = await supabase
+        .from('user_fines')
+        .update({ amount: newAmount })
+        .eq('id', fineId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['user-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-fines'] });
+      toast.success('Fine adjusted successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to adjust fine: ${error.message}`);
+    },
+  });
+
+  const fineStats = {
+    total: allFinesQuery.data?.length ?? 0,
+    pending: allFinesQuery.data?.filter(f => f.status === 'pending').length ?? 0,
+    resolved: allFinesQuery.data?.filter(f => f.status === 'resolved').length ?? 0,
+    waived: allFinesQuery.data?.filter(f => f.status === 'waived').length ?? 0,
+    totalPendingAmount: allFinesQuery.data?.filter(f => f.status === 'pending').reduce((sum, f) => sum + f.amount, 0) ?? 0,
+    totalCollectedAmount: allFinesQuery.data?.filter(f => f.status === 'resolved').reduce((sum, f) => sum + f.amount, 0) ?? 0,
+  };
+
+  return {
+    fines: allFinesQuery.data ?? [],
+    isLoading: allFinesQuery.isLoading,
+    waiveFine,
+    adjustFine,
+    fineStats,
   };
 }
