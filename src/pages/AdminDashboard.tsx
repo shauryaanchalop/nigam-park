@@ -49,6 +49,8 @@ export default function AdminDashboard() {
     { label: 'Analytics', icon: BarChart3, href: '/admin/analytics', color: 'accent' },
     { label: 'Manage Lots', icon: MapPinned, href: '/admin/parking-lots', color: 'success' },
     { label: 'Users', icon: Users, href: '/admin/users', color: 'primary' },
+    { label: 'Shifts', icon: Clock, href: '/admin/shifts', color: 'primary' },
+    { label: 'Live Map', icon: MapPinned, href: '/live-map', color: 'success' },
   ];
 
   return (

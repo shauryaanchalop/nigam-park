@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw } from 'lucide-react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,7 +12,7 @@ import { PendingFinesBanner } from '@/components/citizen/PendingFinesBanner';
 import { estimateTravelTime } from '@/lib/travelTime';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 interface ParkingLot {
   id: string;
@@ -163,6 +163,28 @@ export default function CitizenPortal() {
             <PendingFinesBanner />
           </div>
         )}
+
+        {/* Quick Actions for Citizens */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/live-map">
+              <Map className="w-4 h-4 mr-2" />
+              Live Map
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/loyalty">
+              <Gift className="w-4 h-4 mr-2" />
+              Loyalty Rewards
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/my-reservations">
+              <History className="w-4 h-4 mr-2" />
+              My Reservations
+            </Link>
+          </Button>
+        </div>
 
         {/* AQI Banner */}
         <Card className="mb-6 bg-success/10 border-success/30">
