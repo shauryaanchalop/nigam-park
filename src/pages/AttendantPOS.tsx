@@ -31,6 +31,9 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { format, differenceInMinutes, parse } from 'date-fns';
 
+// OVERSTAY FEE: ₹10 per 15 minutes after end time
+const OVERSTAY_RATE_PER_15MIN = 10;
+
 // Helper to get time status
 const getTimeStatus = (endTime: string) => {
   const now = new Date();
@@ -43,6 +46,23 @@ const getTimeStatus = (endTime: string) => {
   return 'normal';
 };
 
+// Helper to calculate overstay fee
+const calculateOverstayFee = (endTime: string): { minutes: number; fee: number } => {
+  const now = new Date();
+  const today = format(now, 'yyyy-MM-dd');
+  const endDateTime = parse(`${today} ${endTime}`, 'yyyy-MM-dd HH:mm:ss', new Date());
+  const overstayMinutes = differenceInMinutes(now, endDateTime);
+  
+  if (overstayMinutes <= 0) return { minutes: 0, fee: 0 };
+  
+  // Round up to nearest 15-minute block
+  const blocks = Math.ceil(overstayMinutes / 15);
+  return { 
+    minutes: overstayMinutes, 
+    fee: blocks * OVERSTAY_RATE_PER_15MIN 
+  };
+};
+
 // Helper to format duration
 const formatDuration = (checkedInAt: string) => {
   const minutes = differenceInMinutes(new Date(), new Date(checkedInAt));
@@ -50,6 +70,49 @@ const formatDuration = (checkedInAt: string) => {
   const mins = minutes % 60;
   if (hours > 0) return `${hours}h ${mins}m`;
   return `${mins}m`;
+};
+
+// Audio alert using Web Audio API
+const playAlertSound = (type: 'warning' | 'overdue') => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    if (type === 'overdue') {
+      // Urgent double beep for overdue
+      oscillator.frequency.value = 800;
+      oscillator.type = 'square';
+      gainNode.gain.value = 0.3;
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.15);
+      
+      // Second beep
+      setTimeout(() => {
+        const osc2 = audioContext.createOscillator();
+        const gain2 = audioContext.createGain();
+        osc2.connect(gain2);
+        gain2.connect(audioContext.destination);
+        osc2.frequency.value = 800;
+        osc2.type = 'square';
+        gain2.gain.value = 0.3;
+        osc2.start();
+        osc2.stop(audioContext.currentTime + 0.15);
+      }, 200);
+    } else {
+      // Gentle single beep for warning
+      oscillator.frequency.value = 600;
+      oscillator.type = 'sine';
+      gainNode.gain.value = 0.2;
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.2);
+    }
+  } catch (e) {
+    console.log('Audio alert not supported');
+  }
 };
 
 export default function AttendantPOS() {
@@ -74,6 +137,9 @@ export default function AttendantPOS() {
   
   const { parkedVehicles, isLoading: isLoadingParked } = useParkedVehicles(assignedLot?.id);
 
+  // Track alerted vehicles to avoid repeated alerts
+  const [alertedVehicles, setAlertedVehicles] = useState<Set<string>>(new Set());
+
   // Refresh QR every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
@@ -81,6 +147,33 @@ export default function AttendantPOS() {
     }, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Audio alerts for expiring/expired vehicles
+  useEffect(() => {
+    if (!parkedVehicles.length) return;
+
+    parkedVehicles.forEach((vehicle) => {
+      const status = getTimeStatus(vehicle.end_time);
+      const alertKey = `${vehicle.id}-${status}`;
+      
+      if ((status === 'warning' || status === 'overdue') && !alertedVehicles.has(alertKey)) {
+        playAlertSound(status);
+        setAlertedVehicles(prev => new Set([...prev, alertKey]));
+        
+        if (status === 'overdue') {
+          toast.error(`Vehicle ${vehicle.vehicle_number} is OVERDUE!`, {
+            description: 'Overstay fees are accumulating',
+            duration: 5000,
+          });
+        } else {
+          toast.warning(`Vehicle ${vehicle.vehicle_number} ending soon`, {
+            description: 'Parking time expires in 15 minutes',
+            duration: 4000,
+          });
+        }
+      }
+    });
+  }, [parkedVehicles, alertedVehicles]);
 
   const generateVehicleNumber = () => {
     const states = ['DL', 'HR', 'UP', 'RJ'];
@@ -448,6 +541,7 @@ export default function AttendantPOS() {
                   {parkedVehicles.map((vehicle) => {
                     const timeStatus = getTimeStatus(vehicle.end_time);
                     const duration = vehicle.checked_in_at ? formatDuration(vehicle.checked_in_at) : null;
+                    const overstay = calculateOverstayFee(vehicle.end_time);
                     
                     return (
                       <div 
@@ -483,6 +577,11 @@ export default function AttendantPOS() {
                               Parked: {duration}
                             </p>
                           )}
+                          {overstay.fee > 0 && (
+                            <p className="text-xs font-semibold text-destructive">
+                              Overstay: {overstay.minutes}min → +₹{overstay.fee}
+                            </p>
+                          )}
                         </div>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -498,25 +597,41 @@ export default function AttendantPOS() {
                               disabled={isProcessing}
                             >
                               <LogOut className="w-3 h-3 mr-1" />
-                              Checkout
+                              {overstay.fee > 0 ? `₹${overstay.fee}` : 'Checkout'}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>Confirm Checkout</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to checkout vehicle <span className="font-mono font-semibold">{vehicle.vehicle_number}</span>?
-                                {duration && (
-                                  <span className="block mt-2">
-                                    Total parking duration: <strong>{duration}</strong>
-                                  </span>
-                                )}
+                              <AlertDialogDescription asChild>
+                                <div className="space-y-3">
+                                  <p>
+                                    Checkout vehicle <span className="font-mono font-semibold">{vehicle.vehicle_number}</span>?
+                                  </p>
+                                  {duration && (
+                                    <p>Total parking duration: <strong>{duration}</strong></p>
+                                  )}
+                                  {overstay.fee > 0 && (
+                                    <div className="p-3 bg-destructive/10 border border-destructive rounded-md">
+                                      <p className="font-semibold text-destructive">Overstay Fee Applied</p>
+                                      <p className="text-sm text-muted-foreground">
+                                        Vehicle stayed {overstay.minutes} minutes past end time
+                                      </p>
+                                      <p className="text-lg font-bold text-destructive mt-1">
+                                        Collect: ₹{overstay.fee}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        (₹{OVERSTAY_RATE_PER_15MIN} per 15 minutes)
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                className="bg-amber-600 hover:bg-amber-700"
+                                className={overstay.fee > 0 ? "bg-destructive hover:bg-destructive/90" : "bg-amber-600 hover:bg-amber-700"}
                                 onClick={async () => {
                                   setIsProcessing(true);
                                   try {
@@ -531,6 +646,12 @@ export default function AttendantPOS() {
                                       has_payment: true,
                                     });
                                     await updateOccupancy.mutateAsync({ lotId: assignedLot!.id, delta: -1 });
+                                    
+                                    if (overstay.fee > 0) {
+                                      toast.success(`Collected ₹${overstay.fee} overstay fee`, {
+                                        description: `Vehicle ${vehicle.vehicle_number} checked out`,
+                                      });
+                                    }
                                   } catch (error) {
                                     console.error('Quick checkout error:', error);
                                   } finally {
@@ -538,7 +659,7 @@ export default function AttendantPOS() {
                                   }
                                 }}
                               >
-                                Confirm Checkout
+                                {overstay.fee > 0 ? `Collect ₹${overstay.fee} & Checkout` : 'Confirm Checkout'}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
