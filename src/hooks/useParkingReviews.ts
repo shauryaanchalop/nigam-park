@@ -9,6 +9,7 @@ interface ParkingReview {
   user_id: string;
   rating: number;
   review_text: string | null;
+  photo_url: string | null;
   is_verified: boolean;
   helpful_count: number;
   created_at: string;
@@ -17,20 +18,25 @@ interface ParkingReview {
     full_name: string | null;
     avatar_url: string | null;
   } | null;
+  user_has_voted?: boolean;
 }
 
 interface CreateReviewInput {
   lot_id: string;
   rating: number;
   review_text?: string;
+  photo_url?: string;
 }
+
+export type SortOption = 'newest' | 'oldest' | 'highest' | 'lowest' | 'helpful';
+export type FilterOption = 'all' | 'verified' | 'with_photos' | 'with_text';
 
 export function useParkingReviews(lotId?: string) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const reviewsQuery = useQuery({
-    queryKey: ['parking-reviews', lotId],
+    queryKey: ['parking-reviews', lotId, user?.id],
     queryFn: async () => {
       if (!lotId) return [];
       
@@ -57,12 +63,23 @@ export function useParkingReviews(lotId?: string) {
         console.warn('Failed to fetch profiles:', profilesError);
       }
 
+      // If user is logged in, check which reviews they voted for
+      let userVotes: string[] = [];
+      if (user?.id) {
+        const { data: votes } = await supabase
+          .from('review_helpful_votes')
+          .select('review_id')
+          .eq('user_id', user.id);
+        userVotes = votes?.map(v => v.review_id) || [];
+      }
+
       // Map profiles to reviews
       const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
       
       return reviews.map(review => ({
         ...review,
         profiles: profileMap.get(review.user_id) || null,
+        user_has_voted: userVotes.includes(review.id),
       })) as ParkingReview[];
     },
     enabled: !!lotId,
@@ -97,6 +114,7 @@ export function useParkingReviews(lotId?: string) {
           user_id: user.id,
           rating: input.rating,
           review_text: input.review_text || null,
+          photo_url: input.photo_url || null,
         })
         .select()
         .single();
@@ -116,12 +134,13 @@ export function useParkingReviews(lotId?: string) {
   });
 
   const updateReview = useMutation({
-    mutationFn: async ({ id, ...input }: { id: string; rating: number; review_text?: string }) => {
+    mutationFn: async ({ id, ...input }: { id: string; rating: number; review_text?: string; photo_url?: string }) => {
       const { data, error } = await supabase
         .from('parking_reviews')
         .update({
           rating: input.rating,
           review_text: input.review_text || null,
+          photo_url: input.photo_url || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
@@ -162,11 +181,129 @@ export function useParkingReviews(lotId?: string) {
     },
   });
 
+  const voteHelpful = useMutation({
+    mutationFn: async (reviewId: string) => {
+      if (!user?.id) throw new Error('Must be logged in');
+      
+      // Check if already voted
+      const { data: existingVote } = await supabase
+        .from('review_helpful_votes')
+        .select('id')
+        .eq('review_id', reviewId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existingVote) {
+        // Remove vote
+        await supabase
+          .from('review_helpful_votes')
+          .delete()
+          .eq('id', existingVote.id);
+        
+        // Decrement count manually
+        const { data: review } = await supabase
+          .from('parking_reviews')
+          .select('helpful_count')
+          .eq('id', reviewId)
+          .single();
+        
+        await supabase
+          .from('parking_reviews')
+          .update({ helpful_count: Math.max(0, (review?.helpful_count || 0) - 1) })
+          .eq('id', reviewId);
+        
+        return { action: 'removed' };
+      } else {
+        // Add vote
+        await supabase
+          .from('review_helpful_votes')
+          .insert({ review_id: reviewId, user_id: user.id });
+        
+        // Increment count manually
+        const { data: review } = await supabase
+          .from('parking_reviews')
+          .select('helpful_count')
+          .eq('id', reviewId)
+          .single();
+        
+        await supabase
+          .from('parking_reviews')
+          .update({ helpful_count: (review?.helpful_count || 0) + 1 })
+          .eq('id', reviewId);
+        
+        return { action: 'added' };
+      }
+    },
+    onSuccess: (data) => {
+      toast.success(data.action === 'added' ? 'Marked as helpful' : 'Vote removed');
+      queryClient.invalidateQueries({ queryKey: ['parking-reviews', lotId] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to vote');
+    },
+  });
+
+  const uploadPhoto = async (file: File): Promise<string> => {
+    if (!user?.id) throw new Error('Must be logged in');
+    
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('review-photos')
+      .upload(fileName, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage
+      .from('review-photos')
+      .getPublicUrl(fileName);
+
+    return data.publicUrl;
+  };
+
   const getAverageRating = () => {
     const reviews = reviewsQuery.data;
     if (!reviews || reviews.length === 0) return 0;
     const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
     return sum / reviews.length;
+  };
+
+  const getSortedAndFilteredReviews = (sortBy: SortOption, filterBy: FilterOption) => {
+    let filtered = reviewsQuery.data || [];
+    
+    // Apply filters
+    switch (filterBy) {
+      case 'verified':
+        filtered = filtered.filter(r => r.is_verified);
+        break;
+      case 'with_photos':
+        filtered = filtered.filter(r => r.photo_url);
+        break;
+      case 'with_text':
+        filtered = filtered.filter(r => r.review_text);
+        break;
+    }
+    
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'newest':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case 'highest':
+          return b.rating - a.rating;
+        case 'lowest':
+          return a.rating - b.rating;
+        case 'helpful':
+          return b.helpful_count - a.helpful_count;
+        default:
+          return 0;
+      }
+    });
+    
+    return sorted;
   };
 
   return {
@@ -179,5 +316,8 @@ export function useParkingReviews(lotId?: string) {
     createReview,
     updateReview,
     deleteReview,
+    voteHelpful,
+    uploadPhoto,
+    getSortedAndFilteredReviews,
   };
 }
