@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { NotificationPanel } from '@/components/attendant/NotificationPanel';
 
 import { QRScannerDialog } from '@/components/attendant/QRScannerDialog';
 import { useParkingLots } from '@/hooks/useParkingLots';
@@ -713,6 +714,11 @@ export default function AttendantPOS() {
             )}
           </CardContent>
         </Card>
+        {/* Notification Panel */}
+        <NotificationPanel 
+          defaultLot={assignedLot?.name}
+        />
+
         {/* Current Lot Status */}
         <Card className="mt-4">
           <CardContent className="p-4">
