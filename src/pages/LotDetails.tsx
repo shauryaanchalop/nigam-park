@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { SEOHead } from '@/components/SEOHead';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -90,8 +91,39 @@ export default function LotDetails() {
     }
   };
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ParkingFacility',
+    name: lot.name,
+    description: `Parking at ${lot.name}, ${lot.zone}. ${availableSpots} spots available out of ${lot.capacity}. Hourly rate: ₹${lot.hourly_rate}.`,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: lot.zone,
+      addressRegion: 'Delhi',
+      addressCountry: 'IN',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: lot.lat,
+      longitude: lot.lng,
+    },
+    openingHours: 'Mo-Su 00:00-23:59',
+    priceRange: `₹${lot.hourly_rate}/hour`,
+    amenityFeature: [
+      { '@type': 'LocationFeatureSpecification', name: 'CCTV Surveillance', value: true },
+      { '@type': 'LocationFeatureSpecification', name: '24/7 Access', value: true },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={`${lot.name} Parking`}
+        description={`Book parking at ${lot.name}, ${lot.zone}. ${availableSpots} spots available. ₹${lot.hourly_rate}/hr. Real-time availability, online reservation & UPI payment.`}
+        keywords={`${lot.name} parking, ${lot.zone} parking Delhi, parking near ${lot.zone}, MCD parking`}
+        canonicalUrl={`https://nigampark.in/lot/${lot.id}`}
+        structuredData={structuredData}
+      />
       <GovHeader />
       
       <main className="container py-8">
