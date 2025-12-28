@@ -31,6 +31,7 @@ import { SurgeRevenueWidget } from '@/components/dashboard/SurgeRevenueWidget';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTodayStats } from '@/hooks/useTransactions';
 import { useAlerts } from '@/hooks/useAlerts';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,6 +42,7 @@ export default function AdminDashboard() {
   const { data: stats } = useTodayStats();
   const { unresolvedCount, fraudAlerts } = useAlerts();
   const navigate = useNavigate();
+  const { t, isHindi } = useLanguage();
 
   const totalCapacity = lots?.reduce((sum, lot) => sum + lot.capacity, 0) ?? 0;
   const totalOccupancy = lots?.reduce((sum, lot) => sum + lot.current_occupancy, 0) ?? 0;
@@ -50,25 +52,25 @@ export default function AdminDashboard() {
   const estimatedLeakage = fraudAlerts.length * 150;
 
   const quickActions = [
-    { label: 'Vision AI', icon: Eye, href: '/vision-dashboard', color: 'primary' },
-    { label: 'Fraud Hunter', icon: AlertTriangle, href: '/fraud-hunter', color: 'destructive' },
-    { label: 'Violations', icon: AlertTriangle, href: '/admin/violations', color: 'warning' },
-    { label: 'Fines', icon: Receipt, href: '/admin/fines', color: 'warning' },
-    { label: 'Surge Pricing', icon: Zap, href: '/admin/surge-pricing', color: 'warning' },
-    { label: 'Analytics', icon: BarChart3, href: '/admin/analytics', color: 'accent' },
-    { label: 'Realtime', icon: Radio, href: '/admin/realtime', color: 'primary' },
-    { label: 'Manage Lots', icon: MapPinned, href: '/admin/parking-lots', color: 'success' },
-    { label: 'Users', icon: Users, href: '/admin/users', color: 'primary' },
-    { label: 'Shifts', icon: Clock, href: '/admin/shifts', color: 'primary' },
-    { label: 'Live Map', icon: MapPinned, href: '/live-map', color: 'success' },
-    { label: 'Fleet', icon: Building2, href: '/business-account', color: 'accent' },
+    { label: t('admin.visionAI'), labelKey: 'visionAI', icon: Eye, href: '/vision-dashboard', color: 'primary' },
+    { label: t('admin.fraudHunter'), labelKey: 'fraudHunter', icon: AlertTriangle, href: '/fraud-hunter', color: 'destructive' },
+    { label: t('admin.violations'), labelKey: 'violations', icon: AlertTriangle, href: '/admin/violations', color: 'warning' },
+    { label: t('admin.fines'), labelKey: 'fines', icon: Receipt, href: '/admin/fines', color: 'warning' },
+    { label: t('admin.surgePricing'), labelKey: 'surgePricing', icon: Zap, href: '/admin/surge-pricing', color: 'warning' },
+    { label: t('admin.analytics'), labelKey: 'analytics', icon: BarChart3, href: '/admin/analytics', color: 'accent' },
+    { label: t('admin.realtime'), labelKey: 'realtime', icon: Radio, href: '/admin/realtime', color: 'primary' },
+    { label: t('admin.manageLots'), labelKey: 'manageLots', icon: MapPinned, href: '/admin/parking-lots', color: 'success' },
+    { label: t('admin.users'), labelKey: 'users', icon: Users, href: '/admin/users', color: 'primary' },
+    { label: t('admin.shifts'), labelKey: 'shifts', icon: Clock, href: '/admin/shifts', color: 'primary' },
+    { label: isHindi ? 'लाइव मैप' : 'Live Map', labelKey: 'liveMap', icon: MapPinned, href: '/live-map', color: 'success' },
+    { label: t('admin.fleet'), labelKey: 'fleet', icon: Building2, href: '/business-account', color: 'accent' },
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <GovHeader 
-        title="NIGAM-Park Command Center" 
-        subtitle="MCD Revenue Assurance Dashboard"
+        title={isHindi ? 'निगम-पार्क कमांड सेंटर' : 'NIGAM-Park Command Center'} 
+        subtitle={isHindi ? 'MCD राजस्व आश्वासन डैशबोर्ड' : 'MCD Revenue Assurance Dashboard'}
       />
 
       <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-20 sm:pb-6">
@@ -82,17 +84,21 @@ export default function AdminDashboard() {
                 <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 border border-success/20">
                     <div className="w-2 h-2 rounded-full bg-success live-indicator" />
-                    <span className="text-sm font-medium text-success">System Live</span>
+                    <span className="text-sm font-medium text-success">
+                      {isHindi ? 'सिस्टम चालू' : 'System Live'}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="w-4 h-4" />
-                    <span className="hidden sm:inline">Last updated:</span>
-                    <span>{new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="hidden sm:inline">
+                      {isHindi ? 'अंतिम अपडेट:' : 'Last updated:'}
+                    </span>
+                    <span>{new Date().toLocaleTimeString(isHindi ? 'hi-IN' : 'en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   {fraudAlerts.length > 0 && (
                     <Badge variant="destructive" className="animate-pulse gap-1.5">
                       <AlertTriangle className="w-3 h-3" />
-                      {fraudAlerts.length} Alert{fraudAlerts.length > 1 ? 's' : ''}
+                      {fraudAlerts.length} {isHindi ? 'अलर्ट' : 'Alert'}{fraudAlerts.length > 1 && !isHindi ? 's' : ''}
                     </Badge>
                   )}
                 </div>
@@ -101,7 +107,7 @@ export default function AdminDashboard() {
                 <div className="hidden lg:flex items-center gap-2">
                   {quickActions.map((action) => (
                     <Button
-                      key={action.label}
+                      key={action.labelKey}
                       asChild
                       variant="outline"
                       size="sm"
@@ -121,7 +127,7 @@ export default function AdminDashboard() {
                 <div className="flex gap-2 pb-2">
                   {quickActions.map((action) => (
                     <Button
-                      key={action.label}
+                      key={action.labelKey}
                       asChild
                       variant="outline"
                       size="sm"
@@ -142,9 +148,9 @@ export default function AdminDashboard() {
         {/* Stats Grid - Responsive */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <StatCard
-            title="Revenue Today"
-            value={`₹${(stats?.totalRevenue ?? 0).toLocaleString('en-IN')}`}
-            subtitle={`${stats?.transactionCount ?? 0} transactions`}
+            title={isHindi ? 'आज का राजस्व' : 'Revenue Today'}
+            value={`₹${(stats?.totalRevenue ?? 0).toLocaleString(isHindi ? 'hi-IN' : 'en-IN')}`}
+            subtitle={`${stats?.transactionCount ?? 0} ${isHindi ? 'लेनदेन' : 'transactions'}`}
             icon={IndianRupee}
             trend="up"
             trendValue="+12%"
@@ -153,26 +159,26 @@ export default function AdminDashboard() {
             onClick={() => navigate('/admin/analytics')}
           />
           <StatCard
-            title="Occupancy"
+            title={isHindi ? 'अधिभोग' : 'Occupancy'}
             value={`${occupancyPercentage}%`}
-            subtitle={`${totalOccupancy}/${totalCapacity} spots`}
+            subtitle={`${totalOccupancy}/${totalCapacity} ${isHindi ? 'स्थान' : 'spots'}`}
             icon={Car}
             variant="default"
             compact={true}
           />
           <StatCard
-            title="Leakage"
-            value={`₹${estimatedLeakage.toLocaleString('en-IN')}`}
-            subtitle={`${fraudAlerts.length} fraud cases`}
+            title={isHindi ? 'रिसाव' : 'Leakage'}
+            value={`₹${estimatedLeakage.toLocaleString(isHindi ? 'hi-IN' : 'en-IN')}`}
+            subtitle={`${fraudAlerts.length} ${isHindi ? 'धोखाधड़ी मामले' : 'fraud cases'}`}
             icon={AlertTriangle}
             variant="danger"
             compact={true}
             onClick={() => navigate('/fraud-hunter')}
           />
           <StatCard
-            title="Alerts"
+            title={isHindi ? 'अलर्ट' : 'Alerts'}
             value={unresolvedCount}
-            subtitle="Pending action"
+            subtitle={isHindi ? 'लंबित कार्रवाई' : 'Pending action'}
             icon={Bell}
             variant={unresolvedCount > 0 ? 'warning' : 'default'}
             compact={true}
@@ -190,10 +196,10 @@ export default function AdminDashboard() {
                     <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
                       <MapPinned className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     </div>
-                    Parking Network
+                    {isHindi ? 'पार्किंग नेटवर्क' : 'Parking Network'}
                   </CardTitle>
                   <Badge variant="outline" className="text-xs">
-                    {lots?.length ?? 0} locations
+                    {lots?.length ?? 0} {isHindi ? 'स्थान' : 'locations'}
                   </Badge>
                 </div>
               </CardHeader>
@@ -216,7 +222,7 @@ export default function AdminDashboard() {
                   <div className="p-1.5 sm:p-2 rounded-lg bg-accent/10">
                     <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
                   </div>
-                  Live Activity
+                  {isHindi ? 'लाइव गतिविधि' : 'Live Activity'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
@@ -250,7 +256,7 @@ export default function AdminDashboard() {
                 <div className="p-1.5 sm:p-2 rounded-lg bg-success/10">
                   <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
                 </div>
-                Revenue Analytics
+                {isHindi ? 'राजस्व विश्लेषण' : 'Revenue Analytics'}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-2 sm:p-6">
