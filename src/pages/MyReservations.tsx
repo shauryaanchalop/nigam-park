@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { ReservationSkeleton } from '@/components/ui/ParkingLotSkeleton';
+import { PendingFinesBanner } from '@/components/citizen/PendingFinesBanner';
 import { useReservations } from '@/hooks/useReservations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -194,6 +195,11 @@ export default function MyReservations() {
             <History className="w-4 h-4" />
             View History
           </Button>
+        </div>
+
+        {/* Pending Fines Banner */}
+        <div className="mb-6">
+          <PendingFinesBanner showDetails />
         </div>
 
         {reservations.length === 0 ? (

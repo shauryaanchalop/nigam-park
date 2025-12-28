@@ -8,6 +8,7 @@ import { GovHeader } from '@/components/ui/GovHeader';
 import { ParkingLotSkeleton } from '@/components/ui/ParkingLotSkeleton';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { ReservationDialog } from '@/components/citizen/ReservationDialog';
+import { PendingFinesBanner } from '@/components/citizen/PendingFinesBanner';
 import { estimateTravelTime } from '@/lib/travelTime';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -156,6 +157,13 @@ export default function CitizenPortal() {
       />
 
       <main className="container mx-auto px-4 py-6 max-w-4xl">
+        {/* Pending Fines Banner */}
+        {user && (
+          <div className="mb-6">
+            <PendingFinesBanner />
+          </div>
+        )}
+
         {/* AQI Banner */}
         <Card className="mb-6 bg-success/10 border-success/30">
           <CardContent className="p-4">

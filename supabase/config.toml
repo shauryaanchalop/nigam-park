@@ -11,3 +11,6 @@ verify_jwt = true
 
 [functions.create-transaction]
 verify_jwt = true
+
+[functions.check-reservation-expiry]
+verify_jwt = false
