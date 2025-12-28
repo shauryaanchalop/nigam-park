@@ -488,6 +488,53 @@ export type Database = {
           },
         ]
       }
+      monthly_passes: {
+        Row: {
+          amount: number
+          created_at: string
+          end_date: string
+          id: string
+          lot_id: string | null
+          pass_type: string
+          start_date: string
+          status: string
+          user_id: string
+          vehicle_number: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          end_date: string
+          id?: string
+          lot_id?: string | null
+          pass_type?: string
+          start_date: string
+          status?: string
+          user_id: string
+          vehicle_number: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          end_date?: string
+          id?: string
+          lot_id?: string | null
+          pass_type?: string
+          start_date?: string
+          status?: string
+          user_id?: string
+          vehicle_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_passes_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_logs: {
         Row: {
           created_at: string
@@ -632,11 +679,15 @@ export type Database = {
           capacity: number
           created_at: string
           current_occupancy: number
+          has_covered_parking: boolean | null
+          has_ev_charging: boolean | null
           hourly_rate: number
           id: string
           lat: number
           lng: number
+          metro_station: string | null
           name: string
+          near_metro: boolean | null
           status: string
           zone: string
         }
@@ -644,11 +695,15 @@ export type Database = {
           capacity?: number
           created_at?: string
           current_occupancy?: number
+          has_covered_parking?: boolean | null
+          has_ev_charging?: boolean | null
           hourly_rate?: number
           id?: string
           lat: number
           lng: number
+          metro_station?: string | null
           name: string
+          near_metro?: boolean | null
           status?: string
           zone: string
         }
@@ -656,11 +711,15 @@ export type Database = {
           capacity?: number
           created_at?: string
           current_occupancy?: number
+          has_covered_parking?: boolean | null
+          has_ev_charging?: boolean | null
           hourly_rate?: number
           id?: string
           lat?: number
           lng?: number
+          metro_station?: string | null
           name?: string
+          near_metro?: boolean | null
           status?: string
           zone?: string
         }
@@ -673,6 +732,8 @@ export type Database = {
           full_name: string | null
           id: string
           phone: string | null
+          referral_code: string | null
+          referred_by: string | null
           updated_at: string
           user_id: string
         }
@@ -682,6 +743,8 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           updated_at?: string
           user_id: string
         }
@@ -691,8 +754,43 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string | null
+          referrer_id: string
+          reward_points: number | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id?: string | null
+          referrer_id: string
+          reward_points?: number | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string | null
+          referrer_id?: string
+          reward_points?: number | null
+          status?: string
         }
         Relationships: []
       }
