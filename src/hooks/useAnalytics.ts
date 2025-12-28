@@ -281,3 +281,93 @@ export function useOverstayReport(date?: Date) {
     refetchInterval: 30000,
   });
 }
+
+export type OverstayTrendRange = 'weekly' | 'monthly';
+
+interface OverstayTrendPoint {
+  date: string;
+  displayDate: string;
+  amount: number;
+  count: number;
+}
+
+export function useOverstayTrends(range: OverstayTrendRange) {
+  return useQuery({
+    queryKey: ['overstay-trends', range],
+    queryFn: async () => {
+      const now = new Date();
+      let startDate: Date;
+      let dateFormat: string;
+
+      switch (range) {
+        case 'weekly':
+          startDate = subDays(now, 7);
+          dateFormat = 'EEE';
+          break;
+        case 'monthly':
+          startDate = subDays(now, 30);
+          dateFormat = 'MMM d';
+          break;
+      }
+
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('amount, created_at')
+        .eq('payment_method', 'Overstay Fee')
+        .gte('created_at', startDate.toISOString())
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Group by date
+      const groupedData: Record<string, OverstayTrendPoint> = {};
+
+      data?.forEach((transaction) => {
+        const date = new Date(transaction.created_at);
+        const key = format(date, 'yyyy-MM-dd');
+
+        if (!groupedData[key]) {
+          groupedData[key] = {
+            date: key,
+            displayDate: format(date, dateFormat),
+            amount: 0,
+            count: 0,
+          };
+        }
+
+        groupedData[key].amount += transaction.amount;
+        groupedData[key].count += 1;
+      });
+
+      // Fill in missing dates with zeros
+      const result: OverstayTrendPoint[] = [];
+      let currentDate = new Date(startDate);
+      while (currentDate <= now) {
+        const key = format(currentDate, 'yyyy-MM-dd');
+        if (groupedData[key]) {
+          result.push(groupedData[key]);
+        } else {
+          result.push({
+            date: key,
+            displayDate: format(currentDate, dateFormat),
+            amount: 0,
+            count: 0,
+          });
+        }
+        currentDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
+      }
+
+      const totalAmount = result.reduce((sum, d) => sum + d.amount, 0);
+      const totalCount = result.reduce((sum, d) => sum + d.count, 0);
+      const avgPerDay = result.length > 0 ? Math.round(totalAmount / result.length) : 0;
+
+      return {
+        data: result,
+        totalAmount,
+        totalCount,
+        avgPerDay,
+      };
+    },
+    refetchInterval: 60000,
+  });
+}
