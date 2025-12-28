@@ -226,10 +226,14 @@ export type Database = {
       reservations: {
         Row: {
           amount: number
+          checked_in_at: string | null
           created_at: string
           end_time: string
+          fine_applied: boolean | null
           id: string
           lot_id: string
+          notification_15_sent: boolean | null
+          notification_30_sent: boolean | null
           reservation_date: string
           start_time: string
           status: string
@@ -239,10 +243,14 @@ export type Database = {
         }
         Insert: {
           amount: number
+          checked_in_at?: string | null
           created_at?: string
           end_time: string
+          fine_applied?: boolean | null
           id?: string
           lot_id: string
+          notification_15_sent?: boolean | null
+          notification_30_sent?: boolean | null
           reservation_date: string
           start_time: string
           status?: string
@@ -252,10 +260,14 @@ export type Database = {
         }
         Update: {
           amount?: number
+          checked_in_at?: string | null
           created_at?: string
           end_time?: string
+          fine_applied?: boolean | null
           id?: string
           lot_id?: string
+          notification_15_sent?: boolean | null
+          notification_30_sent?: boolean | null
           reservation_date?: string
           start_time?: string
           status?: string
@@ -378,6 +390,57 @@ export type Database = {
             columns: ["lot_id"]
             isOneToOne: false
             referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_fines: {
+        Row: {
+          amount: number
+          applied_to_transaction_id: string | null
+          created_at: string
+          id: string
+          reason: string
+          reservation_id: string | null
+          resolved_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          applied_to_transaction_id?: string | null
+          created_at?: string
+          id?: string
+          reason: string
+          reservation_id?: string | null
+          resolved_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          applied_to_transaction_id?: string | null
+          created_at?: string
+          id?: string
+          reason?: string
+          reservation_id?: string | null
+          resolved_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_fines_applied_to_transaction_id_fkey"
+            columns: ["applied_to_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_fines_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
             referencedColumns: ["id"]
           },
         ]
