@@ -121,7 +121,7 @@ export default function LotDetails() {
         title={`${lot.name} Parking`}
         description={`Book parking at ${lot.name}, ${lot.zone}. ${availableSpots} spots available. ₹${lot.hourly_rate}/hr. Real-time availability, online reservation & UPI payment.`}
         keywords={`${lot.name} parking, ${lot.zone} parking Delhi, parking near ${lot.zone}, MCD parking`}
-        canonicalUrl={`https://nigampark.in/lot/${lot.id}`}
+        canonicalUrl={`https://nigam-park.vercel.app/lot/${lot.id}`}
         structuredData={structuredData}
       />
       <GovHeader />

@@ -15,7 +15,7 @@ export function SEOHead({
   description,
   keywords,
   canonicalUrl,
-  ogImage = 'https://nigampark.in/favicon.png',
+  ogImage = 'https://nigam-park.vercel.app/favicon.png',
   ogType = 'website',
   structuredData,
 }: SEOHeadProps) {

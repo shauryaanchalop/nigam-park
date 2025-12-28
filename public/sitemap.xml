@@ -1,82 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://nigampark.in/</loc>
+    <loc>https://nigam-park.vercel.app/</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://nigampark.in/citizen</loc>
+    <loc>https://nigam-park.vercel.app/citizen</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://nigampark.in/auth</loc>
+    <loc>https://nigam-park.vercel.app/auth</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nigampark.in/live-map</loc>
+    <loc>https://nigam-park.vercel.app/live-map</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://nigampark.in/loyalty</loc>
+    <loc>https://nigam-park.vercel.app/loyalty</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nigampark.in/report-violation</loc>
+    <loc>https://nigam-park.vercel.app/report-violation</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://nigampark.in/kiosk</loc>
+    <loc>https://nigam-park.vercel.app/kiosk</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <!-- Zone Landing Pages -->
   <url>
-    <loc>https://nigampark.in/parking/connaught-place</loc>
+    <loc>https://nigam-park.vercel.app/parking/connaught-place</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://nigampark.in/parking/karol-bagh</loc>
+    <loc>https://nigam-park.vercel.app/parking/karol-bagh</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://nigampark.in/parking/chandni-chowk</loc>
+    <loc>https://nigam-park.vercel.app/parking/chandni-chowk</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://nigampark.in/parking/lajpat-nagar</loc>
+    <loc>https://nigam-park.vercel.app/parking/lajpat-nagar</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://nigampark.in/parking/nehru-place</loc>
+    <loc>https://nigam-park.vercel.app/parking/nehru-place</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://nigampark.in/parking/sarojini-nagar</loc>
+    <loc>https://nigam-park.vercel.app/parking/sarojini-nagar</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
+  </url>
+  <!-- Blog Pages -->
+  <url>
+    <loc>https://nigam-park.vercel.app/blog</loc>
+    <lastmod>2025-01-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigam-park.vercel.app/blog/parking-tips-delhi</loc>
+    <lastmod>2025-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nigam-park.vercel.app/blog/avoid-parking-fines</loc>
+    <lastmod>2025-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nigam-park.vercel.app/blog/smart-parking-benefits</loc>
+    <lastmod>2025-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>
