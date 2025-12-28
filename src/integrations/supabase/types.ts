@@ -160,6 +160,53 @@ export type Database = {
           },
         ]
       }
+      attendant_performance: {
+        Row: {
+          avg_transaction_time: number | null
+          created_at: string
+          id: string
+          lot_id: string | null
+          performance_date: string
+          shift_hours: number | null
+          total_collections: number
+          transaction_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avg_transaction_time?: number | null
+          created_at?: string
+          id?: string
+          lot_id?: string | null
+          performance_date: string
+          shift_hours?: number | null
+          total_collections?: number
+          transaction_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avg_transaction_time?: number | null
+          created_at?: string
+          id?: string
+          lot_id?: string | null
+          performance_date?: string
+          shift_hours?: number | null
+          total_collections?: number
+          transaction_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendant_performance_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendant_shifts: {
         Row: {
           created_at: string
@@ -441,6 +488,56 @@ export type Database = {
           },
         ]
       }
+      notification_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          external_id: string | null
+          id: string
+          message: string
+          notification_type: string
+          recipient: string
+          reservation_id: string | null
+          sent_at: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          external_id?: string | null
+          id?: string
+          message: string
+          notification_type: string
+          recipient: string
+          reservation_id?: string | null
+          sent_at?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          external_id?: string | null
+          id?: string
+          message?: string
+          notification_type?: string
+          recipient?: string
+          reservation_id?: string | null
+          sent_at?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_logs_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       occupancy_forecasts: {
         Row: {
           confidence_score: number
@@ -692,6 +789,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "revenue_forecasts_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      revenue_targets: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          lot_id: string | null
+          target_amount: number
+          target_date: string
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lot_id?: string | null
+          target_amount: number
+          target_date: string
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lot_id?: string | null
+          target_amount?: number
+          target_date?: string
+          target_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_targets_lot_id_fkey"
             columns: ["lot_id"]
             isOneToOne: false
             referencedRelation: "parking_lots"

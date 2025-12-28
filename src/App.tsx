@@ -21,6 +21,7 @@ import ShiftScheduling from "./pages/ShiftScheduling";
 import LoyaltyProgram from "./pages/LoyaltyProgram";
 import LiveParkingMap from "./pages/LiveParkingMap";
 import KioskMode from "./pages/KioskMode";
+import AttendantPerformance from "./pages/AttendantPerformance";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="/loyalty" element={<LoyaltyProgram />} />
               <Route path="/live-map" element={<LiveParkingMap />} />
               <Route path="/kiosk" element={<KioskMode />} />
+              <Route path="/attendant/performance" element={<AttendantPerformance />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
