@@ -32,6 +32,7 @@ import { format } from 'date-fns';
 import { RevenueForecastChart } from '@/components/analytics/RevenueForecastChart';
 import { FraudDetectionPanel } from '@/components/analytics/FraudDetectionPanel';
 import { UsageHeatmap } from '@/components/analytics/UsageHeatmap';
+import { OccupancyPredictionChart } from '@/components/analytics/OccupancyPredictionChart';
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--warning))', 'hsl(var(--success))', 'hsl(var(--destructive))'];
 
@@ -501,6 +502,11 @@ export default function AdminAnalytics() {
             
             {/* Fraud Detection */}
             <FraudDetectionPanel />
+          </div>
+
+          {/* Occupancy Prediction */}
+          <div className="mb-6">
+            <OccupancyPredictionChart />
           </div>
           
           {/* Usage Heatmap */}
