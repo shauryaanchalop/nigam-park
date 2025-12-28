@@ -31,6 +31,7 @@ import LotDetails from "./pages/LotDetails";
 import AdminViolations from "./pages/AdminViolations";
 import AttendantCheckIn from "./pages/AttendantCheckIn";
 import CitizenPortal from "./pages/CitizenPortal";
+import ZoneParkingPage from "./pages/ZoneParkingPage";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
                   <Route path="/admin/realtime" element={<RealTimeAnalytics />} />
                   <Route path="/report-violation" element={<ReportViolation />} />
                   <Route path="/lot/:lotId" element={<LotDetails />} />
+                  <Route path="/parking/:zoneSlug" element={<ZoneParkingPage />} />
                   <Route path="/admin/violations" element={<AdminViolations />} />
                   <Route path="/attendant/checkin" element={<AttendantCheckIn />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
