@@ -34,6 +34,10 @@ import CitizenPortal from "./pages/CitizenPortal";
 import ZoneParkingPage from "./pages/ZoneParkingPage";
 import BlogIndex from "./pages/BlogIndex";
 import BlogPost from "./pages/BlogPost";
+import FAQPage from "./pages/FAQPage";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import ContactPage from "./pages/ContactPage";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +76,10 @@ const App = () => (
                   <Route path="/parking/:zoneSlug" element={<ZoneParkingPage />} />
                   <Route path="/blog" element={<BlogIndex />} />
                   <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/faq" element={<FAQPage />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/contact" element={<ContactPage />} />
                   <Route path="/admin/violations" element={<AdminViolations />} />
                   <Route path="/attendant/checkin" element={<AttendantCheckIn />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
