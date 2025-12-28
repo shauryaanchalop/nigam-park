@@ -18,7 +18,7 @@ export interface Transaction {
   lot_id: string;
   vehicle_number: string;
   amount: number;
-  payment_method: 'FASTag' | 'Cash' | 'UPI';
+  payment_method: 'FASTag' | 'Cash' | 'UPI' | 'Overstay Fee';
   status: 'pending' | 'completed' | 'failed';
   entry_time: string;
   exit_time: string | null;
