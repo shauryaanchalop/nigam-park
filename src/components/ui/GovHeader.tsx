@@ -3,6 +3,8 @@ import { LogOut, User, CalendarCheck, Repeat, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { LanguageToggle } from '@/components/ui/LanguageToggle';
+import { AccessibilityToggle } from '@/components/ui/AccessibilityWrapper';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
@@ -146,6 +148,12 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
+
+            {/* Accessibility Toggle */}
+            <AccessibilityToggle />
+
+            {/* Language Toggle */}
+            <LanguageToggle />
 
             {/* Theme Toggle */}
             <ThemeToggle className="text-primary-foreground hover:bg-primary-foreground/10" />

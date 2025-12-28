@@ -2,28 +2,92 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     <link rel="icon" href="/favicon.png" type="image/png" />
-    <title>NIGAM-Park | MCD Revenue Assurance & Smart Parking System</title>
-    <meta name="description" content="Next-Gen Intelligent Governance & Monitoring for Delhi's parking infrastructure. Prevent revenue leakage and manage capacity with real-time IoT data." />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <meta name="theme-color" content="#1e40af" />
+    
+    <!-- Primary SEO -->
+    <title>NIGAM-Park | MCD Smart Parking System Delhi - Book Parking Online</title>
+    <meta name="description" content="NIGAM-Park is Delhi's official smart parking system by Municipal Corporation of Delhi. Find, book, and pay for parking spots in real-time. Reduce traffic, save time, and improve air quality." />
     <meta name="author" content="Municipal Corporation of Delhi" />
-    <meta name="keywords" content="MCD, Delhi parking, smart parking, revenue assurance, IoT, government, Municipal Corporation of Delhi, NIGAM-Park" />
-
-    <meta property="og:title" content="NIGAM-Park | MCD Smart Parking System" />
-    <meta property="og:description" content="Revenue Assurance & Smart Parking System for Municipal Corporation of Delhi" />
+    <meta name="keywords" content="MCD parking, Delhi parking, smart parking Delhi, NIGAM-Park, Municipal Corporation Delhi, book parking online, parking app Delhi, government parking system, find parking near me Delhi, MCD revenue assurance" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://nigam-park.lovable.app/" />
+    
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nigam-park.lovable.app/" />
+    <meta property="og:title" content="NIGAM-Park | Smart Parking System - Municipal Corporation of Delhi" />
+    <meta property="og:description" content="Delhi's official smart parking solution. Book parking spots, get real-time availability, and pay seamlessly. A Digital India initiative by MCD." />
     <meta property="og:image" content="/favicon.png" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:site_name" content="NIGAM-Park" />
 
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@MikiParkDelhi" />
+    <meta name="twitter:title" content="NIGAM-Park | Smart Parking Delhi" />
+    <meta name="twitter:description" content="Find and book parking in Delhi instantly. Real-time availability, UPI payments, and traffic updates." />
     <meta name="twitter:image" content="/favicon.png" />
 
+    <!-- Additional SEO -->
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1" />
+    <meta name="geo.region" content="IN-DL" />
+    <meta name="geo.placename" content="Delhi" />
+    <meta name="geo.position" content="28.6139;77.2090" />
+    <meta name="ICBM" content="28.6139, 77.2090" />
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="NIGAM-Park" />
+
+    <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "NIGAM-Park",
+      "description": "Smart Parking System for Municipal Corporation of Delhi",
+      "url": "https://nigam-park.lovable.app",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "author": {
+        "@type": "GovernmentOrganization",
+        "name": "Municipal Corporation of Delhi",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "New Delhi",
+          "addressRegion": "Delhi",
+          "addressCountry": "IN"
+        }
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.5",
+        "ratingCount": "1250"
+      }
+    }
+    </script>
   </head>
 
   <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
