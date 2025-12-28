@@ -11,35 +11,40 @@ interface NavItemProps {
   isActive: boolean;
 }
 
-function NavItem({ to, icon: Icon, label, isActive }: NavItemProps) {
-  return (
-    <Link
-      to={to}
-      className={cn(
-        'flex flex-col items-center justify-center gap-1 px-3 py-2 transition-all duration-200',
-        isActive 
-          ? 'text-primary' 
-          : 'text-muted-foreground hover:text-foreground'
-      )}
-    >
-      <div className={cn(
-        'relative p-1 rounded-xl transition-all duration-200',
-        isActive && 'bg-primary/10'
-      )}>
-        <Icon className={cn('w-5 h-5', isActive && 'animate-scale-in')} />
-        {isActive && (
-          <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
+const NavItem = React.forwardRef<HTMLAnchorElement, NavItemProps>(
+  ({ to, icon: Icon, label, isActive }, ref) => {
+    return (
+      <Link
+        ref={ref}
+        to={to}
+        className={cn(
+          'flex flex-col items-center justify-center gap-1 px-3 py-2 transition-all duration-200',
+          isActive 
+            ? 'text-primary' 
+            : 'text-muted-foreground hover:text-foreground'
         )}
-      </div>
-      <span className={cn(
-        'text-[10px] font-medium',
-        isActive && 'font-semibold'
-      )}>
-        {label}
-      </span>
-    </Link>
-  );
-}
+      >
+        <div className={cn(
+          'relative p-1 rounded-xl transition-all duration-200',
+          isActive && 'bg-primary/10'
+        )}>
+          <Icon className={cn('w-5 h-5', isActive && 'animate-scale-in')} />
+          {isActive && (
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
+          )}
+        </div>
+        <span className={cn(
+          'text-[10px] font-medium',
+          isActive && 'font-semibold'
+        )}>
+          {label}
+        </span>
+      </Link>
+    );
+  }
+);
+
+NavItem.displayName = 'NavItem';
 
 export function MobileNav() {
   const location = useLocation();

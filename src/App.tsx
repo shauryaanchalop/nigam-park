@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AccessibilityProvider } from "@/components/ui/AccessibilityWrapper";
 import { MobileNav } from "@/components/ui/MobileNav";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -28,47 +30,53 @@ import ReportViolation from "./pages/ReportViolation";
 import LotDetails from "./pages/LotDetails";
 import AdminViolations from "./pages/AdminViolations";
 import AttendantCheckIn from "./pages/AttendantCheckIn";
+import CitizenPortal from "./pages/CitizenPortal";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <div className="pb-16 md:pb-0">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/admin/users" element={<AdminUserManagement />} />
-              <Route path="/admin/analytics" element={<AdminAnalytics />} />
-              <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
-              <Route path="/admin/fines" element={<AdminFines />} />
-              <Route path="/admin/shifts" element={<ShiftScheduling />} />
-              <Route path="/my-reservations" element={<MyReservations />} />
-              <Route path="/parking-history" element={<ParkingHistory />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/vision-dashboard" element={<VisionDashboard />} />
-              <Route path="/fraud-hunter" element={<FraudHunter />} />
-              <Route path="/loyalty" element={<LoyaltyProgram />} />
-              <Route path="/live-map" element={<LiveParkingMap />} />
-              <Route path="/kiosk" element={<KioskMode />} />
-              <Route path="/attendant/performance" element={<AttendantPerformance />} />
-              <Route path="/notifications" element={<NotificationPreferences />} />
-              <Route path="/admin/realtime" element={<RealTimeAnalytics />} />
-              <Route path="/report-violation" element={<ReportViolation />} />
-              <Route path="/lot/:lotId" element={<LotDetails />} />
-              <Route path="/admin/violations" element={<AdminViolations />} />
-              <Route path="/attendant/checkin" element={<AttendantCheckIn />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
-          <MobileNav />
-        </BrowserRouter>
-      </AuthProvider>
+      <LanguageProvider>
+        <AccessibilityProvider>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <div className="pb-16 md:pb-0">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/citizen" element={<CitizenPortal />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/admin/users" element={<AdminUserManagement />} />
+                  <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                  <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
+                  <Route path="/admin/fines" element={<AdminFines />} />
+                  <Route path="/admin/shifts" element={<ShiftScheduling />} />
+                  <Route path="/my-reservations" element={<MyReservations />} />
+                  <Route path="/parking-history" element={<ParkingHistory />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/vision-dashboard" element={<VisionDashboard />} />
+                  <Route path="/fraud-hunter" element={<FraudHunter />} />
+                  <Route path="/loyalty" element={<LoyaltyProgram />} />
+                  <Route path="/live-map" element={<LiveParkingMap />} />
+                  <Route path="/kiosk" element={<KioskMode />} />
+                  <Route path="/attendant/performance" element={<AttendantPerformance />} />
+                  <Route path="/notifications" element={<NotificationPreferences />} />
+                  <Route path="/admin/realtime" element={<RealTimeAnalytics />} />
+                  <Route path="/report-violation" element={<ReportViolation />} />
+                  <Route path="/lot/:lotId" element={<LotDetails />} />
+                  <Route path="/admin/violations" element={<AdminViolations />} />
+                  <Route path="/attendant/checkin" element={<AttendantCheckIn />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </div>
+              <MobileNav />
+            </BrowserRouter>
+          </AuthProvider>
+        </AccessibilityProvider>
+      </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
