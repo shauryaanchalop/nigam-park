@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Plus, Pencil, Trash2, MapPin, Car, IndianRupee, 
-  ChevronLeft, Search, MoreHorizontal, CheckCircle, XCircle 
+  ChevronLeft, Search, MoreHorizontal, QrCode 
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,6 +43,7 @@ import {
 } from '@/components/ui/select';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { useParkingLots } from '@/hooks/useParkingLots';
+import { ParkingLotQRCode } from '@/components/admin/ParkingLotQRCode';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -325,6 +326,7 @@ export default function AdminParkingLots() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       {getStatusBadge(lot.status)}
+                      <ParkingLotQRCode lotId={lot.id} lotName={lot.name} zone={lot.zone} />
                       <span className="text-sm text-muted-foreground">
                         {lot.current_occupancy}/{lot.capacity} spots
                       </span>
