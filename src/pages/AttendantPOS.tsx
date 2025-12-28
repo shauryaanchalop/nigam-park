@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Car, CreditCard, Banknote, QrCode, CheckCircle2, Clock, LogOut, ScanLine, Users } from 'lucide-react';
+import { Car, CreditCard, Banknote, QrCode, CheckCircle2, Clock, LogOut, ScanLine, Users, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -18,7 +29,28 @@ import { useParkedVehicles } from '@/hooks/useParkedVehicles';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { format, differenceInMinutes, parse } from 'date-fns';
+
+// Helper to get time status
+const getTimeStatus = (endTime: string) => {
+  const now = new Date();
+  const today = format(now, 'yyyy-MM-dd');
+  const endDateTime = parse(`${today} ${endTime}`, 'yyyy-MM-dd HH:mm:ss', new Date());
+  const minutesRemaining = differenceInMinutes(endDateTime, now);
+  
+  if (minutesRemaining < 0) return 'overdue';
+  if (minutesRemaining <= 15) return 'warning';
+  return 'normal';
+};
+
+// Helper to format duration
+const formatDuration = (checkedInAt: string) => {
+  const minutes = differenceInMinutes(new Date(), new Date(checkedInAt));
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours > 0) return `${hours}h ${mins}m`;
+  return `${mins}m`;
+};
 
 export default function AttendantPOS() {
   const [vehicleNumber, setVehicleNumber] = useState('');
@@ -411,55 +443,109 @@ export default function AttendantPOS() {
             ) : parkedVehicles.length === 0 ? (
               <p className="text-sm text-muted-foreground">No vehicles currently parked with reservations</p>
             ) : (
-              <ScrollArea className="h-[200px]">
+              <ScrollArea className="h-[220px]">
                 <div className="space-y-2">
-                  {parkedVehicles.map((vehicle) => (
-                    <div 
-                      key={vehicle.id}
-                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg group"
-                    >
-                      <div>
-                        <p className="font-mono font-semibold text-sm">{vehicle.vehicle_number}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {vehicle.start_time} - {vehicle.end_time}
-                        </p>
-                        {vehicle.checked_in_at && (
-                          <p className="text-xs text-muted-foreground">
-                            In since {format(new Date(vehicle.checked_in_at), 'HH:mm')}
-                          </p>
+                  {parkedVehicles.map((vehicle) => {
+                    const timeStatus = getTimeStatus(vehicle.end_time);
+                    const duration = vehicle.checked_in_at ? formatDuration(vehicle.checked_in_at) : null;
+                    
+                    return (
+                      <div 
+                        key={vehicle.id}
+                        className={cn(
+                          "flex items-center justify-between p-3 rounded-lg border",
+                          timeStatus === 'overdue' && "bg-destructive/10 border-destructive",
+                          timeStatus === 'warning' && "bg-amber-500/10 border-amber-500",
+                          timeStatus === 'normal' && "bg-muted/50 border-transparent"
                         )}
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="bg-amber-600 hover:bg-amber-700 text-white border-0 text-xs"
-                        disabled={isProcessing}
-                        onClick={async () => {
-                          setIsProcessing(true);
-                          try {
-                            await checkoutByVehicle.mutateAsync({
-                              vehicleNumber: vehicle.vehicle_number,
-                              lotId: assignedLot!.id,
-                            });
-                            await createSensorLog.mutateAsync({
-                              lot_id: assignedLot!.id,
-                              event_type: 'exit',
-                              vehicle_detected: vehicle.vehicle_number,
-                              has_payment: true,
-                            });
-                            await updateOccupancy.mutateAsync({ lotId: assignedLot!.id, delta: -1 });
-                          } catch (error) {
-                            console.error('Quick checkout error:', error);
-                          } finally {
-                            setIsProcessing(false);
-                          }
-                        }}
                       >
-                        <LogOut className="w-3 h-3 mr-1" />
-                        Checkout
-                      </Button>
-                    </div>
-                  ))}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-mono font-semibold text-sm">{vehicle.vehicle_number}</p>
+                            {timeStatus === 'overdue' && (
+                              <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
+                                <AlertTriangle className="w-2.5 h-2.5 mr-0.5" />
+                                Overdue
+                              </Badge>
+                            )}
+                            {timeStatus === 'warning' && (
+                              <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0">
+                                <Clock className="w-2.5 h-2.5 mr-0.5" />
+                                Ending soon
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Slot: {vehicle.start_time} - {vehicle.end_time}
+                          </p>
+                          {duration && (
+                            <p className="text-xs text-muted-foreground">
+                              Parked: {duration}
+                            </p>
+                          )}
+                        </div>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className={cn(
+                                "text-xs border-0",
+                                timeStatus === 'overdue' 
+                                  ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                                  : "bg-amber-600 hover:bg-amber-700 text-white"
+                              )}
+                              disabled={isProcessing}
+                            >
+                              <LogOut className="w-3 h-3 mr-1" />
+                              Checkout
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirm Checkout</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to checkout vehicle <span className="font-mono font-semibold">{vehicle.vehicle_number}</span>?
+                                {duration && (
+                                  <span className="block mt-2">
+                                    Total parking duration: <strong>{duration}</strong>
+                                  </span>
+                                )}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-amber-600 hover:bg-amber-700"
+                                onClick={async () => {
+                                  setIsProcessing(true);
+                                  try {
+                                    await checkoutByVehicle.mutateAsync({
+                                      vehicleNumber: vehicle.vehicle_number,
+                                      lotId: assignedLot!.id,
+                                    });
+                                    await createSensorLog.mutateAsync({
+                                      lot_id: assignedLot!.id,
+                                      event_type: 'exit',
+                                      vehicle_detected: vehicle.vehicle_number,
+                                      has_payment: true,
+                                    });
+                                    await updateOccupancy.mutateAsync({ lotId: assignedLot!.id, delta: -1 });
+                                  } catch (error) {
+                                    console.error('Quick checkout error:', error);
+                                  } finally {
+                                    setIsProcessing(false);
+                                  }
+                                }}
+                              >
+                                Confirm Checkout
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    );
+                  })}
                 </div>
               </ScrollArea>
             )}
