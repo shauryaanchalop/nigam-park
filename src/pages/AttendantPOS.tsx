@@ -12,15 +12,18 @@ import { QRScannerDialog } from '@/components/attendant/QRScannerDialog';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTransactions, useTodayStats } from '@/hooks/useTransactions';
 import { useSensorLogs } from '@/hooks/useSensorLogs';
+import { useReservations } from '@/hooks/useReservations';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 export default function AttendantPOS() {
   const [vehicleNumber, setVehicleNumber] = useState('');
+  const [checkoutVehicle, setCheckoutVehicle] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [qrRefreshKey, setQrRefreshKey] = useState(0);
   const [checkInDialogOpen, setCheckInDialogOpen] = useState(false);
+  const [checkoutDialogOpen, setCheckoutDialogOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
 
   const { data: lots } = useParkingLots();
@@ -28,6 +31,7 @@ export default function AttendantPOS() {
   const { data: stats } = useTodayStats();
   const { createSensorLog } = useSensorLogs();
   const { updateOccupancy } = useParkingLots();
+  const { checkoutByVehicle } = useReservations();
 
   // Assuming attendant is assigned to first lot for demo
   const assignedLot = lots?.[0];
@@ -143,6 +147,41 @@ export default function AttendantPOS() {
     }
   };
 
+  const handleCheckout = async () => {
+    if (!checkoutVehicle.trim() || !assignedLot) {
+      toast.error('Please enter a vehicle number');
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      // Find and complete the reservation
+      await checkoutByVehicle.mutateAsync({
+        vehicleNumber: checkoutVehicle.trim(),
+        lotId: assignedLot.id,
+      });
+
+      // Log the exit event
+      await createSensorLog.mutateAsync({
+        lot_id: assignedLot.id,
+        event_type: 'exit',
+        vehicle_detected: checkoutVehicle,
+        has_payment: true,
+      });
+
+      // Decrease occupancy
+      await updateOccupancy.mutateAsync({ lotId: assignedLot.id, delta: -1 });
+
+      setCheckoutVehicle('');
+      setCheckoutDialogOpen(false);
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      // Toast already shown by mutation
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <GovHeader 
@@ -242,6 +281,46 @@ export default function AttendantPOS() {
                   disabled={isProcessing || !vehicleNumber.trim()}
                 >
                   {isProcessing ? 'Processing...' : 'Confirm Check-in'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Checkout */}
+          <Dialog open={checkoutDialogOpen} onOpenChange={setCheckoutDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                className="w-full h-16 text-lg gap-3 bg-amber-600 hover:bg-amber-700 text-white" 
+                size="lg"
+              >
+                <LogOut className="w-6 h-6" />
+                Checkout Vehicle
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Checkout Vehicle</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 pt-4">
+                <div>
+                  <Label htmlFor="checkout-vehicle">Vehicle Number</Label>
+                  <Input
+                    id="checkout-vehicle"
+                    placeholder="DL01AB1234"
+                    value={checkoutVehicle}
+                    onChange={(e) => setCheckoutVehicle(e.target.value.toUpperCase())}
+                    className="text-lg font-mono mt-2"
+                  />
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Enter the vehicle number to mark the reservation as completed
+                  </p>
+                </div>
+                <Button 
+                  onClick={handleCheckout}
+                  className="w-full"
+                  disabled={isProcessing || !checkoutVehicle.trim()}
+                >
+                  {isProcessing ? 'Processing...' : 'Confirm Checkout'}
                 </Button>
               </div>
             </DialogContent>

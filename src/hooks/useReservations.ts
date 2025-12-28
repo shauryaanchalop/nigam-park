@@ -112,11 +112,52 @@ export function useReservations() {
     },
   });
 
+  const checkoutByVehicle = useMutation({
+    mutationFn: async ({ vehicleNumber, lotId }: { vehicleNumber: string; lotId: string }) => {
+      // Find active reservation for this vehicle at this lot
+      const today = new Date().toISOString().split('T')[0];
+      
+      const { data: reservation, error: findError } = await supabase
+        .from('reservations')
+        .select('*')
+        .eq('vehicle_number', vehicleNumber)
+        .eq('lot_id', lotId)
+        .eq('reservation_date', today)
+        .in('status', ['confirmed', 'checked_in'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (findError) throw findError;
+      if (!reservation) throw new Error('No active reservation found for this vehicle');
+
+      // Mark as completed
+      const { error: updateError } = await supabase
+        .from('reservations')
+        .update({ status: 'completed' })
+        .eq('id', reservation.id);
+
+      if (updateError) throw updateError;
+      
+      return reservation;
+    },
+    onSuccess: (reservation) => {
+      queryClient.invalidateQueries({ queryKey: ['reservations'] });
+      toast.success('Vehicle checked out successfully', {
+        description: `Reservation for ${reservation.vehicle_number} completed`,
+      });
+    },
+    onError: (error) => {
+      toast.error(`Checkout failed: ${error.message}`);
+    },
+  });
+
   return {
     reservations: reservationsQuery.data ?? [],
     isLoading: reservationsQuery.isLoading,
     createReservation,
     cancelReservation,
     updateReservationStatus,
+    checkoutByVehicle,
   };
 }
