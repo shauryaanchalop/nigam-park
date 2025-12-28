@@ -172,6 +172,29 @@ export function useAdminFines() {
     },
   });
 
+  const resolveFine = useMutation({
+    mutationFn: async ({ fineId }: { fineId: string }) => {
+      const { error } = await supabase
+        .from('user_fines')
+        .update({ 
+          status: 'resolved',
+          resolved_at: new Date().toISOString(),
+        })
+        .eq('id', fineId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['user-fines'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-fines'] });
+      toast.success('Fine marked as resolved');
+    },
+    onError: (error) => {
+      toast.error(`Failed to resolve fine: ${error.message}`);
+    },
+  });
+
   const adjustFine = useMutation({
     mutationFn: async ({ fineId, newAmount }: { fineId: string; newAmount: number }) => {
       const { error } = await supabase
@@ -205,6 +228,7 @@ export function useAdminFines() {
     fines: allFinesQuery.data ?? [],
     isLoading: allFinesQuery.isLoading,
     waiveFine,
+    resolveFine,
     adjustFine,
     fineStats,
   };

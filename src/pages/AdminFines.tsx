@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, subDays } from 'date-fns';
 import { 
   AlertTriangle, IndianRupee, CheckCircle, XCircle, 
-  Edit2, Search, Filter, TrendingUp
+  Edit2, Search, Filter, TrendingUp, ChevronLeft, CalendarIcon, Check
 } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Dialog,
   DialogContent,
@@ -35,16 +37,19 @@ import {
 import { StatCard } from '@/components/ui/StatCard';
 import { useAdminFines, FineWithUser } from '@/hooks/useFines';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
 export default function AdminFines() {
   const navigate = useNavigate();
-  const { fines, isLoading, waiveFine, adjustFine, fineStats } = useAdminFines();
+  const { fines, isLoading, waiveFine, resolveFine, adjustFine, fineStats } = useAdminFines();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedFine, setSelectedFine] = useState<FineWithUser | null>(null);
   const [adjustDialogOpen, setAdjustDialogOpen] = useState(false);
   const [newAmount, setNewAmount] = useState('');
+  const [dateRange, setDateRange] = useState<'all' | '7days' | '30days' | 'custom'>('all');
+  const [customDate, setCustomDate] = useState<Date | undefined>(undefined);
 
   const filteredFines = fines.filter(fine => {
     const matchesSearch = 
@@ -54,7 +59,18 @@ export default function AdminFines() {
     
     const matchesStatus = statusFilter === 'all' || fine.status === statusFilter;
     
-    return matchesSearch && matchesStatus;
+    // Date filtering
+    let matchesDate = true;
+    const fineDate = parseISO(fine.created_at);
+    if (dateRange === '7days') {
+      matchesDate = fineDate >= subDays(new Date(), 7);
+    } else if (dateRange === '30days') {
+      matchesDate = fineDate >= subDays(new Date(), 30);
+    } else if (dateRange === 'custom' && customDate) {
+      matchesDate = format(fineDate, 'yyyy-MM-dd') === format(customDate, 'yyyy-MM-dd');
+    }
+    
+    return matchesSearch && matchesStatus && matchesDate;
   });
 
   const getStatusBadge = (status: string) => {
@@ -72,6 +88,10 @@ export default function AdminFines() {
 
   const handleWaive = async (fine: FineWithUser) => {
     await waiveFine.mutateAsync({ fineId: fine.id });
+  };
+
+  const handleResolve = async (fine: FineWithUser) => {
+    await resolveFine.mutateAsync({ fineId: fine.id });
   };
 
   const handleAdjust = async () => {
@@ -116,8 +136,11 @@ export default function AdminFines() {
 
       <main className="container mx-auto px-4 py-6">
         {/* Back Button */}
-        <Button variant="ghost" onClick={() => navigate('/')} className="mb-4">
-          ← Back to Dashboard
+        <Button variant="ghost" asChild className="mb-4">
+          <Link to="/">
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Back to Dashboard
+          </Link>
         </Button>
 
         {/* Stats */}
@@ -155,7 +178,7 @@ export default function AdminFines() {
         {/* Filters */}
         <Card className="mb-6">
           <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -165,18 +188,57 @@ export default function AdminFines() {
                   className="pl-10"
                 />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-40">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="resolved">Resolved</SelectItem>
-                  <SelectItem value="waived">Waived</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex flex-wrap gap-2">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-full sm:w-36">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="resolved">Resolved</SelectItem>
+                    <SelectItem value="waived">Waived</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={dateRange} onValueChange={(v) => setDateRange(v as typeof dateRange)}>
+                  <SelectTrigger className="w-full sm:w-36">
+                    <CalendarIcon className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Date Range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Time</SelectItem>
+                    <SelectItem value="7days">Last 7 Days</SelectItem>
+                    <SelectItem value="30days">Last 30 Days</SelectItem>
+                    <SelectItem value="custom">Specific Date</SelectItem>
+                  </SelectContent>
+                </Select>
+                {dateRange === 'custom' && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-[140px] justify-start text-left font-normal",
+                          !customDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {customDate ? format(customDate, "MMM d") : "Pick date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={customDate}
+                        onSelect={setCustomDate}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -242,6 +304,15 @@ export default function AdminFines() {
                         <TableCell className="text-right">
                           {fine.status === 'pending' && (
                             <div className="flex justify-end gap-2">
+                              <Button
+                                size="sm"
+                                className="bg-success hover:bg-success/90"
+                                onClick={() => handleResolve(fine)}
+                                disabled={resolveFine.isPending}
+                              >
+                                <Check className="w-3 h-3 mr-1" />
+                                Resolve
+                              </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
