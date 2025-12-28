@@ -14,3 +14,9 @@ verify_jwt = true
 
 [functions.check-reservation-expiry]
 verify_jwt = false
+
+[functions.send-sms-notification]
+verify_jwt = true
+
+[functions.generate-overstay-fines]
+verify_jwt = false
