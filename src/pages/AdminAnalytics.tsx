@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   TrendingUp, IndianRupee, Car, Calendar, BarChart3, 
-  ArrowUpRight, ArrowDownRight, ChevronLeft, AlertTriangle, Clock
+  ArrowUpRight, ArrowDownRight, ChevronLeft, AlertTriangle, Clock, CalendarIcon
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
@@ -14,6 +14,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   useRevenueAnalytics, 
   useOccupancyAnalytics, 
@@ -29,11 +31,14 @@ const COLORS = ['hsl(var(--primary))', 'hsl(var(--warning))', 'hsl(var(--success
 
 export default function AdminAnalytics() {
   const [timeRange, setTimeRange] = useState<TimeRange>('daily');
+  const [overstayDate, setOverstayDate] = useState<Date>(new Date());
   const { data: revenueData, isLoading: revenueLoading } = useRevenueAnalytics(timeRange);
   const { data: occupancyData, isLoading: occupancyLoading } = useOccupancyAnalytics();
   const { data: reservationStats } = useReservationAnalytics(timeRange);
   const { data: summaryStats } = useSummaryStats();
-  const { data: overstayReport, isLoading: overstayLoading } = useOverstayReport();
+  const { data: overstayReport, isLoading: overstayLoading } = useOverstayReport(overstayDate);
+  
+  const isToday = format(overstayDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
 
   const paymentMethodData = revenueData ? [
     { name: 'FASTag', value: revenueData.reduce((sum, d) => sum + d.fastag, 0) },
@@ -263,26 +268,52 @@ export default function AdminAnalytics() {
           </CardContent>
         </Card>
 
-        {/* Today's Overstay Report */}
+        {/* Overstay Report */}
         <Card className="mb-6">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-destructive" />
-                  Today's Overstay Report
+                  Overstay Report
                 </CardTitle>
                 <CardDescription>
-                  Vehicles that incurred overstay fees today
+                  Vehicles that incurred overstay fees
                 </CardDescription>
               </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-destructive">
-                  ₹{(overstayReport?.totalAmount ?? 0).toLocaleString('en-IN')}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {overstayReport?.totalVehicles ?? 0} vehicles
-                </p>
+              <div className="flex items-center gap-4">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[180px] justify-start text-left font-normal",
+                        !overstayDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {format(overstayDate, "PPP")}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <CalendarComponent
+                      mode="single"
+                      selected={overstayDate}
+                      onSelect={(date) => date && setOverstayDate(date)}
+                      disabled={(date) => date > new Date()}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-destructive">
+                    ₹{(overstayReport?.totalAmount ?? 0).toLocaleString('en-IN')}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {overstayReport?.totalVehicles ?? 0} vehicles
+                  </p>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -293,7 +324,7 @@ export default function AdminAnalytics() {
               </div>
             ) : !overstayReport?.records?.length ? (
               <div className="h-[100px] flex items-center justify-center text-muted-foreground">
-                <p>No overstay fees recorded today</p>
+                <p>No overstay fees recorded {isToday ? 'today' : `on ${format(overstayDate, 'MMM d, yyyy')}`}</p>
               </div>
             ) : (
               <ScrollArea className="h-[250px]">
