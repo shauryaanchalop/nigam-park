@@ -153,7 +153,7 @@ export function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance 
             <AccessibilityToggle />
 
             {/* Language Toggle */}
-            <LanguageToggle />
+            <LanguageToggle className="text-primary-foreground hover:bg-primary-foreground/10" />
 
             {/* Theme Toggle */}
             <ThemeToggle className="text-primary-foreground hover:bg-primary-foreground/10" />
