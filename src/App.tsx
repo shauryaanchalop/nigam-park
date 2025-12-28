@@ -22,6 +22,7 @@ import LoyaltyProgram from "./pages/LoyaltyProgram";
 import LiveParkingMap from "./pages/LiveParkingMap";
 import KioskMode from "./pages/KioskMode";
 import AttendantPerformance from "./pages/AttendantPerformance";
+import NotificationPreferences from "./pages/NotificationPreferences";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
               <Route path="/live-map" element={<LiveParkingMap />} />
               <Route path="/kiosk" element={<KioskMode />} />
               <Route path="/attendant/performance" element={<AttendantPerformance />} />
+              <Route path="/notifications" element={<NotificationPreferences />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

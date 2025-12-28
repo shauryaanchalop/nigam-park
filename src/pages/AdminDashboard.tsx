@@ -21,6 +21,7 @@ import { VigilanceFeed } from '@/components/dashboard/VigilanceFeed';
 import { ParkingMap } from '@/components/dashboard/ParkingMap';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { RealTimeOccupancyWidget } from '@/components/dashboard/RealTimeOccupancyWidget';
+import { RevenueTargetWidget } from '@/components/admin/RevenueTargetWidget';
 
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTodayStats } from '@/hooks/useTransactions';
@@ -217,6 +218,9 @@ export default function AdminDashboard() {
             </Card>
           </div>
         </div>
+
+        {/* Revenue Target Widget */}
+        <RevenueTargetWidget />
 
         {/* Revenue Chart Section */}
         <Card className="overflow-hidden border-border/50 hover:border-primary/20 transition-colors">
