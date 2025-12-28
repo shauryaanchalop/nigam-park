@@ -62,6 +62,148 @@ export type Database = {
           },
         ]
       }
+      anpr_detections: {
+        Row: {
+          camera_id: string | null
+          confidence_score: number | null
+          detected_at: string
+          detection_type: string
+          id: string
+          image_url: string | null
+          lot_id: string
+          processed: boolean | null
+          vehicle_number: string
+        }
+        Insert: {
+          camera_id?: string | null
+          confidence_score?: number | null
+          detected_at?: string
+          detection_type?: string
+          id?: string
+          image_url?: string | null
+          lot_id: string
+          processed?: boolean | null
+          vehicle_number: string
+        }
+        Update: {
+          camera_id?: string | null
+          confidence_score?: number | null
+          detected_at?: string
+          detection_type?: string
+          id?: string
+          image_url?: string | null
+          lot_id?: string
+          processed?: boolean | null
+          vehicle_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anpr_detections_camera_id_fkey"
+            columns: ["camera_id"]
+            isOneToOne: false
+            referencedRelation: "cameras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "anpr_detections_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attendance_records: {
+        Row: {
+          check_in_location: Json | null
+          check_in_time: string | null
+          check_out_location: Json | null
+          check_out_time: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          shift_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          check_in_location?: Json | null
+          check_in_time?: string | null
+          check_out_location?: Json | null
+          check_out_time?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          shift_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          check_in_location?: Json | null
+          check_in_time?: string | null
+          check_out_location?: Json | null
+          check_out_time?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          shift_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "attendant_shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attendant_shifts: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          lot_id: string
+          shift_date: string
+          start_time: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          lot_id: string
+          shift_date: string
+          start_time: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          lot_id?: string
+          shift_date?: string
+          start_time?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendant_shifts_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cameras: {
         Row: {
           created_at: string
@@ -119,6 +261,186 @@ export type Database = {
         }
         Relationships: []
       }
+      fraud_patterns: {
+        Row: {
+          created_at: string
+          description: string
+          detection_rules: Json
+          id: string
+          is_active: boolean | null
+          pattern_type: string
+          severity: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          detection_rules?: Json
+          id?: string
+          is_active?: boolean | null
+          pattern_type: string
+          severity?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          detection_rules?: Json
+          id?: string
+          is_active?: boolean | null
+          pattern_type?: string
+          severity?: string
+        }
+        Relationships: []
+      }
+      lot_usage_stats: {
+        Row: {
+          avg_occupancy: number
+          created_at: string
+          hour_of_day: number
+          id: string
+          lot_id: string
+          peak_occupancy: number
+          revenue: number
+          stat_date: string
+          total_vehicles: number
+        }
+        Insert: {
+          avg_occupancy?: number
+          created_at?: string
+          hour_of_day: number
+          id?: string
+          lot_id: string
+          peak_occupancy?: number
+          revenue?: number
+          stat_date: string
+          total_vehicles?: number
+        }
+        Update: {
+          avg_occupancy?: number
+          created_at?: string
+          hour_of_day?: number
+          id?: string
+          lot_id?: string
+          peak_occupancy?: number
+          revenue?: number
+          stat_date?: string
+          total_vehicles?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lot_usage_stats_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_accounts: {
+        Row: {
+          created_at: string
+          current_tier_id: string | null
+          id: string
+          lifetime_points: number
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_tier_id?: string | null
+          id?: string
+          lifetime_points?: number
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_tier_id?: string | null
+          id?: string
+          lifetime_points?: number
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_accounts_current_tier_id_fkey"
+            columns: ["current_tier_id"]
+            isOneToOne: false
+            referencedRelation: "loyalty_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_tiers: {
+        Row: {
+          color: string | null
+          created_at: string
+          discount_percentage: number
+          icon: string | null
+          id: string
+          min_points: number
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          discount_percentage?: number
+          icon?: string | null
+          id?: string
+          min_points?: number
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          discount_percentage?: number
+          icon?: string | null
+          id?: string
+          min_points?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      loyalty_transactions: {
+        Row: {
+          account_id: string
+          created_at: string
+          description: string | null
+          id: string
+          points: number
+          reference_id: string | null
+          transaction_type: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          points: number
+          reference_id?: string | null
+          transaction_type: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          points?: number
+          reference_id?: string | null
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "loyalty_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       occupancy_forecasts: {
         Row: {
           confidence_score: number
@@ -148,6 +470,60 @@ export type Database = {
           {
             foreignKeyName: "occupancy_forecasts_parking_lot_id_fkey"
             columns: ["parking_lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      overstay_alerts: {
+        Row: {
+          created_at: string
+          entry_time: string
+          expected_exit_time: string | null
+          fine_id: string | null
+          id: string
+          lot_id: string
+          overstay_minutes: number
+          resolved_at: string | null
+          status: string
+          vehicle_number: string
+        }
+        Insert: {
+          created_at?: string
+          entry_time: string
+          expected_exit_time?: string | null
+          fine_id?: string | null
+          id?: string
+          lot_id: string
+          overstay_minutes?: number
+          resolved_at?: string | null
+          status?: string
+          vehicle_number: string
+        }
+        Update: {
+          created_at?: string
+          entry_time?: string
+          expected_exit_time?: string | null
+          fine_id?: string | null
+          id?: string
+          lot_id?: string
+          overstay_minutes?: number
+          resolved_at?: string | null
+          status?: string
+          vehicle_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "overstay_alerts_fine_id_fkey"
+            columns: ["fine_id"]
+            isOneToOne: false
+            referencedRelation: "user_fines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "overstay_alerts_lot_id_fkey"
+            columns: ["lot_id"]
             isOneToOne: false
             referencedRelation: "parking_lots"
             referencedColumns: ["id"]
@@ -285,6 +661,44 @@ export type Database = {
           },
         ]
       }
+      revenue_forecasts: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          forecast_date: string
+          id: string
+          lot_id: string | null
+          model_version: string | null
+          predicted_revenue: number
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          forecast_date: string
+          id?: string
+          lot_id?: string | null
+          model_version?: string | null
+          predicted_revenue: number
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          forecast_date?: string
+          id?: string
+          lot_id?: string | null
+          model_version?: string | null
+          predicted_revenue?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_forecasts_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_vehicles: {
         Row: {
           created_at: string
@@ -349,6 +763,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      shift_templates: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          name: string
+          start_time: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          name: string
+          start_time: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          name?: string
+          start_time?: string
+        }
+        Relationships: []
       }
       transactions: {
         Row: {
