@@ -251,6 +251,89 @@ export type Database = {
           },
         ]
       }
+      availability_subscriptions: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_notified_at: string | null
+          lot_id: string
+          notify_when_available: boolean | null
+          threshold_percent: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_notified_at?: string | null
+          lot_id: string
+          notify_when_available?: boolean | null
+          threshold_percent?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_notified_at?: string | null
+          lot_id?: string
+          notify_when_available?: boolean | null
+          threshold_percent?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_subscriptions_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_accounts: {
+        Row: {
+          company_email: string | null
+          company_name: string
+          company_phone: string | null
+          created_at: string
+          gst_number: string | null
+          id: string
+          is_active: boolean | null
+          max_vehicles: number | null
+          monthly_budget: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_email?: string | null
+          company_name: string
+          company_phone?: string | null
+          created_at?: string
+          gst_number?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_vehicles?: number | null
+          monthly_budget?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_email?: string | null
+          company_name?: string
+          company_phone?: string | null
+          created_at?: string
+          gst_number?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_vehicles?: number | null
+          monthly_budget?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       cameras: {
         Row: {
           created_at: string
@@ -277,6 +360,59 @@ export type Database = {
           zone?: string
         }
         Relationships: []
+      }
+      fleet_vehicles: {
+        Row: {
+          business_account_id: string
+          created_at: string
+          current_month_usage: number | null
+          department: string | null
+          driver_name: string | null
+          driver_phone: string | null
+          id: string
+          is_active: boolean | null
+          monthly_limit: number | null
+          updated_at: string
+          vehicle_number: string
+          vehicle_type: string | null
+        }
+        Insert: {
+          business_account_id: string
+          created_at?: string
+          current_month_usage?: number | null
+          department?: string | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          id?: string
+          is_active?: boolean | null
+          monthly_limit?: number | null
+          updated_at?: string
+          vehicle_number: string
+          vehicle_type?: string | null
+        }
+        Update: {
+          business_account_id?: string
+          created_at?: string
+          current_month_usage?: number | null
+          department?: string | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          id?: string
+          is_active?: boolean | null
+          monthly_limit?: number | null
+          updated_at?: string
+          vehicle_number?: string
+          vehicle_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_vehicles_business_account_id_fkey"
+            columns: ["business_account_id"]
+            isOneToOne: false
+            referencedRelation: "business_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       fraud_alerts: {
         Row: {

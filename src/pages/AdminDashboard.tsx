@@ -16,6 +16,7 @@ import {
   Receipt,
   Radio,
   Zap,
+  Building2,
 } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { StatCard } from '@/components/ui/StatCard';
@@ -25,6 +26,7 @@ import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { RealTimeOccupancyWidget } from '@/components/dashboard/RealTimeOccupancyWidget';
 import { RevenueTargetWidget } from '@/components/admin/RevenueTargetWidget';
 import { AdminBroadcastPanel } from '@/components/admin/AdminBroadcastPanel';
+import { SurgeRevenueWidget } from '@/components/dashboard/SurgeRevenueWidget';
 
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTodayStats } from '@/hooks/useTransactions';
@@ -59,6 +61,7 @@ export default function AdminDashboard() {
     { label: 'Users', icon: Users, href: '/admin/users', color: 'primary' },
     { label: 'Shifts', icon: Clock, href: '/admin/shifts', color: 'primary' },
     { label: 'Live Map', icon: MapPinned, href: '/live-map', color: 'success' },
+    { label: 'Fleet', icon: Building2, href: '/business-account', color: 'accent' },
   ];
 
   return (
@@ -227,6 +230,11 @@ export default function AdminDashboard() {
 
         {/* Revenue Target Widget */}
         <RevenueTargetWidget />
+
+        {/* Surge Revenue Impact Widget */}
+        <div className="mb-6">
+          <SurgeRevenueWidget />
+        </div>
 
         {/* Broadcast + Revenue Chart Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
