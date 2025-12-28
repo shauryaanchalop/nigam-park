@@ -1072,6 +1072,59 @@ export type Database = {
         }
         Relationships: []
       }
+      violation_reports: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          description: string | null
+          id: string
+          location: string | null
+          lot_id: string | null
+          photo_url: string | null
+          reporter_id: string
+          resolved_at: string | null
+          status: string
+          vehicle_number: string
+          violation_type: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          lot_id?: string | null
+          photo_url?: string | null
+          reporter_id: string
+          resolved_at?: string | null
+          status?: string
+          vehicle_number: string
+          violation_type: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          lot_id?: string | null
+          photo_url?: string | null
+          reporter_id?: string
+          resolved_at?: string | null
+          status?: string
+          vehicle_number?: string
+          violation_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "violation_reports_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "parking_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vision_events: {
         Row: {
           bounding_box: Json

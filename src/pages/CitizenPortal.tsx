@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell } from 'lucide-react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -188,6 +188,12 @@ export default function CitizenPortal() {
             <Link to="/notifications">
               <Bell className="w-4 h-4 mr-2" />
               Alerts Settings
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild className="border-destructive/50 text-destructive hover:bg-destructive/10">
+            <Link to="/report-violation">
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              Report Violation
             </Link>
           </Button>
         </div>

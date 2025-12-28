@@ -24,6 +24,8 @@ import KioskMode from "./pages/KioskMode";
 import AttendantPerformance from "./pages/AttendantPerformance";
 import NotificationPreferences from "./pages/NotificationPreferences";
 import RealTimeAnalytics from "./pages/RealTimeAnalytics";
+import ReportViolation from "./pages/ReportViolation";
+import LotDetails from "./pages/LotDetails";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +56,8 @@ const App = () => (
               <Route path="/attendant/performance" element={<AttendantPerformance />} />
               <Route path="/notifications" element={<NotificationPreferences />} />
               <Route path="/admin/realtime" element={<RealTimeAnalytics />} />
+              <Route path="/report-violation" element={<ReportViolation />} />
+              <Route path="/lot/:lotId" element={<LotDetails />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
