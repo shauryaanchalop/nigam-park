@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { CameraCard } from '@/components/vision/CameraCard';
+import { CameraExpandedView } from '@/components/vision/CameraExpandedView';
 import { VisionDetectionDemo } from '@/components/vision/VisionDetectionDemo';
 import { useCameras } from '@/hooks/useCameras';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,12 +12,20 @@ import { Camera, Wifi, WifiOff, AlertCircle, ChevronLeft, Maximize } from 'lucid
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
+import { TeamDialog } from '@/components/TeamDialog';
+import { CameraWithEvents } from '@/types/ai-modules';
 import logo from '@/assets/logo.png';
 
 export default function VisionDashboard() {
   const { user, userRole, loading } = useAuth();
   const { cameras, isLoading } = useCameras();
+  const [selectedCamera, setSelectedCamera] = useState<CameraWithEvents | null>(null);
+  const [cameraDialogOpen, setCameraDialogOpen] = useState(false);
+
+  const handleCameraClick = (camera: CameraWithEvents) => {
+    setSelectedCamera(camera);
+    setCameraDialogOpen(true);
+  };
 
   if (loading) {
     return (
@@ -32,7 +42,6 @@ export default function VisionDashboard() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Calculate camera stats
   const onlineCameras = cameras?.filter(c => c.status === 'ONLINE').length || 0;
   const offlineCameras = cameras?.filter(c => c.status === 'OFFLINE').length || 0;
   const occludedCameras = cameras?.filter(c => c.status === 'OCCLUDED').length || 0;
@@ -43,23 +52,24 @@ export default function VisionDashboard() {
       <GovHeader />
       
       <main className="container mx-auto px-4 py-6">
-        {/* Back Button & Kiosk Mode */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <Button variant="ghost" asChild>
             <Link to="/">
               <ChevronLeft className="w-4 h-4 mr-1" />
               Back to Dashboard
             </Link>
           </Button>
-          <Button variant="outline" asChild>
-            <Link to="/kiosk">
-              <Maximize className="w-4 h-4 mr-2" />
-              Kiosk Mode
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <TeamDialog />
+            <Button variant="outline" asChild>
+              <Link to="/kiosk">
+                <Maximize className="w-4 h-4 mr-2" />
+                Kiosk Mode
+              </Link>
+            </Button>
+          </div>
         </div>
 
-        {/* Page Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-3">
             <Camera className="w-7 h-7 text-primary" />
@@ -70,7 +80,6 @@ export default function VisionDashboard() {
           </p>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardContent className="pt-4">
@@ -83,7 +92,6 @@ export default function VisionDashboard() {
               </div>
             </CardContent>
           </Card>
-
           <Card>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
@@ -95,7 +103,6 @@ export default function VisionDashboard() {
               </div>
             </CardContent>
           </Card>
-
           <Card>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
@@ -107,7 +114,6 @@ export default function VisionDashboard() {
               </div>
             </CardContent>
           </Card>
-
           <Card>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
@@ -121,12 +127,8 @@ export default function VisionDashboard() {
           </Card>
         </div>
 
-        {/* Main Grid - Detection Feed + Cameras */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* ANPR Detection Demo */}
           <VisionDetectionDemo />
-          
-          {/* Camera Grid */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Camera Feeds</CardTitle>
@@ -141,7 +143,13 @@ export default function VisionDashboard() {
               ) : cameras && cameras.length > 0 ? (
                 <div className="grid grid-cols-2 gap-2 p-4 max-h-[400px] overflow-y-auto">
                   {cameras.map((camera) => (
-                    <CameraCard key={camera.id} camera={camera} compact />
+                    <div 
+                      key={camera.id} 
+                      onClick={() => handleCameraClick(camera)}
+                      className="cursor-pointer hover:ring-2 hover:ring-primary rounded-lg transition-all"
+                    >
+                      <CameraCard camera={camera} compact />
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -155,6 +163,12 @@ export default function VisionDashboard() {
           </Card>
         </div>
       </main>
+
+      <CameraExpandedView 
+        camera={selectedCamera}
+        open={cameraDialogOpen}
+        onOpenChange={setCameraDialogOpen}
+      />
     </div>
   );
 }
