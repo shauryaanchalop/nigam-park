@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { SEOHead } from '@/components/SEOHead';
 import { Footer } from '@/components/Footer';
@@ -6,24 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Phone, Mail, MapPin, Clock } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function ContactPage() {
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
     toast.success('Message sent!', {
       description: 'We will get back to you within 24-48 hours.',
     });
-    
     (e.target as HTMLFormElement).reset();
     setIsSubmitting(false);
   };
@@ -41,6 +39,16 @@ export default function ContactPage() {
       
       <main className="container py-8 flex-1">
         <div className="max-w-5xl mx-auto">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="mb-4 gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-3">Contact Us</h1>
             <p className="text-lg text-muted-foreground">

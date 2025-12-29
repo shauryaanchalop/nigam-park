@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users, Building2, Star, TrendingUp } from 'lucide-react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users, Building2, Star, TrendingUp, Headphones } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useSurgePricing, calculateSurgePrice } from '@/hooks/useSurgePricing';
 import { SurgePricingBadge } from '@/components/SurgePricingBadge';
@@ -17,6 +17,9 @@ import { WeatherRecommendation } from '@/components/WeatherRecommendation';
 import { VoiceSearch } from '@/components/VoiceSearch';
 import { AdvertisingSlot } from '@/components/ads/AdvertisingSlot';
 import { RatingBadge } from '@/components/reviews/RatingBadge';
+import { QuickReviewCard } from '@/components/reviews/QuickReviewCard';
+import { CustomerCareCard } from '@/components/CustomerCareCard';
+import { TeamDialog } from '@/components/TeamDialog';
 import { estimateTravelTime } from '@/lib/travelTime';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -275,6 +278,17 @@ export default function CitizenPortal() {
               {isHindi ? 'व्यापार खाते' : 'Business Accounts'}
             </Link>
           </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/contact">
+              <Headphones className="w-4 h-4 mr-2" />
+              {isHindi ? 'ग्राहक सहायता' : 'Customer Care'}
+            </Link>
+          </Button>
+        </div>
+
+        {/* Team Info Button */}
+        <div className="mb-4">
+          <TeamDialog />
         </div>
 
         {/* Zone Links for SEO */}
@@ -566,6 +580,12 @@ export default function CitizenPortal() {
             </p>
           </div>
         )}
+        {/* Review & Customer Care Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+          <QuickReviewCard />
+          <CustomerCareCard />
+        </div>
+
         {/* Bottom Advertising Slot */}
         <div className="mt-8 mb-6">
           <AdvertisingSlot type="card" />
