@@ -101,7 +101,11 @@ export default function Index() {
   const currentRoleConfig = roleConfig[userRole as keyof typeof roleConfig] || roleConfig.citizen;
 
   // Show loading state during initial load OR during role switching
-  if (loading || isSwitchingRole) {
+  // But NOT when we're just waiting for userRole to be fetched (user exists but role is null)
+  const isInitialLoading = loading;
+  const shouldShowLoader = isInitialLoading || isSwitchingRole;
+
+  if (shouldShowLoader) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background overflow-hidden">
         <div className="absolute top-4 right-4">
@@ -158,6 +162,7 @@ export default function Index() {
     );
   }
 
+  // If no user, redirect to auth
   if (!user) {
     return <Navigate to="/auth" replace />;
   }

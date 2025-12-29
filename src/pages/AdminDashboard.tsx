@@ -27,6 +27,7 @@ import { RealTimeOccupancyWidget } from '@/components/dashboard/RealTimeOccupanc
 import { RevenueTargetWidget } from '@/components/admin/RevenueTargetWidget';
 import { AdminBroadcastPanel } from '@/components/admin/AdminBroadcastPanel';
 import { SurgeRevenueWidget } from '@/components/dashboard/SurgeRevenueWidget';
+import { TeamDialog } from '@/components/TeamDialog';
 
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTodayStats } from '@/hooks/useTransactions';
@@ -105,6 +106,7 @@ export default function AdminDashboard() {
 
                 {/* Quick Actions - Desktop */}
                 <div className="hidden lg:flex items-center gap-2">
+                  <TeamDialog />
                   {quickActions.map((action) => (
                     <Button
                       key={action.labelKey}

@@ -20,7 +20,7 @@ import {
 import { GovHeader } from '@/components/ui/GovHeader';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationPanel } from '@/components/attendant/NotificationPanel';
-
+import { TeamDialog } from '@/components/TeamDialog';
 import { QRScannerDialog } from '@/components/attendant/QRScannerDialog';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTransactions, useTodayStats } from '@/hooks/useTransactions';
@@ -360,6 +360,11 @@ export default function AttendantPOS() {
       />
 
       <main className="container mx-auto px-4 py-6 max-w-lg">
+        {/* Team Info */}
+        <div className="mb-4">
+          <TeamDialog />
+        </div>
+
         {/* Verified Badge */}
         <Card className="mb-6 border-success bg-success/5">
           <CardContent className="p-4">

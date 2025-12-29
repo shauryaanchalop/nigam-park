@@ -1,9 +1,14 @@
+import { useNavigate } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { SEOHead } from '@/components/SEOHead';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 export default function TermsOfService() {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
@@ -16,6 +21,16 @@ export default function TermsOfService() {
       
       <main className="container py-8 flex-1">
         <div className="max-w-3xl mx-auto">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="mb-4 gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+
           <Card>
             <CardHeader>
               <CardTitle className="text-3xl">Terms of Service</CardTitle>

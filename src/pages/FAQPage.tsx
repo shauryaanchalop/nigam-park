@@ -6,7 +6,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { HelpCircle, MapPin, CreditCard, Clock, Shield, Phone } from 'lucide-react';
+import { HelpCircle, MapPin, CreditCard, Clock, Shield, Phone, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const faqs = [
   {
@@ -106,6 +107,7 @@ const faqs = [
 ];
 
 export default function FAQPage() {
+  const navigate = useNavigate();
   const allQuestions = faqs.flatMap(cat => cat.questions);
   
   const structuredData = {
@@ -135,6 +137,17 @@ export default function FAQPage() {
       
       <main className="container py-8 flex-1">
         <div className="max-w-4xl mx-auto">
+          {/* Back Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="mb-4 gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+
           <div className="mb-8">
             <Badge variant="outline" className="mb-2">Help Center</Badge>
             <h1 className="text-3xl md:text-4xl font-bold mb-3">
