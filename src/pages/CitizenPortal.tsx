@@ -222,8 +222,11 @@ export default function CitizenPortal() {
         {/* Weather Recommendation */}
         <WeatherRecommendation />
 
+        {/* Spacer for better visual separation */}
+        <div className="h-4" />
+
         {/* Quick Actions for Citizens */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-8">
           <Button variant="outline" size="sm" asChild>
             <Link to="/live-map">
               <Map className="w-4 h-4 mr-2" />

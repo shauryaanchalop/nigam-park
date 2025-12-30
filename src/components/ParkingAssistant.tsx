@@ -39,6 +39,7 @@ declare global {
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parking-assistant`;
 
 export function ParkingAssistant() {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -219,6 +220,11 @@ export function ParkingAssistant() {
   };
 
   const roleInfo = getRoleInfo();
+
+  // Only show chatbot after login
+  if (!user) {
+    return null;
+  }
 
   return (
     <>
