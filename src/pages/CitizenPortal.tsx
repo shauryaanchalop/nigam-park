@@ -20,6 +20,9 @@ import { RatingBadge } from '@/components/reviews/RatingBadge';
 import { QuickReviewCard } from '@/components/reviews/QuickReviewCard';
 import { CustomerCareCard } from '@/components/CustomerCareCard';
 import { TeamDialog } from '@/components/TeamDialog';
+import { EVChargingReservation } from '@/components/features/EVChargingReservation';
+import { VehicleSizeDetection } from '@/components/features/VehicleSizeDetection';
+import { MultiLevelFloorSelector } from '@/components/features/MultiLevelFloorSelector';
 import { estimateTravelTime } from '@/lib/travelTime';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -587,6 +590,21 @@ export default function CitizenPortal() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
           <QuickReviewCard />
           <CustomerCareCard />
+        </div>
+
+        {/* New Features Section */}
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <Zap className="w-5 h-5 text-primary" />
+            {isHindi ? 'नई सुविधाएं' : 'New Features'}
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <EVChargingReservation />
+            <VehicleSizeDetection />
+          </div>
+          <div className="mt-4">
+            <MultiLevelFloorSelector />
+          </div>
         </div>
 
         {/* Bottom Advertising Slot */}
