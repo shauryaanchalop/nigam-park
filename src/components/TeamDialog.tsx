@@ -9,9 +9,16 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Separator } from '@/components/ui/separator';
+
+// Import team member photos
+import shauryaPhoto from '@/assets/team/shaurya.jpg';
+import gauravPhoto from '@/assets/team/gaurav.jpg';
+import shivamPhoto from '@/assets/team/shivam.jpg';
+import mananPhoto from '@/assets/team/manan.png';
+import tanujPhoto from '@/assets/team/tanuj.jpg';
 
 interface TeamMember {
   name: string;
@@ -22,6 +29,7 @@ interface TeamMember {
   icon: React.ReactNode;
   initials: string;
   color: string;
+  photo: string;
 }
 
 const teamMembers: TeamMember[] = [
@@ -34,6 +42,7 @@ const teamMembers: TeamMember[] = [
     icon: <Award className="w-4 h-4" />,
     initials: 'SA',
     color: 'bg-primary',
+    photo: shauryaPhoto,
   },
   {
     name: 'Gaurav Bansal',
@@ -44,6 +53,7 @@ const teamMembers: TeamMember[] = [
     icon: <Code className="w-4 h-4" />,
     initials: 'GB',
     color: 'bg-blue-500',
+    photo: gauravPhoto,
   },
   {
     name: 'Shivam Kaushik',
@@ -54,6 +64,7 @@ const teamMembers: TeamMember[] = [
     icon: <Brain className="w-4 h-4" />,
     initials: 'SK',
     color: 'bg-purple-500',
+    photo: shivamPhoto,
   },
   {
     name: 'Manan Goel',
@@ -64,6 +75,7 @@ const teamMembers: TeamMember[] = [
     icon: <Brain className="w-4 h-4" />,
     initials: 'MG',
     color: 'bg-pink-500',
+    photo: mananPhoto,
   },
   {
     name: 'Tanuj Goyal',
@@ -74,6 +86,7 @@ const teamMembers: TeamMember[] = [
     icon: <Server className="w-4 h-4" />,
     initials: 'TG',
     color: 'bg-green-500',
+    photo: tanujPhoto,
   },
 ];
 
@@ -131,7 +144,8 @@ export function TeamDialog({ trigger, className }: TeamDialogProps) {
               key={member.name}
               className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
             >
-              <Avatar className={`w-14 h-14 ${member.color} text-white`}>
+              <Avatar className="w-14 h-14 border-2 border-primary/20">
+                <AvatarImage src={member.photo} alt={member.name} className="object-cover" />
                 <AvatarFallback className={`${member.color} text-white font-bold text-lg`}>
                   {member.initials}
                 </AvatarFallback>

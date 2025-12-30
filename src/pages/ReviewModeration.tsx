@@ -363,8 +363,6 @@ export default function ReviewModeration() {
         </Card>
       </main>
 
-      <Footer />
-
       {/* View Review Dialog */}
       <Dialog open={!!selectedReview} onOpenChange={() => setSelectedReview(null)}>
         <DialogContent className="max-w-lg">
