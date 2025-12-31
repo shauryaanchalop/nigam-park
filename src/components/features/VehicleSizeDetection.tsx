@@ -70,6 +70,15 @@ export function VehicleSizeDetection() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Feature Description */}
+        <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 mb-4">
+          <p className="text-xs text-muted-foreground">
+            {isHindi 
+              ? '🚗 AI आधारित वाहन आकार पहचान - अपने वाहन के आकार के अनुसार सही पार्किंग स्लॉट खोजें। बाइक, कार, और बड़े वाहनों के लिए अलग-अलग स्लॉट।'
+              : '🚗 AI-based vehicle size detection - Find the right parking slot for your vehicle size. Separate slots for bikes, cars, and large vehicles.'}
+          </p>
+        </div>
+
         {/* Size Summary */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           {[

@@ -60,6 +60,15 @@ export function MultiLevelFloorSelector() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Feature Description */}
+        <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 mb-4">
+          <p className="text-xs text-muted-foreground">
+            {isHindi 
+              ? '🏢 मल्टी-लेवल पार्किंग में अपनी पसंदीदा मंजिल चुनें। हर मंजिल पर उपलब्धता, सुलभता और ईवी चार्जिंग की जानकारी देखें।'
+              : '🏢 Choose your preferred floor in multi-level parking. View availability, accessibility, and EV charging info for each floor.'}
+          </p>
+        </div>
+
         <div className="relative">
           {/* Building Visualization */}
           <div className="space-y-2">

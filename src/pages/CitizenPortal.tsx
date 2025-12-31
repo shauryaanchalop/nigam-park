@@ -22,6 +22,8 @@ import { TeamDialog } from '@/components/TeamDialog';
 import { EVChargingReservation } from '@/components/features/EVChargingReservation';
 import { VehicleSizeDetection } from '@/components/features/VehicleSizeDetection';
 import { MultiLevelFloorSelector } from '@/components/features/MultiLevelFloorSelector';
+import { CarpoolingIntegration } from '@/components/features/CarpoolingIntegration';
+import { EmergencyVehiclePriority } from '@/components/features/EmergencyVehiclePriority';
 import { estimateTravelTime } from '@/lib/travelTime';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
