@@ -24,6 +24,9 @@ import { VehicleSizeDetection } from '@/components/features/VehicleSizeDetection
 import { MultiLevelFloorSelector } from '@/components/features/MultiLevelFloorSelector';
 import { CarpoolingIntegration } from '@/components/features/CarpoolingIntegration';
 import { EmergencyVehiclePriority } from '@/components/features/EmergencyVehiclePriority';
+import { VoiceNavigation } from '@/components/features/VoiceNavigation';
+import { SmartParkingRecommendations } from '@/components/features/SmartParkingRecommendations';
+import { SustainabilityDashboard } from '@/components/features/SustainabilityDashboard';
 import { estimateTravelTime } from '@/lib/travelTime';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -577,12 +580,29 @@ export default function CitizenPortal() {
             <Zap className="w-5 h-5 text-primary" />
             {isHindi ? 'नई सुविधाएं' : 'New Features'}
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          
+          {/* Smart Recommendations & Voice Navigation */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+            <SmartParkingRecommendations />
+            <VoiceNavigation />
+          </div>
+
+          {/* EV & Vehicle Size */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
             <EVChargingReservation />
             <VehicleSizeDetection />
           </div>
-          <div className="mt-4">
+
+          {/* Carpooling & Sustainability */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+            <CarpoolingIntegration />
+            <SustainabilityDashboard />
+          </div>
+
+          {/* Floor Selector */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <MultiLevelFloorSelector />
+            <EmergencyVehiclePriority />
           </div>
         </div>
 
