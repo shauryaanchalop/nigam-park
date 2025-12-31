@@ -27,6 +27,8 @@ import { EmergencyVehiclePriority } from '@/components/features/EmergencyVehicle
 import { VoiceNavigation } from '@/components/features/VoiceNavigation';
 import { SmartParkingRecommendations } from '@/components/features/SmartParkingRecommendations';
 import { SustainabilityDashboard } from '@/components/features/SustainabilityDashboard';
+import { ParkingSlot3DMap } from '@/components/features/ParkingSlot3DMap';
+import { ParkingLotComparison } from '@/components/features/ParkingLotComparison';
 import { estimateTravelTime } from '@/lib/travelTime';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -580,6 +582,12 @@ export default function CitizenPortal() {
             <Zap className="w-5 h-5 text-primary" />
             {isHindi ? 'नई सुविधाएं' : 'New Features'}
           </h2>
+          
+          {/* 3D Map & Comparison - Full Width */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-4">
+            <ParkingSlot3DMap />
+            <ParkingLotComparison />
+          </div>
           
           {/* Smart Recommendations & Voice Navigation */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
