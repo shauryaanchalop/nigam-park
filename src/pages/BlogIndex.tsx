@@ -4,7 +4,9 @@ import { SEOHead } from '@/components/SEOHead';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Calendar, Clock, User } from 'lucide-react';
+import { ArrowRight, Calendar, Clock, User, ChevronLeft } from 'lucide-react';
+import { Footer } from '@/components/Footer';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BlogPost {
   slug: string;
@@ -48,6 +50,8 @@ const blogPosts: BlogPost[] = [
 ];
 
 export default function BlogIndex() {
+  const { isHindi } = useLanguage();
+  
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Blog',
@@ -86,13 +90,21 @@ export default function BlogIndex() {
       
       <main className="container py-8">
         <div className="max-w-4xl mx-auto">
+          {/* Back Button */}
+          <Button variant="ghost" asChild className="mb-4">
+            <Link to="/citizen">
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              {isHindi ? 'वापस जाएं' : 'Back'}
+            </Link>
+          </Button>
+
           <div className="mb-8">
-            <Badge variant="outline" className="mb-2">Blog</Badge>
+            <Badge variant="outline" className="mb-2">{isHindi ? 'ब्लॉग' : 'Blog'}</Badge>
             <h1 className="text-3xl md:text-4xl font-bold mb-3">
-              Parking Tips & Guides
+              {isHindi ? 'पार्किंग टिप्स और गाइड' : 'Parking Tips & Guides'}
             </h1>
             <p className="text-lg text-muted-foreground">
-              Expert advice on parking in Delhi, traffic rules, and smart parking technology.
+              {isHindi ? 'दिल्ली में पार्किंग, ट्रैफिक नियमों और स्मार्ट पार्किंग तकनीक के बारे में विशेषज्ञ सलाह।' : 'Expert advice on parking in Delhi, traffic rules, and smart parking technology.'}
             </p>
           </div>
           
@@ -134,7 +146,7 @@ export default function BlogIndex() {
                   </div>
                   <Link to={`/blog/${post.slug}`}>
                     <Button variant="outline" size="sm">
-                      Read Article
+                      {isHindi ? 'लेख पढ़ें' : 'Read Article'}
                       <ArrowRight className="h-4 w-4 ml-1" />
                     </Button>
                   </Link>
@@ -142,33 +154,9 @@ export default function BlogIndex() {
               </Card>
             ))}
           </div>
-          
-          {/* Zone Links Section */}
-          <section className="mt-12 pt-8 border-t">
-            <h2 className="text-xl font-semibold mb-4">Find Parking by Area</h2>
-            <div className="flex flex-wrap gap-2">
-              <Link to="/parking/connaught-place">
-                <Button variant="outline" size="sm">Connaught Place</Button>
-              </Link>
-              <Link to="/parking/karol-bagh">
-                <Button variant="outline" size="sm">Karol Bagh</Button>
-              </Link>
-              <Link to="/parking/chandni-chowk">
-                <Button variant="outline" size="sm">Chandni Chowk</Button>
-              </Link>
-              <Link to="/parking/lajpat-nagar">
-                <Button variant="outline" size="sm">Lajpat Nagar</Button>
-              </Link>
-              <Link to="/parking/nehru-place">
-                <Button variant="outline" size="sm">Nehru Place</Button>
-              </Link>
-              <Link to="/parking/sarojini-nagar">
-                <Button variant="outline" size="sm">Sarojini Nagar</Button>
-              </Link>
-            </div>
-          </section>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

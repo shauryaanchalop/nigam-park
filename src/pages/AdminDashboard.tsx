@@ -63,7 +63,6 @@ export default function AdminDashboard() {
     { label: t('admin.manageLots'), labelKey: 'manageLots', icon: MapPinned, href: '/admin/parking-lots', color: 'success' },
     { label: t('admin.users'), labelKey: 'users', icon: Users, href: '/admin/users', color: 'primary' },
     { label: t('admin.shifts'), labelKey: 'shifts', icon: Clock, href: '/admin/shifts', color: 'primary' },
-    { label: isHindi ? 'लाइव मैप' : 'Live Map', labelKey: 'liveMap', icon: MapPinned, href: '/live-map', color: 'success' },
     { label: t('admin.fleet'), labelKey: 'fleet', icon: Building2, href: '/business-account', color: 'accent' },
   ];
 
@@ -105,8 +104,13 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Quick Actions - Desktop */}
-                <div className="hidden lg:flex items-center gap-2">
-                  <TeamDialog />
+                <div className="hidden lg:flex items-center gap-2 flex-wrap">
+                  <TeamDialog trigger={
+                    <Button variant="default" size="sm" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
+                      <Users className="w-4 h-4" />
+                      {isHindi ? 'हमारी टीम' : 'Our Team'}
+                    </Button>
+                  } />
                   {quickActions.map((action) => (
                     <Button
                       key={action.labelKey}

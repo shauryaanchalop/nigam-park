@@ -74,23 +74,22 @@ export function CameraExpandedView({ camera, open, onOpenChange }: CameraExpande
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-hidden p-0">
         <DialogHeader className="p-4 border-b">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2">
-              <Camera className="w-5 h-5 text-primary" />
-              {camera.name}
+          <div className="flex items-center justify-between gap-4">
+            <DialogTitle className="flex items-center gap-2 flex-1 min-w-0">
+              <Camera className="w-5 h-5 text-primary flex-shrink-0" />
+              <span className="truncate">{camera.name}</span>
               <Badge 
                 variant={camera.status === 'ONLINE' ? 'default' : 'secondary'}
-                className="ml-2"
+                className="ml-2 flex-shrink-0"
               >
                 <StatusIcon className="w-3 h-3 mr-1" />
                 {camera.status}
               </Badge>
             </DialogTitle>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={toggleFullscreen}>
-                <Maximize2 className="w-4 h-4" />
-              </Button>
-            </div>
+            <Button variant="outline" size="sm" onClick={toggleFullscreen} className="flex-shrink-0">
+              <Maximize2 className="w-4 h-4 mr-1" />
+              {isFullscreen ? 'Exit' : 'Fullscreen'}
+            </Button>
           </div>
           <p className="text-sm text-muted-foreground">{camera.zone}</p>
         </DialogHeader>
