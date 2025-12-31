@@ -88,6 +88,15 @@ export function EVChargingReservation() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Feature Description */}
+        <div className="p-3 rounded-lg bg-success/5 border border-success/20 mb-4">
+          <p className="text-xs text-muted-foreground">
+            {isHindi 
+              ? '⚡ ईवी चार्जिंग स्टेशन पहले से बुक करें और चार्जिंग की प्रतीक्षा से बचें। फास्ट, स्टैंडर्ड और स्लो चार्जर उपलब्ध हैं।'
+              : '⚡ Reserve EV charging stations in advance and skip the wait. Fast, Standard, and Slow chargers available across parking lots.'}
+          </p>
+        </div>
+
         <div className="space-y-3">
           {mockStations.map(station => (
             <div 

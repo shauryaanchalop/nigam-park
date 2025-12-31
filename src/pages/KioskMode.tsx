@@ -3,7 +3,7 @@ import { useParkingLots } from '@/hooks/useParkingLots';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Activity, Car, TrendingUp, TrendingDown, Maximize, X, Volume2, VolumeX, AlertTriangle } from 'lucide-react';
+import { Activity, Car, TrendingUp, TrendingDown, Maximize, X, Volume2, VolumeX, AlertTriangle, Camera, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';

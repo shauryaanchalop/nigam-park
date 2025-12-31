@@ -289,10 +289,22 @@ export default function FraudHunter() {
           </Card>
         </div>
 
+        {/* Feature Description */}
+        <Card className="mb-6 bg-primary/5 border-primary/20">
+          <CardContent className="py-4">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">About Fraud Hunter:</span> AI-powered real-time fraud detection system that monitors all parking transactions for suspicious activity. Automatically detects payment bypasses, ticket mismatches, and revenue leakage patterns. Critical alerts trigger instant email notifications.
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              <span className="font-medium text-foreground">फ्रॉड हंटर के बारे में:</span> AI-संचालित रीयल-टाइम धोखाधड़ी पहचान प्रणाली जो सभी पार्किंग लेनदेन की संदिग्ध गतिविधि के लिए निगरानी करती है। भुगतान बाईपास, टिकट बेमेल और राजस्व रिसाव पैटर्न का स्वचालित रूप से पता लगाता है।
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Fraud Feed - Takes 2 columns */}
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* Fraud Feed - Takes 2 columns on xl, full width otherwise */}
+          <div className="xl:col-span-2 min-h-[500px]">
             <FraudAlertFeed />
           </div>
 

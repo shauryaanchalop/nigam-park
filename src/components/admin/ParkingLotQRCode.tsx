@@ -126,60 +126,62 @@ export function ParkingLotQRCode({ lotId, lotName, zone }: ParkingLotQRCodeProps
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <QrCode className="h-4 w-4 mr-2" />
-          QR Code
+        <Button variant="outline" size="sm" className="text-xs px-2 py-1 h-auto">
+          <QrCode className="h-3 w-3 mr-1 md:h-4 md:w-4 md:mr-2" />
+          <span className="hidden sm:inline">QR Code</span>
+          <span className="sm:hidden">QR</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-[95vw] sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>QR Code for {lotName}</DialogTitle>
+          <DialogTitle className="text-sm sm:text-base">QR Code for {lotName}</DialogTitle>
         </DialogHeader>
         
-        <div className="flex flex-col items-center space-y-6">
-          <Card className="bg-white p-6">
+        <div className="flex flex-col items-center space-y-4 sm:space-y-6">
+          <Card className="bg-white p-3 sm:p-6">
             <CardContent className="p-0 flex flex-col items-center">
               <QRCodeSVG
                 id={`qr-${lotId}`}
                 value={lotUrl}
-                size={200}
+                size={150}
                 level="H"
                 includeMargin
+                className="sm:w-[200px] sm:h-[200px]"
                 imageSettings={{
                   src: '/favicon.png',
-                  height: 30,
-                  width: 30,
+                  height: 24,
+                  width: 24,
                   excavate: true,
                 }}
               />
-              <div className="text-center mt-4">
-                <p className="font-semibold">{lotName}</p>
-                <p className="text-sm text-muted-foreground">{zone}</p>
+              <div className="text-center mt-3 sm:mt-4">
+                <p className="font-semibold text-sm sm:text-base">{lotName}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">{zone}</p>
               </div>
             </CardContent>
           </Card>
 
-          <div className="flex gap-2 w-full">
-            <Button variant="outline" className="flex-1" onClick={handleCopyLink}>
+          <div className="flex flex-wrap gap-2 w-full justify-center">
+            <Button variant="outline" size="sm" className="flex-1 min-w-[80px] text-xs" onClick={handleCopyLink}>
               {copied ? (
-                <Check className="h-4 w-4 mr-2" />
+                <Check className="h-3 w-3 mr-1" />
               ) : (
-                <Copy className="h-4 w-4 mr-2" />
+                <Copy className="h-3 w-3 mr-1" />
               )}
-              {copied ? 'Copied!' : 'Copy Link'}
+              {copied ? 'Copied!' : 'Copy'}
             </Button>
-            <Button variant="outline" className="flex-1" onClick={handleDownload}>
-              <Download className="h-4 w-4 mr-2" />
-              Download
+            <Button variant="outline" size="sm" className="flex-1 min-w-[80px] text-xs" onClick={handleDownload}>
+              <Download className="h-3 w-3 mr-1" />
+              Save
             </Button>
-            <Button variant="outline" className="flex-1" onClick={handlePrint}>
-              <Printer className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" className="flex-1 min-w-[80px] text-xs" onClick={handlePrint}>
+              <Printer className="h-3 w-3 mr-1" />
               Print
             </Button>
           </div>
 
-          <p className="text-xs text-center text-muted-foreground">
-            Place this QR code at the parking lot entrance for citizens to scan and quickly access lot information and make reservations.
+          <p className="text-xs text-center text-muted-foreground px-2">
+            Place this QR code at the parking lot entrance for citizens to scan and quickly access lot information.
           </p>
         </div>
       </DialogContent>
