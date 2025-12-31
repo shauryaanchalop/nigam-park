@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, ExternalLink, ArrowUp, Facebook, Twitter, Instagram, Youtube, Users } from 'lucide-react';
+import { MapPin, Phone, Mail, ExternalLink, ArrowUp, Facebook, Instagram, Users } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -9,7 +9,7 @@ import logo from '@/assets/logo.png';
 
 export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   function Footer(props, ref) {
-    const currentYear = new Date().getFullYear();
+    const currentYear = 2026;
     const { isHindi } = useLanguage();
 
     const scrollToTop = () => {
@@ -46,11 +46,17 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
       { name: 'Contact Us', nameHi: 'संपर्क करें', path: '/contact' },
     ];
 
+    // Custom X (Twitter) icon component
+    const XIcon = () => (
+      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      </svg>
+    );
+
     const socialLinks = [
-      { name: 'Facebook', icon: Facebook, url: 'https://www.facebook.com/MCDDelhi' },
-      { name: 'Twitter', icon: Twitter, url: 'https://twitter.com/OlofficialMCD' },
-      { name: 'Instagram', icon: Instagram, url: 'https://www.instagram.com/mikiprashant/' },
-      { name: 'YouTube', icon: Youtube, url: 'https://www.youtube.com/@MunicipalCorporationofDelhi' },
+      { name: 'Facebook', icon: Facebook, url: 'https://www.facebook.com/off.MCD/' },
+      { name: 'X', icon: XIcon, url: 'https://x.com/MCD_Delhi', isCustom: true },
+      { name: 'Instagram', icon: Instagram, url: 'https://www.instagram.com/mcd_delhi' },
     ];
 
     return (
@@ -109,7 +115,7 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
                       className="p-2 rounded-lg bg-background hover:bg-accent transition-colors"
                       title={link.name}
                     >
-                      <Icon className="w-4 h-4" />
+                      {'isCustom' in link && link.isCustom ? <Icon /> : <Icon className="w-4 h-4" />}
                     </a>
                   );
                 })}

@@ -17,7 +17,6 @@ import { WeatherRecommendation } from '@/components/WeatherRecommendation';
 import { VoiceSearch } from '@/components/VoiceSearch';
 import { AdvertisingSlot } from '@/components/ads/AdvertisingSlot';
 import { RatingBadge } from '@/components/reviews/RatingBadge';
-import { QuickReviewCard } from '@/components/reviews/QuickReviewCard';
 import { CustomerCareCard } from '@/components/CustomerCareCard';
 import { TeamDialog } from '@/components/TeamDialog';
 import { EVChargingReservation } from '@/components/features/EVChargingReservation';
@@ -292,36 +291,14 @@ export default function CitizenPortal() {
           </Button>
         </div>
 
-        {/* Team Info Button */}
-        <div className="mb-4">
-          <TeamDialog />
-        </div>
-
-        {/* Zone Links for SEO */}
+        {/* Team Info Button - Highlighted */}
         <div className="mb-6">
-          <p className="text-sm text-muted-foreground mb-2">
-            {isHindi ? 'क्षेत्र के अनुसार पार्किंग खोजें:' : 'Find parking by area:'}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/parking/connaught-place">{isHindi ? 'सीपी' : 'CP'}</Link>
+          <TeamDialog trigger={
+            <Button variant="default" size="sm" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
+              <Users className="w-4 h-4" />
+              {isHindi ? 'हमारी टीम' : 'Our Team'}
             </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/parking/karol-bagh">{isHindi ? 'करोल बाग' : 'Karol Bagh'}</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/parking/chandni-chowk">{isHindi ? 'चांदनी चौक' : 'Chandni Chowk'}</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/parking/lajpat-nagar">{isHindi ? 'लाजपत नगर' : 'Lajpat Nagar'}</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/parking/nehru-place">{isHindi ? 'नेहरू प्लेस' : 'Nehru Place'}</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/parking/sarojini-nagar">{isHindi ? 'सरोजिनी नगर' : 'Sarojini Nagar'}</Link>
-            </Button>
-          </div>
+          } />
         </div>
 
         {/* AQI Banner */}
@@ -586,9 +563,9 @@ export default function CitizenPortal() {
             </p>
           </div>
         )}
-        {/* Review & Customer Care Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-          <QuickReviewCard />
+        
+        {/* Customer Care Card Only (Removed Write Review from main page) */}
+        <div className="mt-8">
           <CustomerCareCard />
         </div>
 

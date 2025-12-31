@@ -110,18 +110,18 @@ export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
     return (
       <header ref={ref} className="bg-card border-b border-border">
         {/* Top Government Banner */}
-        <div className="gradient-primary px-4 py-2">
-          <div className="container mx-auto flex items-center justify-between">
-            <Link to={user ? getHomeRoute() : '/'} className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-              <img src={logo} alt="NIGAM-Park Logo" className="w-10 h-10 rounded-full object-cover" />
-              <div>
-                <h1 className="text-primary-foreground font-bold text-lg tracking-tight">{title}</h1>
-                <p className="text-primary-foreground/80 text-xs">{subtitle}</p>
+        <div className="gradient-primary px-2 sm:px-4 py-2">
+          <div className="container mx-auto flex items-center justify-between gap-2">
+            <Link to={user ? getHomeRoute() : '/'} className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity min-w-0 flex-shrink">
+              <img src={logo} alt="NIGAM-Park Logo" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0" />
+              <div className="min-w-0">
+                <h1 className="text-primary-foreground font-bold text-sm sm:text-lg tracking-tight truncate">{title}</h1>
+                <p className="text-primary-foreground/80 text-[10px] sm:text-xs truncate hidden xs:block">{subtitle}</p>
               </div>
             </Link>
             
-            <div className="flex items-center gap-2 sm:gap-4">
-              <div className="hidden md:flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+              <div className="hidden lg:flex items-center gap-2">
                 <Badge variant="secondary" className="bg-primary-foreground/20 text-primary-foreground border-0">
                   Municipal Corporation of Delhi
                 </Badge>
@@ -140,9 +140,9 @@ export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
               {isDemoUser && user && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 gap-1">
+                    <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 h-8 w-8 sm:h-9 sm:w-auto sm:px-3">
                       <Repeat className="w-4 h-4" />
-                      <span className="hidden sm:inline">Switch Role</span>
+                      <span className="hidden sm:inline ml-1">Switch</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -170,20 +170,21 @@ export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
               {/* Language Toggle */}
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={toggleLanguage}
-                className="text-primary-foreground hover:bg-primary-foreground/10 gap-1"
+                className="text-primary-foreground hover:bg-primary-foreground/10 h-8 w-8"
                 aria-label={language === 'en' ? 'Switch to Hindi' : 'Switch to English'}
               >
                 <Languages className="w-4 h-4" />
-                <span className="hidden sm:inline">{language === 'en' ? 'हिंदी' : 'EN'}</span>
               </Button>
 
               {/* Accessibility Toggle */}
-              <AccessibilityToggle />
+              <div className="hidden sm:block">
+                <AccessibilityToggle />
+              </div>
 
               {/* Theme Toggle */}
-              <ThemeToggle className="text-primary-foreground hover:bg-primary-foreground/10" />
+              <ThemeToggle className="text-primary-foreground hover:bg-primary-foreground/10 h-8 w-8" />
 
               {user && (
                 <>
@@ -191,25 +192,23 @@ export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
                   {(userRole === 'citizen' || (!userRole && user) || (userRole !== 'admin' && userRole !== 'attendant')) && (
                     <Button 
                       variant="ghost" 
-                      size="sm" 
-                      className="text-primary-foreground hover:bg-primary-foreground/10 hidden sm:flex"
+                      size="icon" 
+                      className="text-primary-foreground hover:bg-primary-foreground/10 hidden lg:flex h-8 w-8"
                       onClick={() => navigate('/my-reservations')}
                     >
-                      <CalendarCheck className="w-4 h-4 mr-2" />
-                      My Reservations
+                      <CalendarCheck className="w-4 h-4" />
                     </Button>
                   )}
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 gap-2 pl-1">
-                        <Avatar className="w-7 h-7 border-2 border-primary-foreground/30">
+                      <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 h-8 w-8">
+                        <Avatar className="w-6 h-6 sm:w-7 sm:h-7 border-2 border-primary-foreground/30">
                           <AvatarImage src={profile?.avatar_url || undefined} alt="Profile" />
-                          <AvatarFallback className="text-xs bg-primary-foreground/20 text-primary-foreground">
+                          <AvatarFallback className="text-[10px] sm:text-xs bg-primary-foreground/20 text-primary-foreground">
                             {getInitials()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="hidden sm:inline">{profile?.full_name || roleLabels[userRole ?? 'citizen']}</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
@@ -249,12 +248,11 @@ export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
               {!user && (
                 <Button 
                   variant="ghost" 
-                  size="sm" 
-                  className="text-primary-foreground hover:bg-primary-foreground/10"
+                  size="icon" 
+                  className="text-primary-foreground hover:bg-primary-foreground/10 h-8 w-8"
                   onClick={() => navigate('/auth')}
                 >
-                  <User className="w-4 h-4 mr-2" />
-                  Sign In
+                  <User className="w-4 h-4" />
                 </Button>
               )}
             </div>

@@ -136,7 +136,7 @@ export function AccessibilityToggle() {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="h-9 w-9"
+          className="h-9 w-9 text-primary-foreground hover:bg-primary-foreground/10"
           aria-label="Accessibility options"
         >
           <Eye className="h-4 w-4" />

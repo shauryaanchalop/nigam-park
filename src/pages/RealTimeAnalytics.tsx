@@ -13,8 +13,11 @@ import {
   AlertTriangle,
   CheckCircle2,
   RefreshCw,
+  ChevronLeft,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { GovHeader } from '@/components/ui/GovHeader';
@@ -177,6 +180,14 @@ export default function RealTimeAnalytics() {
       />
 
       <main className="container mx-auto px-4 py-6 space-y-6">
+        {/* Back Button */}
+        <Button variant="ghost" asChild className="mb-2">
+          <Link to="/">
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Back to Dashboard
+          </Link>
+        </Button>
+
         {/* Connection Status Bar */}
         <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
           <div className="flex items-center gap-4">

@@ -308,7 +308,7 @@ export default function Profile() {
         </Button>
 
         <Tabs defaultValue="account" className="space-y-6">
-          <TabsList className={`grid w-full ${isCitizen ? 'grid-cols-4' : 'grid-cols-3'}`}>
+          <TabsList className={`grid w-full ${isCitizen ? 'grid-cols-3' : userRole === 'admin' ? 'grid-cols-3' : 'grid-cols-2'}`}>
             <TabsTrigger value="account" className="gap-2">
               <User className="w-4 h-4" />
               <span className="hidden sm:inline">Account</span>
@@ -323,10 +323,12 @@ export default function Profile() {
               <Bell className="w-4 h-4" />
               <span className="hidden sm:inline">Notifications</span>
             </TabsTrigger>
-            <TabsTrigger value="admin" className="gap-2">
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Admin</span>
-            </TabsTrigger>
+            {userRole === 'admin' && (
+              <TabsTrigger value="admin" className="gap-2">
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline">Admin</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Account Tab */}
