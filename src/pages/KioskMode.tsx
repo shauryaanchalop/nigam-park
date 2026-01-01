@@ -3,7 +3,7 @@ import { useParkingLots } from '@/hooks/useParkingLots';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Activity, Car, TrendingUp, TrendingDown, Maximize, X, Volume2, VolumeX, AlertTriangle, Camera, Eye } from 'lucide-react';
+import { Activity, Car, TrendingUp, TrendingDown, Maximize, X, Volume2, VolumeX, AlertTriangle, Camera, Eye, Shield, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';
@@ -274,6 +274,46 @@ export default function KioskMode() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Camera Feed Section for Kiosk */}
+      <Card className="mb-6 bg-card/80 backdrop-blur border-primary/20">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <Camera className="h-5 w-5 text-primary" />
+              Live Camera Feeds
+            </h3>
+            <Badge variant="outline" className="text-xs">
+              <span className="w-2 h-2 rounded-full bg-success mr-1.5 animate-pulse inline-block"></span>
+              MONITORING
+            </Badge>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {['Entry Gate A', 'Exit Gate B', 'Zone C Overview', 'VIP Area'].map((name, idx) => (
+              <div key={name} className="relative aspect-video bg-muted rounded-lg overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
+                  <Camera className="w-8 h-8 text-muted-foreground/50" />
+                </div>
+                {/* Simulated feed overlay */}
+                <div className="absolute inset-0 bg-[linear-gradient(transparent_0,transparent_2px,rgba(0,0,0,0.1)_3px)] bg-[length:100%_4px] opacity-50" />
+                {/* Status indicator */}
+                <div className="absolute top-1.5 right-1.5 flex items-center gap-1 bg-success/90 text-success-foreground text-[10px] px-1.5 py-0.5 rounded">
+                  <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  LIVE
+                </div>
+                {/* Camera name */}
+                <div className="absolute bottom-1.5 left-1.5 bg-background/80 backdrop-blur-sm text-[10px] px-1.5 py-0.5 rounded font-medium">
+                  {name}
+                </div>
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Maximize className="w-6 h-6 text-primary" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Parking Lots Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
