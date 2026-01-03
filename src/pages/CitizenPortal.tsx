@@ -20,6 +20,7 @@ import { RatingBadge } from '@/components/reviews/RatingBadge';
 import { CustomerCareCard } from '@/components/CustomerCareCard';
 import { TeamDialog } from '@/components/TeamDialog';
 import { EVChargingReservation } from '@/components/features/EVChargingReservation';
+import { EVBatteryStatus } from '@/components/features/EVBatteryStatus';
 import { VehicleSizeDetection } from '@/components/features/VehicleSizeDetection';
 import { MultiLevelFloorSelector } from '@/components/features/MultiLevelFloorSelector';
 import { CarpoolingIntegration } from '@/components/features/CarpoolingIntegration';
@@ -597,9 +598,14 @@ export default function CitizenPortal() {
             <VoiceNavigation />
           </div>
 
-          {/* EV & Vehicle Size */}
+          {/* EV Features */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
             <EVChargingReservation />
+            <EVBatteryStatus />
+          </div>
+
+          {/* Vehicle Size */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
             <VehicleSizeDetection />
           </div>
 
