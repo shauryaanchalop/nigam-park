@@ -220,10 +220,10 @@ export default function CitizenPortal() {
         subtitle={isHindi ? 'दिल्ली में पार्किंग खोजें' : 'Find Parking in Delhi'}
       />
 
-      <main className="container mx-auto px-4 py-6 max-w-4xl">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-4xl pb-24 md:pb-6">
         {/* Pending Fines Banner */}
         {user && (
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <PendingFinesBanner />
           </div>
         )}
@@ -231,105 +231,107 @@ export default function CitizenPortal() {
         {/* Weather Recommendation */}
         <WeatherRecommendation />
 
-        {/* Spacer for better visual separation */}
-        <div className="h-4" />
-
         {/* Quick Actions for Citizens */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          <Button variant="outline" size="sm" asChild>
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6 mt-4">
+          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
             <Link to="/live-map">
-              <Map className="w-4 h-4 mr-2" />
+              <Map className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               {isHindi ? 'लाइव मैप' : 'Live Map'}
             </Link>
           </Button>
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
             <Link to="/loyalty">
-              <Gift className="w-4 h-4 mr-2" />
-              {isHindi ? 'लॉयल्टी पुरस्कार' : 'Loyalty Rewards'}
+              <Gift className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isHindi ? 'लॉयल्टी' : 'Rewards'}
             </Link>
           </Button>
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
             <Link to="/my-reservations">
-              <History className="w-4 h-4 mr-2" />
-              {isHindi ? 'मेरी बुकिंग' : 'My Reservations'}
+              <History className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isHindi ? 'मेरी बुकिंग' : 'Bookings'}
             </Link>
           </Button>
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
             <Link to="/monthly-pass">
-              <CreditCard className="w-4 h-4 mr-2" />
-              {isHindi ? 'मासिक पास' : 'Monthly Pass'}
+              <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isHindi ? 'मासिक पास' : 'Pass'}
             </Link>
           </Button>
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
             <Link to="/referral">
-              <Users className="w-4 h-4 mr-2" />
-              {isHindi ? 'रेफरल' : 'Referral'}
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isHindi ? 'रेफरल' : 'Refer'}
             </Link>
           </Button>
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
             <Link to="/notifications">
-              <Bell className="w-4 h-4 mr-2" />
-              {isHindi ? 'अलर्ट सेटिंग्स' : 'Alerts Settings'}
+              <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isHindi ? 'अलर्ट' : 'Alerts'}
             </Link>
           </Button>
-          <Button variant="outline" size="sm" asChild className="border-destructive/50 text-destructive hover:bg-destructive/10">
+          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 border-destructive/50 text-destructive hover:bg-destructive/10">
             <Link to="/report-violation">
-              <AlertTriangle className="w-4 h-4 mr-2" />
-              {isHindi ? 'उल्लंघन रिपोर्ट करें' : 'Report Violation'}
+              <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isHindi ? 'रिपोर्ट' : 'Report'}
             </Link>
           </Button>
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
             <Link to="/blog">
-              <BookOpen className="w-4 h-4 mr-2" />
-              {isHindi ? 'पार्किंग टिप्स' : 'Parking Tips'}
+              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isHindi ? 'टिप्स' : 'Tips'}
             </Link>
           </Button>
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
             <Link to="/business">
-              <Building2 className="w-4 h-4 mr-2" />
-              {isHindi ? 'व्यापार खाते' : 'Business Accounts'}
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isHindi ? 'व्यापार' : 'Business'}
             </Link>
           </Button>
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
             <Link to="/contact">
-              <Headphones className="w-4 h-4 mr-2" />
-              {isHindi ? 'ग्राहक सहायता' : 'Customer Care'}
+              <Headphones className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isHindi ? 'सहायता' : 'Help'}
             </Link>
           </Button>
         </div>
 
         {/* Team Info Button - Highlighted */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6 flex items-center gap-2">
           <TeamDialog trigger={
-            <Button variant="default" size="sm" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
-              <Users className="w-4 h-4" />
+            <Button variant="default" size="sm" className="gap-1.5 sm:gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-xs sm:text-sm h-8 sm:h-9">
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {isHindi ? 'हमारी टीम' : 'Our Team'}
             </Button>
           } />
+          <Button variant="outline" size="sm" asChild className="gap-1.5 sm:gap-2 text-xs sm:text-sm h-8 sm:h-9">
+            <Link to="/install">
+              <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              {isHindi ? 'ऐप इंस्टॉल करें' : 'Install App'}
+            </Link>
+          </Button>
         </div>
 
         {/* AQI Banner */}
-        <Card className="mb-6 bg-success/10 border-success/30">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-success/20">
-                <Leaf className="w-5 h-5 text-success" />
+        <Card className="mb-4 sm:mb-6 bg-success/10 border-success/30">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-full bg-success/20 flex-shrink-0">
+                <Leaf className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
               </div>
-              <div className="flex-1">
-                <p className="font-medium text-success">
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-success text-sm sm:text-base">
                   {isHindi ? 'स्मार्ट पार्किंग, AQI कम करें' : 'Park Smartly, Reduce AQI'}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                   {isHindi 
-                    ? 'कुशल पार्किंग वाहनों के इंतजार को कम करती है और दिल्ली की वायु गुणवत्ता में सुधार करती है'
-                    : 'Efficient parking reduces vehicle idling and helps improve Delhi\'s air quality'}
+                    ? 'कुशल पार्किंग वाहनों के इंतजार को कम करती है'
+                    : 'Efficient parking reduces vehicle idling and improves air quality'}
                 </p>
               </div>
-              <div className="text-right hidden sm:block">
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Wind className="w-4 h-4" />
-                  <span>{isHindi ? 'वर्तमान AQI:' : 'Current AQI:'} </span>
-                  <Badge variant="outline" className="border-warning text-warning">156</Badge>
+              <div className="text-right flex-shrink-0">
+                <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+                  <Wind className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <Badge variant="outline" className="border-warning text-warning text-xs">156</Badge>
                 </div>
               </div>
             </div>
@@ -337,32 +339,32 @@ export default function CitizenPortal() {
         </Card>
 
         {/* Search Section */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <div className="relative flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
               <Input
                 placeholder={isHindi ? 'पास में पार्किंग खोजें...' : 'Find parking near...'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 text-lg"
+                className="pl-9 sm:pl-10 h-10 sm:h-12 text-sm sm:text-lg"
               />
             </div>
             <VoiceSearch 
               onResult={(transcript) => setSearchQuery(transcript)} 
-              className="h-12 w-12"
+              className="h-10 w-10 sm:h-12 sm:w-12"
             />
           </div>
           
           {/* Quick Select */}
-          <div className="flex flex-wrap gap-2 mt-3">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
             {popularLocations.map((location, index) => (
               <Button
                 key={index}
                 variant="outline"
                 size="sm"
                 onClick={() => setSearchQuery(location)}
-                className="text-sm"
+                className="text-xs sm:text-sm h-7 sm:h-8 px-2 sm:px-3"
               >
                 <MapPin className="w-3 h-3 mr-1" />
                 {location}
@@ -372,7 +374,7 @@ export default function CitizenPortal() {
         </div>
 
         {/* Advertising Slot */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <AdvertisingSlot type="banner" />
         </div>
 
@@ -572,50 +574,50 @@ export default function CitizenPortal() {
         )}
         
         {/* Customer Care Card Only (Removed Write Review from main page) */}
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           <CustomerCareCard />
         </div>
 
         {/* New Features Section */}
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-primary" />
+        <div className="mt-6 sm:mt-8">
+          <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 flex items-center gap-2">
+            <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             {isHindi ? 'नई सुविधाएं' : 'New Features'}
           </h2>
           
           {/* 3D Map & Comparison - Full Width */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
             <ParkingSlot3DMap />
             <ParkingLotComparison />
           </div>
           
           {/* Smart Recommendations & Voice Navigation */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
             <SmartParkingRecommendations />
             <VoiceNavigation />
           </div>
 
           {/* EV & Vehicle Size */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
             <EVChargingReservation />
             <VehicleSizeDetection />
           </div>
 
           {/* Carpooling & Sustainability */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
             <CarpoolingIntegration />
             <SustainabilityDashboard />
           </div>
 
           {/* Floor Selector */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
             <MultiLevelFloorSelector />
             <EmergencyVehiclePriority />
           </div>
         </div>
 
         {/* Bottom Advertising Slot */}
-        <div className="mt-8 mb-6">
+        <div className="mt-6 sm:mt-8 mb-4 sm:mb-6">
           <AdvertisingSlot type="card" />
         </div>
       </main>
