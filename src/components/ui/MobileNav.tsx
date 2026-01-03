@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Car, BarChart3, CalendarCheck, User, History, Users } from 'lucide-react';
+import { Home, Car, BarChart3, CalendarCheck, User, History, Users, Download } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
@@ -18,23 +18,23 @@ const NavItem = React.forwardRef<HTMLAnchorElement, NavItemProps>(
         ref={ref}
         to={to}
         className={cn(
-          'flex flex-col items-center justify-center gap-1 px-3 py-2 transition-all duration-200',
+          'flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 transition-all duration-200 min-w-0 flex-1',
           isActive 
             ? 'text-primary' 
             : 'text-muted-foreground hover:text-foreground'
         )}
       >
         <div className={cn(
-          'relative p-1 rounded-xl transition-all duration-200',
+          'relative p-1.5 rounded-xl transition-all duration-200',
           isActive && 'bg-primary/10'
         )}>
           <Icon className={cn('w-5 h-5', isActive && 'animate-scale-in')} />
           {isActive && (
-            <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
+            <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-primary rounded-full" />
           )}
         </div>
         <span className={cn(
-          'text-[10px] font-medium',
+          'text-[9px] sm:text-[10px] font-medium truncate max-w-full',
           isActive && 'font-semibold'
         )}>
           {label}
@@ -66,12 +66,13 @@ export function MobileNav() {
     { to: '/', icon: Home, label: 'Home' },
     ...(isAdmin ? [
       { to: '/admin/parking-lots', icon: Car, label: 'Lots' },
-      { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
+      { to: '/admin/analytics', icon: BarChart3, label: 'Stats' },
       { to: '/admin/users', icon: Users, label: 'Users' },
     ] : []),
     ...(isCitizen ? [
       { to: '/my-reservations', icon: CalendarCheck, label: 'Bookings' },
       { to: '/parking-history', icon: History, label: 'History' },
+      { to: '/install', icon: Download, label: 'Install' },
       { to: '/profile', icon: User, label: 'Profile' },
     ] : []),
   ];
@@ -83,7 +84,7 @@ export function MobileNav() {
       
       {/* Navigation bar */}
       <div className="bg-card/95 backdrop-blur-lg border-t border-border shadow-2xl">
-        <div className="flex items-center justify-around px-2 py-1 safe-area-bottom">
+        <div className="flex items-center justify-around px-1 py-1 safe-area-bottom max-w-lg mx-auto">
           {navItems.slice(0, 5).map((item) => (
             <NavItem
               key={item.to + item.label}
