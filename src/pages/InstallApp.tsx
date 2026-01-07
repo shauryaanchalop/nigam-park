@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { Footer } from '@/components/Footer';
-import { Download, Smartphone, Check, Wifi, Bell, Zap } from 'lucide-react';
+import { Download, Smartphone, Check, Wifi, Bell, Zap, ChevronLeft } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -15,6 +16,7 @@ export default function InstallApp() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const { isHindi } = useLanguage();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if already installed
@@ -78,6 +80,12 @@ export default function InstallApp() {
       />
 
       <main className="container mx-auto px-4 py-8 max-w-2xl flex-1">
+        {/* Back Button */}
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
+          <ChevronLeft className="w-4 h-4 mr-1" />
+          {isHindi ? 'वापस' : 'Back'}
+        </Button>
+
         <Card className="mb-8">
           <CardHeader className="text-center">
             <div className="w-20 h-20 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center">

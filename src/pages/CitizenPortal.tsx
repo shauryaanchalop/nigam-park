@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users, Building2, Star, TrendingUp, Headphones } from 'lucide-react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users, Building2, Star, TrendingUp, Headphones, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useSurgePricing, calculateSurgePrice } from '@/hooks/useSurgePricing';
 import { SurgePricingBadge } from '@/components/SurgePricingBadge';
@@ -35,6 +35,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 import { useNavigate, Link } from 'react-router-dom';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { ParkingReviews } from '@/components/reviews/ParkingReviews';
 
 type ParkingLot = {
   id: string;
@@ -58,6 +60,7 @@ export default function CitizenPortal() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLot, setSelectedLot] = useState<ParkingLot | null>(null);
   const [reservationOpen, setReservationOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const { data: lots, isLoading, refetch, isFetching } = useParkingLots();
   const { data: surgePricingRules } = useSurgePricing();
   const { user } = useAuth();
@@ -71,6 +74,11 @@ export default function CitizenPortal() {
     coveredParking: false,
     nearMetro: false,
   });
+
+  const handleLotClick = (lot: ParkingLot) => {
+    setSelectedLot(lot);
+    setDetailsDialogOpen(true);
+  };
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (window.scrollY === 0) {
@@ -416,7 +424,7 @@ export default function CitizenPortal() {
               );
               
               return (
-                <Card key={lot.id} className="data-card overflow-hidden">
+                <Card key={lot.id} className="data-card overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleLotClick(lot)}>
                   <CardContent className="p-0">
                     {/* Status Bar */}
                     <div className={cn(
@@ -542,30 +550,10 @@ export default function CitizenPortal() {
                         </div>
                       </div>
                       
-                      {/* Action Buttons */}
-                      <div className="flex gap-2">
-                        <Button 
-                          className="flex-1 gap-2"
-                          variant="outline"
-                          onClick={() => {
-                            const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lot.lat},${lot.lng}&travelmode=driving`;
-                            window.open(mapsUrl, '_blank', 'noopener,noreferrer');
-                          }}
-                        >
-                          <Navigation className="w-4 h-4" />
-                          {isHindi ? 'दिशा' : 'Directions'}
-                        </Button>
-                        <Button 
-                          className="flex-1 gap-2"
-                          variant={status.color === 'destructive' ? 'secondary' : 'default'}
-                          disabled={status.color === 'destructive'}
-                          onClick={() => handleReserve(lot)}
-                        >
-                          <CalendarPlus className="w-4 h-4" />
-                          {status.color === 'destructive' 
-                            ? (isHindi ? 'भरा हुआ' : 'Full') 
-                            : (isHindi ? 'बुक करें' : 'Reserve')}
-                        </Button>
+                      {/* View Details Link */}
+                      <div className="flex items-center justify-center text-primary text-sm font-medium">
+                        <span>{isHindi ? 'विवरण देखें' : 'View Details'}</span>
+                        <ChevronRight className="w-4 h-4 ml-1" />
                       </div>
                     </div>
                   </CardContent>
@@ -648,6 +636,109 @@ export default function CitizenPortal() {
         onOpenChange={setReservationOpen}
         parkingLot={selectedLot}
       />
+
+      {/* Parking Lot Details Dialog */}
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedLot && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl">{selectedLot.name}</DialogTitle>
+                <DialogDescription className="flex items-center gap-1">
+                  <MapPin className="w-4 h-4" />
+                  {selectedLot.zone}
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4 pt-2">
+                {/* Quick Info */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                    <Car className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">{isHindi ? 'उपलब्ध' : 'Available'}</p>
+                      <p className="font-semibold">{selectedLot.capacity - selectedLot.current_occupancy} {isHindi ? 'स्थान' : 'spots'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                    <IndianRupee className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">{isHindi ? 'प्रति घंटा' : 'Per Hour'}</p>
+                      <p className="font-semibold">₹{selectedLot.hourly_rate}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Features */}
+                <div className="flex flex-wrap gap-2">
+                  {selectedLot.has_ev_charging && (
+                    <Badge variant="outline" className="bg-green-500/10 border-green-500/30 text-green-600">
+                      <Zap className="w-3 h-3 mr-1" />
+                      {isHindi ? 'EV चार्जिंग' : 'EV Charging'}
+                    </Badge>
+                  )}
+                  {selectedLot.has_covered_parking && (
+                    <Badge variant="outline" className="bg-blue-500/10 border-blue-500/30 text-blue-600">
+                      <Umbrella className="w-3 h-3 mr-1" />
+                      {isHindi ? 'ढकी पार्किंग' : 'Covered'}
+                    </Badge>
+                  )}
+                  {selectedLot.near_metro && selectedLot.metro_station && (
+                    <Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary">
+                      <Train className="w-3 h-3 mr-1" />
+                      {selectedLot.metro_station}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Rating */}
+                <div className="flex items-center gap-2">
+                  <RatingBadge 
+                    rating={selectedLot.average_rating ? Number(selectedLot.average_rating) : null} 
+                    reviewCount={selectedLot.review_count || 0}
+                    size="md"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-2">
+                  <Button 
+                    className="flex-1 gap-2"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${selectedLot.lat},${selectedLot.lng}&travelmode=driving`;
+                      window.open(mapsUrl, '_blank', 'noopener,noreferrer');
+                    }}
+                  >
+                    <Navigation className="w-4 h-4" />
+                    {isHindi ? 'दिशा' : 'Navigate'}
+                  </Button>
+                  <Button 
+                    className="flex-1 gap-2"
+                    disabled={(selectedLot.capacity - selectedLot.current_occupancy) === 0}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDetailsDialogOpen(false);
+                      handleReserve(selectedLot);
+                    }}
+                  >
+                    <CalendarPlus className="w-4 h-4" />
+                    {(selectedLot.capacity - selectedLot.current_occupancy) === 0 
+                      ? (isHindi ? 'भरा हुआ' : 'Full') 
+                      : (isHindi ? 'बुक करें' : 'Reserve')}
+                  </Button>
+                </div>
+
+                {/* Reviews Section */}
+                <div className="pt-4 border-t">
+                  <ParkingReviews lotId={selectedLot.id} lotName={selectedLot.name} canReply={false} />
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
