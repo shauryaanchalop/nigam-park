@@ -16,7 +16,7 @@ import {
   Receipt,
   Radio,
   Zap,
-  Building2,
+  
 } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { StatCard } from '@/components/ui/StatCard';
@@ -63,7 +63,6 @@ export default function AdminDashboard() {
     { label: t('admin.manageLots'), labelKey: 'manageLots', icon: MapPinned, href: '/admin/parking-lots', color: 'success' },
     { label: t('admin.users'), labelKey: 'users', icon: Users, href: '/admin/users', color: 'primary' },
     { label: t('admin.shifts'), labelKey: 'shifts', icon: Clock, href: '/admin/shifts', color: 'primary' },
-    { label: t('admin.fleet'), labelKey: 'fleet', icon: Building2, href: '/business-account', color: 'accent' },
   ];
 
   return (

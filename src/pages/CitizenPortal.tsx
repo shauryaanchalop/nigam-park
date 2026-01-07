@@ -23,7 +23,7 @@ import { EVChargingReservation } from '@/components/features/EVChargingReservati
 import { EVBatteryStatus } from '@/components/features/EVBatteryStatus';
 import { VehicleSizeDetection } from '@/components/features/VehicleSizeDetection';
 import { MultiLevelFloorSelector } from '@/components/features/MultiLevelFloorSelector';
-import { CarpoolingIntegration } from '@/components/features/CarpoolingIntegration';
+
 import { EmergencyVehiclePriority } from '@/components/features/EmergencyVehiclePriority';
 import { VoiceNavigation } from '@/components/features/VoiceNavigation';
 import { SmartParkingRecommendations } from '@/components/features/SmartParkingRecommendations';
@@ -233,7 +233,7 @@ export default function CitizenPortal() {
         <WeatherRecommendation />
 
         {/* Quick Actions for Citizens */}
-        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6 mt-4">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4 mt-4">
           <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
             <Link to="/live-map">
               <Map className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
@@ -270,12 +270,6 @@ export default function CitizenPortal() {
               {isHindi ? 'अलर्ट' : 'Alerts'}
             </Link>
           </Button>
-          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 border-destructive/50 text-destructive hover:bg-destructive/10">
-            <Link to="/report-violation">
-              <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isHindi ? 'रिपोर्ट' : 'Report'}
-            </Link>
-          </Button>
           <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
             <Link to="/blog">
               <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
@@ -294,20 +288,39 @@ export default function CitizenPortal() {
               {isHindi ? 'सहायता' : 'Help'}
             </Link>
           </Button>
-        </div>
-
-        {/* Team Info Button - Highlighted */}
-        <div className="mb-4 sm:mb-6 flex items-center gap-2">
-          <TeamDialog trigger={
-            <Button variant="default" size="sm" className="gap-1.5 sm:gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-xs sm:text-sm h-8 sm:h-9">
-              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              {isHindi ? 'हमारी टीम' : 'Our Team'}
-            </Button>
-          } />
-          <Button variant="outline" size="sm" asChild className="gap-1.5 sm:gap-2 text-xs sm:text-sm h-8 sm:h-9">
+          <Button variant="outline" size="sm" asChild className="gap-1.5 sm:gap-2 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
             <Link to="/install">
               <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {isHindi ? 'ऐप इंस्टॉल करें' : 'Install App'}
+            </Link>
+          </Button>
+        </div>
+
+        {/* Our Team Button - Highlighted Separately */}
+        <div className="mb-3 sm:mb-4">
+          <TeamDialog trigger={
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="gap-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 font-bold text-xs sm:text-sm h-9 sm:h-10 px-4 sm:px-6 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-primary-foreground/20"
+            >
+              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
+              {isHindi ? '👨‍💻 हमारी टीम से मिलें' : '👨‍💻 Meet Our Team'}
+            </Button>
+          } />
+        </div>
+
+        {/* Report Violation - Separate & Last */}
+        <div className="mb-4 sm:mb-6">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            asChild 
+            className="text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground font-medium"
+          >
+            <Link to="/report-violation">
+              <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+              {isHindi ? 'उल्लंघन की रिपोर्ट करें' : 'Report Violation'}
             </Link>
           </Button>
         </div>
@@ -609,9 +622,9 @@ export default function CitizenPortal() {
             <VehicleSizeDetection />
           </div>
 
-          {/* Carpooling & Sustainability */}
+
+          {/* Sustainability */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
-            <CarpoolingIntegration />
             <SustainabilityDashboard />
           </div>
 
