@@ -16,6 +16,7 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { FraudAlert } from '@/types/ai-modules';
 import logo from '@/assets/logo.png';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function FraudHunter() {
   const { user, userRole, loading } = useAuth();
@@ -23,6 +24,7 @@ export default function FraudHunter() {
   const { isMuted, toggleMute, playAlertSound, sendBrowserNotification, notificationPermission, requestNotificationPermission } = useAlertNotifications();
   const isInitialLoad = useRef(true);
   const [isTestingAlert, setIsTestingAlert] = useState(false);
+  const { isHindi } = useLanguage();
 
   // Separate subscription for sound/browser notifications and email (only on FraudHunter page)
   useEffect(() => {
@@ -293,10 +295,7 @@ export default function FraudHunter() {
         <Card className="mb-6 bg-primary/5 border-primary/20">
           <CardContent className="py-4">
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">About Fraud Hunter:</span> AI-powered real-time fraud detection system that monitors all parking transactions for suspicious activity. Automatically detects payment bypasses, ticket mismatches, and revenue leakage patterns. Critical alerts trigger instant email notifications.
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              <span className="font-medium text-foreground">फ्रॉड हंटर के बारे में:</span> AI-संचालित रीयल-टाइम धोखाधड़ी पहचान प्रणाली जो सभी पार्किंग लेनदेन की संदिग्ध गतिविधि के लिए निगरानी करती है। भुगतान बाईपास, टिकट बेमेल और राजस्व रिसाव पैटर्न का स्वचालित रूप से पता लगाता है।
+              <span className="font-medium text-foreground">{isHindi ? 'फ्रॉड हंटर के बारे में:' : 'About Fraud Hunter:'}</span> {isHindi ? 'AI-संचालित रीयल-टाइम धोखाधड़ी पहचान प्रणाली जो सभी पार्किंग लेनदेन की संदिग्ध गतिविधि के लिए निगरानी करती है। भुगतान बाईपास, टिकट बेमेल और राजस्व रिसाव पैटर्न का स्वचालित रूप से पता लगाता है। गंभीर अलर्ट तुरंत ईमेल सूचनाएं भेजते हैं।' : 'AI-powered real-time fraud detection system that monitors all parking transactions for suspicious activity. Automatically detects payment bypasses, ticket mismatches, and revenue leakage patterns. Critical alerts trigger instant email notifications.'}
             </p>
           </CardContent>
         </Card>
