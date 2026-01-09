@@ -75,7 +75,7 @@ export function EVChargingReservation() {
   const availableCount = mockStations.filter(s => s.status === 'available').length;
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Zap className="w-5 h-5 text-success" />

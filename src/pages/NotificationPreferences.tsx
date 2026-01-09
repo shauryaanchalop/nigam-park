@@ -7,7 +7,9 @@ import {
   Clock, 
   Save,
   CheckCircle2,
+  ChevronLeft,
 } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -169,6 +171,7 @@ export default function NotificationPreferences() {
       />
 
       <main className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
+        <BackButton />
         {/* Phone Number */}
         <Card>
           <CardHeader>

@@ -179,61 +179,61 @@ export default function KioskMode() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-3 sm:p-4 md:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <img src={logo} alt="NIGAM-Park" className="w-16 h-16 rounded-full border-2 border-primary/30" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <img src={logo} alt="NIGAM-Park" className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 border-primary/30" />
           <div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-foreground">NIGAM-Park Control Center</h1>
-            <p className="text-muted-foreground">Real-Time Parking Occupancy Monitor</p>
+            <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold text-foreground leading-tight">NIGAM-Park Control Center</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">Real-Time Parking Occupancy Monitor</p>
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
-          <div className="text-right mr-4">
-            <p className="text-2xl lg:text-3xl font-mono font-bold text-foreground">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="text-right mr-2 sm:mr-4 hidden sm:block">
+            <p className="text-lg sm:text-2xl lg:text-3xl font-mono font-bold text-foreground">
               {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {currentTime.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
           </div>
           
-          <div className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-success/10 border border-success/20">
-            <span className="relative flex h-3 w-3">
+          <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-2 rounded-full bg-success/10 border border-success/20">
+            <span className="relative flex h-2 w-2 sm:h-3 sm:w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-success"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 sm:h-3 sm:w-3 bg-success"></span>
             </span>
-            <span className="text-sm font-medium text-success">LIVE</span>
+            <span className="text-xs sm:text-sm font-medium text-success">LIVE</span>
           </div>
           
           <Button
             variant="outline"
             size="icon"
             onClick={() => setAudioMuted(!audioMuted)}
-            className="h-10 w-10"
+            className="h-8 w-8 sm:h-10 sm:w-10"
           >
-            {audioMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+            {audioMuted ? <VolumeX className="h-4 w-4 sm:h-5 sm:w-5" /> : <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />}
           </Button>
           
           <Button
             variant="outline"
             size="icon"
             onClick={toggleFullscreen}
-            className="h-10 w-10"
+            className="h-8 w-8 sm:h-10 sm:w-10"
           >
-            {isFullscreen ? <X className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+            {isFullscreen ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Maximize className="h-4 w-4 sm:h-5 sm:w-5" />}
           </Button>
           
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/">Exit Kiosk</Link>
+          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm">
+            <Link to="/">Exit</Link>
           </Button>
         </div>
       </div>
 
       {/* System Overview */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4 mb-4 sm:mb-6">
         <Card className="col-span-2 bg-card/80 backdrop-blur border-primary/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -276,7 +276,7 @@ export default function KioskMode() {
       </div>
 
       {/* Camera Feed Section for Kiosk */}
-      <Card className="mb-6 bg-card/80 backdrop-blur border-primary/20">
+      <Card className="mb-4 sm:mb-6 bg-card/80 backdrop-blur border-primary/20">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold flex items-center gap-2">
@@ -316,7 +316,7 @@ export default function KioskMode() {
       </Card>
 
       {/* Parking Lots Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 mb-4 sm:mb-6">
         {lots?.map((lot) => {
           const percentage = Math.round((lot.current_occupancy / lot.capacity) * 100);
           const status = getOccupancyStatus(lot.current_occupancy, lot.capacity);

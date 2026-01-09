@@ -42,7 +42,7 @@ export function SustainabilityDashboard() {
   const goalProgress = (mockStats.currentProgress / mockStats.monthlyGoal) * 100;
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Leaf className="w-5 h-5 text-success" />

@@ -341,13 +341,13 @@ export default function LiveParkingMap() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:flex-row">
-        {/* Map - Full screen on mobile */}
-        <div className="flex-1 relative">
+      {/* Map - Full screen on mobile */}
+        <div className="flex-1 relative min-h-[calc(100vh-120px)] md:min-h-0">
           {!isLoading && lots && (
             <MapContainer
               center={defaultCenter}
               zoom={13}
-              style={{ height: '100%', width: '100%', minHeight: '400px' }}
+              style={{ height: '100%', width: '100%', minHeight: 'calc(100vh - 120px)' }}
               className="z-0"
             >
               <TileLayer

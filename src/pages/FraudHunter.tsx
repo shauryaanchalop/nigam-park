@@ -303,7 +303,7 @@ export default function FraudHunter() {
         {/* Main Content */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Fraud Feed - Takes 2 columns on xl, full width otherwise */}
-          <div className="xl:col-span-2 min-h-[500px]">
+          <div className="xl:col-span-2">
             <FraudAlertFeed />
           </div>
 

@@ -605,14 +605,9 @@ export default function CitizenPortal() {
             <EVBatteryStatus />
           </div>
 
-          {/* Vehicle Size */}
+          {/* Vehicle Size & Sustainability - side by side */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
             <VehicleSizeDetection />
-          </div>
-
-
-          {/* Sustainability */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
             <SustainabilityDashboard />
           </div>
 

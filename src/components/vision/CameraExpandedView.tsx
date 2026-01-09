@@ -73,28 +73,28 @@ export function CameraExpandedView({ camera, open, onOpenChange }: CameraExpande
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-hidden p-0">
-        <DialogHeader className="p-4 border-b">
-          <div className="flex items-center gap-4">
+        <DialogHeader className="p-3 sm:p-4 border-b">
+          <div className="flex items-center gap-2 sm:gap-4 pr-8">
             <DialogTitle className="flex items-center gap-2 flex-1 min-w-0">
-              <Camera className="w-5 h-5 text-primary flex-shrink-0" />
-              <span className="truncate">{camera.name}</span>
+              <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+              <span className="truncate text-sm sm:text-base">{camera.name}</span>
               <Badge 
                 variant={camera.status === 'ONLINE' ? 'default' : 'secondary'}
-                className="ml-2 flex-shrink-0"
+                className="ml-1 sm:ml-2 flex-shrink-0 text-xs"
               >
                 <StatusIcon className="w-3 h-3 mr-1" />
                 {camera.status}
               </Badge>
             </DialogTitle>
-            <Button variant="outline" size="sm" onClick={toggleFullscreen} className="flex-shrink-0 mr-8">
+            <Button variant="outline" size="sm" onClick={toggleFullscreen} className="flex-shrink-0 hidden sm:flex">
               <Maximize2 className="w-4 h-4 mr-1" />
               {isFullscreen ? 'Exit' : 'Fullscreen'}
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground">{camera.zone}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">{camera.zone}</p>
         </DialogHeader>
 
-        <div className="relative w-full aspect-video bg-black">
+        <div className="relative w-full aspect-video bg-black max-h-[50vh] sm:max-h-[60vh]">
           {/* ONLINE: Show normal CCTV feed */}
           {camera.status === 'ONLINE' && (
             <>

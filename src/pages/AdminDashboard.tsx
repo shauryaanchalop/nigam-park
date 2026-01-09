@@ -194,7 +194,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Map Section */}
           <div className="xl:col-span-2 order-2 xl:order-1">
-            <Card className="h-full overflow-hidden border-border/50 hover:border-primary/20 transition-colors">
+            <Card className="overflow-hidden border-border/50 hover:border-primary/20 transition-colors">
               <CardHeader className="pb-2 sm:pb-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
@@ -208,7 +208,7 @@ export default function AdminDashboard() {
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="p-0 sm:p-2">
+              <CardContent className="p-0 sm:p-2 pb-2">
                 <div className="h-[300px] sm:h-[350px] lg:h-[400px]">
                   <ParkingMap />
                 </div>
