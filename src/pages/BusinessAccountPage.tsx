@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { BackButton } from '@/components/ui/BackButton';
 import { 
   Building2, 
   Users, 
@@ -22,7 +23,8 @@ import {
   ArrowRight,
   Phone,
   Mail,
-  Briefcase
+  Briefcase,
+  ChevronLeft
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -137,6 +139,9 @@ export default function BusinessAccountPage() {
       <GovHeader />
       
       <main className="flex-1">
+        <div className="container pt-4">
+          <BackButton />
+        </div>
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-primary/10 via-background to-background py-16">
           <div className="container">

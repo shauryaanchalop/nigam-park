@@ -10,7 +10,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Check, CreditCard, Car, Calendar, MapPin, Shield, Zap, Clock } from 'lucide-react';
+import { Check, CreditCard, Car, Calendar, MapPin, Shield, Zap, Clock, ChevronLeft } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -95,6 +96,7 @@ export default function MonthlyPassPage() {
       <GovHeader />
       
       <main className="container py-8 flex-1">
+        <BackButton />
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-8">
             <Badge variant="outline" className="mb-2">

@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Gift, Copy, Share2, Users, Award, CheckCircle } from 'lucide-react';
+import { Gift, Copy, Share2, Users, Award, CheckCircle, ChevronLeft } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -109,6 +110,7 @@ export default function ReferralPage() {
       <GovHeader />
       
       <main className="container py-8 flex-1">
+        <BackButton />
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <Badge variant="outline" className="mb-2">
