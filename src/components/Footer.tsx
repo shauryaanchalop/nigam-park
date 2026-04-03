@@ -225,12 +225,12 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 p-4 bg-gradient-to-r from-primary/5 to-success/5 rounded-lg border border-primary/10">
             <div className="text-center sm:text-left">
               <p className="font-semibold text-primary">
-                {isHindi ? 'Hack4Delhi हैकाथॉन प्रोजेक्ट' : 'Hack4Delhi Hackathon Project'}
+                {isHindi ? 'NIGAM-Park प्रोजेक्ट' : 'NIGAM-Park Project'}
               </p>
               <p className="text-sm text-muted-foreground">
                 {isHindi 
-                  ? 'दिल्ली के लिए स्मार्ट पार्किंग समाधान'
-                  : 'Smart Parking Solution for Delhi'}
+                  ? 'दिल्ली के लिए AI-संचालित स्मार्ट पार्किंग समाधान'
+                  : 'AI-Powered Smart Parking Solution for Delhi'}
               </p>
             </div>
             <TeamDialog />

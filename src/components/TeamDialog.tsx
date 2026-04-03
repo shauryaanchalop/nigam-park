@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Code, Brain, Server, Award, ExternalLink } from 'lucide-react';
+import { Users, Code, Brain, Award, ExternalLink } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -13,12 +13,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Separator } from '@/components/ui/separator';
 
-// Import team member photos
 import shauryaPhoto from '@/assets/team/shaurya.jpg';
-import gauravPhoto from '@/assets/team/gaurav.jpg';
-import shivamPhoto from '@/assets/team/shivam.jpg';
-import mananPhoto from '@/assets/team/manan.png';
-import tanujPhoto from '@/assets/team/tanuj.jpg';
+import sachitPhoto from '@/assets/team/sachit.jpg';
+import vanshPhoto from '@/assets/team/vansh.jpg';
+import kankaPhoto from '@/assets/team/kanka.jpg';
 
 interface TeamMember {
   name: string;
@@ -35,58 +33,47 @@ interface TeamMember {
 const teamMembers: TeamMember[] = [
   {
     name: 'Shaurya Anchal',
-    role: 'Team Leader + Web Development',
-    roleHi: 'टीम लीडर + वेब डेवलपमेंट',
-    affiliation: 'Lead Developer',
-    affiliationHi: 'लीड डेवलपर',
-    icon: <Award className="w-4 h-4" />,
-    initials: 'SA',
-    color: 'bg-primary',
-    photo: shauryaPhoto,
-  },
-  {
-    name: 'Gaurav Bansal',
     role: 'Web Development',
     roleHi: 'वेब डेवलपमेंट',
     affiliation: 'Frontend Developer',
     affiliationHi: 'फ्रंटएंड डेवलपर',
     icon: <Code className="w-4 h-4" />,
-    initials: 'GB',
-    color: 'bg-blue-500',
-    photo: gauravPhoto,
+    initials: 'SA',
+    color: 'bg-primary',
+    photo: shauryaPhoto,
   },
   {
-    name: 'Shivam Kaushik',
+    name: 'Sachit Nagpal',
+    role: 'Web Development',
+    roleHi: 'वेब डेवलपमेंट',
+    affiliation: 'Frontend Developer',
+    affiliationHi: 'फ्रंटएंड डेवलपर',
+    icon: <Code className="w-4 h-4" />,
+    initials: 'SN',
+    color: 'bg-blue-500',
+    photo: sachitPhoto,
+  },
+  {
+    name: 'Vansh Sharma',
     role: 'AI/ML',
     roleHi: 'एआई/एमएल',
     affiliation: 'ML Engineer',
     affiliationHi: 'एमएल इंजीनियर',
     icon: <Brain className="w-4 h-4" />,
-    initials: 'SK',
+    initials: 'VS',
     color: 'bg-purple-500',
-    photo: shivamPhoto,
+    photo: vanshPhoto,
   },
   {
-    name: 'Manan Goel',
+    name: 'Kankasubhra Barik',
     role: 'AI/ML',
     roleHi: 'एआई/एमएल',
     affiliation: 'AI Specialist',
     affiliationHi: 'एआई स्पेशलिस्ट',
     icon: <Brain className="w-4 h-4" />,
-    initials: 'MG',
+    initials: 'KB',
     color: 'bg-pink-500',
-    photo: mananPhoto,
-  },
-  {
-    name: 'Tanuj Goyal',
-    role: 'Web Development + DevOps',
-    roleHi: 'वेब डेवलपमेंट + डेवऑप्स',
-    affiliation: 'Full Stack & DevOps',
-    affiliationHi: 'फुल स्टैक और डेवऑप्स',
-    icon: <Server className="w-4 h-4" />,
-    initials: 'TG',
-    color: 'bg-green-500',
-    photo: tanujPhoto,
+    photo: kankaPhoto,
   },
 ];
 
@@ -116,20 +103,18 @@ export function TeamDialog({ trigger, className }: TeamDialogProps) {
           </DialogTitle>
         </DialogHeader>
 
-        {/* Hackathon Badge */}
+        {/* Project Badge */}
         <div className="bg-gradient-to-r from-primary/10 to-success/10 border border-primary/20 rounded-lg p-4 mb-4">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-full bg-primary/20">
               <Award className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg">
-                {isHindi ? 'Hack4Delhi हैकाथॉन' : 'Hack4Delhi Hackathon'}
-              </h3>
+              <h3 className="font-semibold text-lg">NIGAM-Park</h3>
               <p className="text-sm text-muted-foreground">
                 {isHindi 
-                  ? 'यह प्रोजेक्ट Hack4Delhi हैकाथॉन के लिए बनाया गया है - दिल्ली के लिए स्मार्ट पार्किंग समाधान'
-                  : 'This project is built for the Hack4Delhi Hackathon - Smart Parking Solution for Delhi'}
+                  ? 'दिल्ली के लिए AI-संचालित स्मार्ट पार्किंग प्रबंधन प्रणाली'
+                  : 'AI-Powered Smart Parking Management System for Delhi'}
               </p>
             </div>
           </div>
@@ -139,7 +124,7 @@ export function TeamDialog({ trigger, className }: TeamDialogProps) {
 
         {/* Team Members Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-          {teamMembers.map((member, index) => (
+          {teamMembers.map((member) => (
             <div
               key={member.name}
               className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
@@ -151,14 +136,7 @@ export function TeamDialog({ trigger, className }: TeamDialogProps) {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-base flex items-center gap-2">
-                  {member.name}
-                  {index === 0 && (
-                    <Badge variant="secondary" className="text-xs">
-                      {isHindi ? 'लीडर' : 'Leader'}
-                    </Badge>
-                  )}
-                </h4>
+                <h4 className="font-semibold text-base">{member.name}</h4>
                 <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                   {member.icon}
                   {isHindi ? member.roleHi : member.role}
