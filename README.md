@@ -3,7 +3,7 @@
 
 NIGAM-Park is an AI-driven civic technology solution designed to eliminate revenue leakage and improve transparency in public parking operations. The system uses Vision AI, real-time payment reconciliation, and centralized monitoring to ensure that every parked vehicle is verified against a legitimate digital payment, without relying on manual enforcement.
 
-Built for the **Hack4Delhi (IEEE NSUT)** hackathon, NIGAM-Park addresses a real and documented governance challenge in municipal parking systems.
+Built for the **AI SOLUTION EXPO** hackathon, NIGAM-Park addresses a real and documented governance challenge in municipal parking systems.
 
 ---
 
@@ -115,6 +115,6 @@ Commercial or production deployment requires appropriate authorization from rele
 
 ## Team
 
-Built as part of **Hack4Delhi (IEEE NSUT)**  
+Built as part of **AI SOLUTION EXPO**  
 Team details available in the project documentation.
 
