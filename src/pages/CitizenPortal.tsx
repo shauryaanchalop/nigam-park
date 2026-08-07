@@ -404,6 +404,7 @@ export default function CitizenPortal() {
         <ParkingFilters filters={filters} onChange={setFilters} />
 
         {/* Parking Lots Grid */}
+        <h2 className="text-lg sm:text-xl font-semibold mt-4 sm:mt-6 mb-3">Nearby Parking</h2>
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[1, 2, 3, 4].map(i => (
