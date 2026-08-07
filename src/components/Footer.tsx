@@ -81,7 +81,7 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
               <Link to="/" className="flex items-center gap-3 mb-4" onClick={scrollToTop}>
                 <img 
                   src={logo} 
-                  alt="NIGAM-Park Logo" 
+                  alt="NIGAM-Park official branding" 
                   className="w-10 h-10 rounded-full object-cover border-2 border-primary/20" 
                 />
                 <span className="font-bold text-lg">{isHindi ? 'निगम-पार्क' : 'NIGAM-Park'}</span>

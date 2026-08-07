@@ -14,7 +14,7 @@ export default function PrivacyPolicy() {
       <SEOHead
         title="Privacy Policy"
         description="NIGAM-Park privacy policy. Learn how we collect, use, and protect your personal information."
-        canonicalUrl="https://nigam-park.vercel.app/privacy-policy"
+        canonicalUrl="https://nigam-park.lovable.app/privacy-policy"
       />
       
       <GovHeader />

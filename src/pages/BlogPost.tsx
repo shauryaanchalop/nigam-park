@@ -321,12 +321,12 @@ export default function BlogPost() {
       name: 'NIGAM-Park',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://nigam-park.vercel.app/favicon.png',
+        url: 'https://nigam-park.lovable.app/favicon.png',
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://nigam-park.vercel.app/blog/${article.slug}`,
+      '@id': `https://nigam-park.lovable.app/blog/${article.slug}`,
     },
   };
 
@@ -336,7 +336,7 @@ export default function BlogPost() {
         title={article.title}
         description={article.metaDescription}
         keywords={article.keywords}
-        canonicalUrl={`https://nigam-park.vercel.app/blog/${article.slug}`}
+        canonicalUrl={`https://nigam-park.lovable.app/blog/${article.slug}`}
         ogType="article"
         structuredData={structuredData}
       />

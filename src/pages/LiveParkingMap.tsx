@@ -117,6 +117,7 @@ function LocationControl({ onLocationFound, onLocating }: {
       variant="secondary"
       onClick={handleLocate}
       disabled={isLocating}
+      aria-label="Find my current location on the map"
       className="absolute top-4 right-4 z-[1000] bg-background shadow-lg"
     >
       {isLocating ? (

@@ -14,7 +14,7 @@ export default function TermsOfService() {
       <SEOHead
         title="Terms of Service"
         description="NIGAM-Park terms of service. Read the terms and conditions for using our smart parking platform."
-        canonicalUrl="https://nigam-park.vercel.app/terms"
+        canonicalUrl="https://nigam-park.lovable.app/terms"
       />
       
       <GovHeader />
