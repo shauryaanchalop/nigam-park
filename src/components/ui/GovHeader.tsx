@@ -28,7 +28,7 @@ interface GovHeaderProps {
 type DemoRole = 'admin' | 'attendant' | 'citizen';
 
 export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
-  function GovHeader({ title = "NIGAM-Park", subtitle = "Revenue Assurance & Smart Parking System" }, ref) {
+  function GovHeader({ title = "NIGAM-Park — Smart Parking for Delhi", subtitle = "Revenue Assurance & Smart Parking System" }, ref) {
     const { user, userRole, signOut, signIn, setIsSwitchingRole } = useAuth();
     const { profile } = useProfile();
     const { language, setLanguage, t } = useLanguage();
@@ -113,7 +113,7 @@ export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
         <div className="gradient-primary px-2 sm:px-4 py-2">
           <div className="container mx-auto flex items-center justify-between gap-2">
             <Link to={user ? getHomeRoute() : '/'} className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity min-w-0 flex-shrink">
-              <img src={logo} alt="NIGAM-Park Logo" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0" />
+              <img src={logo} alt="NIGAM-Park official branding" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0" />
               <div className="min-w-0">
                 <h1 className="text-primary-foreground font-bold text-sm sm:text-lg tracking-tight truncate">{title}</h1>
                 <p className="text-primary-foreground/80 text-[10px] sm:text-xs truncate hidden xs:block">{subtitle}</p>
