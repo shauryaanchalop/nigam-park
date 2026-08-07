@@ -57,6 +57,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <RouteSEO />
               <div className="pb-16 md:pb-0">
                 <Routes>
                   <Route path="/" element={<Index />} />
