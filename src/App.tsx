@@ -45,6 +45,7 @@ import ReviewModeration from "./pages/ReviewModeration";
 import InstallApp from "./pages/InstallApp";
 import AdminSurgePricing from "./pages/AdminSurgePricing";
 import { ParkingAssistant } from "./components/ParkingAssistant";
+import { RouteSEO } from "./components/RouteSEO";
 const queryClient = new QueryClient();
 
 const App = () => (
