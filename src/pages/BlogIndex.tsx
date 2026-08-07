@@ -57,11 +57,11 @@ export default function BlogIndex() {
     '@type': 'Blog',
     name: 'NIGAM-Park Blog',
     description: 'Parking tips, guides, and news for Delhi drivers',
-    url: 'https://nigam-park.vercel.app/blog',
+    url: 'https://nigam-park.lovable.app/blog',
     publisher: {
       '@type': 'Organization',
       name: 'NIGAM-Park',
-      logo: 'https://nigam-park.vercel.app/favicon.png',
+      logo: 'https://nigam-park.lovable.app/favicon.png',
     },
     blogPost: blogPosts.map(post => ({
       '@type': 'BlogPosting',
@@ -72,7 +72,7 @@ export default function BlogIndex() {
         '@type': 'Organization',
         name: post.author,
       },
-      url: `https://nigam-park.vercel.app/blog/${post.slug}`,
+      url: `https://nigam-park.lovable.app/blog/${post.slug}`,
     })),
   };
 
@@ -82,7 +82,7 @@ export default function BlogIndex() {
         title="Parking Tips & Guides Blog"
         description="Expert parking tips, Delhi traffic guides, and smart parking news. Learn how to find parking faster, avoid fines, and save money in Delhi."
         keywords="Delhi parking tips, parking guide Delhi, avoid parking fines, smart parking, MCD parking rules, parking challan"
-        canonicalUrl="https://nigam-park.vercel.app/blog"
+        canonicalUrl="https://nigam-park.lovable.app/blog"
         structuredData={structuredData}
       />
       

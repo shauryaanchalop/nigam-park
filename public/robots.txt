@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://nigam-park.vercel.app/sitemap.xml
+Sitemap: https://nigam-park.lovable.app/sitemap.xml

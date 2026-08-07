@@ -90,7 +90,7 @@ export default function MonthlyPassPage() {
         title={isHindi ? 'मासिक पार्किंग पास' : 'Monthly Parking Pass'}
         description="Save money with NIGAM-Park monthly parking passes. Unlimited parking access, priority entry, and exclusive benefits for regular commuters in Delhi."
         keywords="monthly parking pass Delhi, parking subscription, unlimited parking, commuter parking pass, MCD parking pass"
-        canonicalUrl="https://nigam-park.vercel.app/monthly-pass"
+        canonicalUrl="https://nigam-park.lovable.app/monthly-pass"
       />
       
       <GovHeader />

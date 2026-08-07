@@ -17,7 +17,7 @@ export const SEOHead = forwardRef<HTMLDivElement, SEOHeadProps>(
     description,
     keywords,
     canonicalUrl,
-    ogImage = 'https://nigam-park.vercel.app/favicon.png',
+    ogImage = 'https://nigam-park.lovable.app/favicon.png',
     ogType = 'website',
     structuredData,
   }, ref) {

@@ -129,7 +129,7 @@ export default function FAQPage() {
         title="Frequently Asked Questions"
         description="Find answers to common questions about NIGAM-Park smart parking system. Learn about booking, payments, parking lots, and more."
         keywords="NIGAM-Park FAQ, parking questions Delhi, MCD parking help, how to book parking, parking payment methods"
-        canonicalUrl="https://nigam-park.vercel.app/faq"
+        canonicalUrl="https://nigam-park.lovable.app/faq"
         structuredData={structuredData}
       />
       

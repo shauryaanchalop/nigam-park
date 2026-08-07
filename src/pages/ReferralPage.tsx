@@ -53,7 +53,7 @@ export default function ReferralPage() {
       ? `NIGAM-Park पर मेरे रेफरल कोड ${referralCode} का उपयोग करें और 100 पॉइंट्स पाएं!`
       : `Use my referral code ${referralCode} on NIGAM-Park and get 100 bonus points!`;
     
-    const shareUrl = `https://nigam-park.vercel.app/auth?ref=${referralCode}`;
+    const shareUrl = `https://nigam-park.lovable.app/auth?ref=${referralCode}`;
     
     if (navigator.share) {
       try {
@@ -104,7 +104,7 @@ export default function ReferralPage() {
         title={isHindi ? 'रेफरल प्रोग्राम' : 'Referral Program'}
         description="Invite friends to NIGAM-Park and earn bonus points. Get 100 points for each successful referral. Redeem points for free parking."
         keywords="referral program, invite friends, earn points, free parking Delhi, NIGAM-Park referral"
-        canonicalUrl="https://nigam-park.vercel.app/referral"
+        canonicalUrl="https://nigam-park.lovable.app/referral"
       />
       
       <GovHeader />
