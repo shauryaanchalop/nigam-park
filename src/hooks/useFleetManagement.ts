@@ -64,7 +64,7 @@ export function useFleetManagement() {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as FleetVehicle[];
+      return withDemoFallback<FleetVehicle>(data as FleetVehicle[], DEMO_FLEET_VEHICLES);
     },
     enabled: !!businessAccount,
   });
