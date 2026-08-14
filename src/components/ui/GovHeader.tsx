@@ -107,7 +107,7 @@ export function GovHeader({ title = "NIGAM-Park — Smart Parking for Delhi", su
     };
 
     return (
-      <header ref={ref} className="bg-card border-b border-border">
+      <header className="bg-card border-b border-border">
         {/* Top Government Banner */}
         <div className="gradient-primary px-2 sm:px-4 py-2">
           <div className="container mx-auto flex items-center justify-between gap-2">
