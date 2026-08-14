@@ -143,7 +143,7 @@ export default function Auth() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <img src={logo} alt="NIGAM-Park official branding" className="w-20 h-20 mx-auto mb-4 rounded-full object-cover" />
+          <img src={logo} alt="NIGAM-Park logo" className="w-20 h-20 mx-auto mb-4 rounded-full object-cover" />
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
         </div>
       </div>
@@ -261,7 +261,7 @@ export default function Auth() {
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-muted/30 to-background">
         <div className="gradient-primary py-4">
           <div className="container mx-auto px-4 flex items-center justify-center gap-3">
-            <img src={logo} alt="NIGAM-Park official branding" className="w-10 h-10 rounded-full object-cover" />
+            <img src={logo} alt="NIGAM-Park logo" className="w-10 h-10 rounded-full object-cover" />
             <div className="text-center">
               <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
               <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
@@ -319,7 +319,7 @@ export default function Auth() {
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-muted/30 to-background">
         <div className="gradient-primary py-4">
           <div className="container mx-auto px-4 flex items-center justify-center gap-3">
-            <img src={logo} alt="NIGAM-Park official branding" className="w-10 h-10 rounded-full object-cover" />
+            <img src={logo} alt="NIGAM-Park logo" className="w-10 h-10 rounded-full object-cover" />
             <div className="text-center">
               <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
               <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
@@ -359,7 +359,7 @@ export default function Auth() {
         <div className="gradient-primary py-4">
           <div className="container mx-auto px-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src={logo} alt="NIGAM-Park official branding" className="w-10 h-10 rounded-full object-cover" />
+              <img src={logo} alt="NIGAM-Park logo" className="w-10 h-10 rounded-full object-cover" />
               <div>
                 <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
                 <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
@@ -446,7 +446,7 @@ export default function Auth() {
       <div className="gradient-primary py-4">
         <div className="container mx-auto px-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="NIGAM-Park official branding" className="w-10 h-10 rounded-full object-cover" />
+            <img src={logo} alt="NIGAM-Park logo" className="w-10 h-10 rounded-full object-cover" />
             <div>
               <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
               <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>

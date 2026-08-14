@@ -408,7 +408,7 @@ export default function AttendantPOS() {
                   <CheckCircle2 className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <p className="font-semibold text-success">Verified MCD Official</p>
+                  <p className="font-semibold text-success">Verified MCD Attendant</p>
                   <p className="text-sm text-muted-foreground">
                     {assignedLot?.name ?? 'Loading...'}
                   </p>

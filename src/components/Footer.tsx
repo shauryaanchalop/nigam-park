@@ -70,7 +70,7 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
               <Link to="/" className="flex items-center gap-3 mb-4" onClick={scrollToTop}>
                 <img 
                   src={logo} 
-                  alt="NIGAM-Park official branding" 
+                  alt="NIGAM-Park logo" 
                   className="w-10 h-10 rounded-full object-cover border-2 border-primary/20" 
                 />
                 <span className="font-bold text-lg">{isHindi ? 'निगम-पार्क' : 'NIGAM-Park'}</span>
@@ -78,7 +78,7 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
               <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
                 {isHindi 
                   ? 'दिल्ली नगर निगम का आधिकारिक स्मार्ट पार्किंग सिस्टम। रियल-टाइम में पार्किंग खोजें, बुक करें और भुगतान करें।'
-                  : 'Official smart parking system by Municipal Corporation of Delhi. Find, book, and pay for parking in real-time.'}
+                  : 'Smart parking system for MCD parking zones. Find, book, and pay for parking in real-time.'}
               </p>
               <div className="flex flex-col gap-2 text-sm text-muted-foreground mb-4">
                 <a href="tel:1800123456" className="flex items-center gap-2 hover:text-foreground transition-colors">

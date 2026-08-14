@@ -16,7 +16,7 @@ const faqs = [
     questions: [
       {
         question: 'What is NIGAM-Park?',
-        answer: 'NIGAM-Park is the official smart parking system by Municipal Corporation of Delhi (MCD). It allows citizens to find, book, and pay for parking spots in real-time across Delhi. The platform offers live availability updates, online reservations, and digital payments.',
+        answer: 'NIGAM-Park is a smart parking platform for Municipal Corporation of Delhi (MCD) parking zones (prototype). It allows citizens to find, book, and pay for parking spots in real-time across Delhi. The platform offers live availability updates, online reservations, and digital payments.',
       },
       {
         question: 'Is NIGAM-Park free to use?',

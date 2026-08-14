@@ -18,7 +18,7 @@ const ROUTE_META: Record<string, RouteMeta> = {
   },
   '/dashboard': {
     title: 'Smart Parking Dashboard',
-    description: 'Live parking availability, bookings and revenue insights for Delhi on the official MCD NIGAM-Park platform.',
+    description: 'Live parking availability, bookings and revenue insights for Delhi on the MCD NIGAM-Park platform.',
   },
 
   '/citizen': {
@@ -65,7 +65,7 @@ const ROUTE_META: Record<string, RouteMeta> = {
   },
   '/transparency': {
     title: 'Public Transparency Dashboard',
-    description: 'Anonymised, zone-level parking occupancy and revenue data published openly by the Municipal Corporation of Delhi.',
+    description: 'Anonymised, zone-level parking occupancy and revenue data published openly for MCD parking zones.',
   },
   '/home': {
     title: 'Smart Parking for Delhi',

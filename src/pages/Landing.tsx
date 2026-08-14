@@ -57,7 +57,7 @@ export default function Landing() {
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src={logo} alt="NIGAM-Park official logo" className="w-9 h-9 rounded-full object-cover" />
+            <img src={logo} alt="NIGAM-Park logo" className="w-9 h-9 rounded-full object-cover" />
             <div className="leading-tight">
               <p className="font-bold text-sm">NIGAM-Park</p>
               <p className="text-[10px] text-muted-foreground">Municipal Corporation of Delhi</p>
@@ -83,7 +83,7 @@ export default function Landing() {
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.18),transparent_60%)]" />
         <div className="container mx-auto px-4 py-20 md:py-28 text-center max-w-4xl">
           <Badge variant="secondary" className="mb-6 gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" /> Official MCD Smart Parking Platform
+            <Sparkles className="w-3.5 h-3.5" /> MCD Smart Parking · Prototype
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
             Parking in Delhi,{' '}
