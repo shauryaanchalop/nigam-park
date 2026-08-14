@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 const SITE_URL = 'https://nigam-park.lovable.app';
@@ -16,8 +16,7 @@ interface SEOHeadProps {
   structuredData?: object;
 }
 
-export const SEOHead = forwardRef<HTMLDivElement, SEOHeadProps>(
-  function SEOHead({
+export function SEOHead({
     title,
     description,
     keywords,
@@ -26,14 +25,13 @@ export const SEOHead = forwardRef<HTMLDivElement, SEOHeadProps>(
     ogImage = 'https://nigam-park.lovable.app/favicon.png',
     ogType = 'website',
     noIndex = false,
-    structuredData,
-  }, ref) {
-    const fullTitle = `${title} | NIGAM-Park`;
+  structuredData,
+}: SEOHeadProps) {
+  const fullTitle = /nigam-park/i.test(title) ? title : `${title} | NIGAM-Park`;
     const url = canonicalUrl || (path ? `${SITE_URL}${path}` : undefined);
 
-    return (
-      <div ref={ref}>
-        <Helmet>
+  return (
+    <Helmet>
           <title>{fullTitle}</title>
           <meta name="description" content={description} />
           {keywords && <meta name="keywords" content={keywords} />}
@@ -61,8 +59,6 @@ export const SEOHead = forwardRef<HTMLDivElement, SEOHeadProps>(
               {JSON.stringify(structuredData)}
             </script>
           )}
-        </Helmet>
-      </div>
-    );
-  }
-);
+    </Helmet>
+  );
+}
