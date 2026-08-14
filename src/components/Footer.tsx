@@ -1,10 +1,9 @@
 import React, { forwardRef } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, ExternalLink, ArrowUp, Facebook, Instagram, Users } from 'lucide-react';
+import { MapPin, Phone, Mail, ExternalLink, ArrowUp, Facebook, Instagram } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { TeamDialog } from '@/components/TeamDialog';
 import logo from '@/assets/logo.png';
 
 export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
@@ -205,36 +204,11 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
                     </Link>
                   </li>
                 ))}
-                <li>
-                  <TeamDialog 
-                    trigger={
-                      <button className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 text-sm">
-                        <Users className="h-3 w-3" />
-                        {isHindi ? 'हमारी टीम' : 'Our Team'}
-                      </button>
-                    }
-                  />
-                </li>
               </ul>
             </div>
           </div>
 
           <Separator className="my-8" />
-
-          {/* Hackathon Badge */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 p-4 bg-gradient-to-r from-primary/5 to-success/5 rounded-lg border border-primary/10">
-            <div className="text-center sm:text-left">
-              <p className="font-semibold text-primary">
-                {isHindi ? 'NIGAM-Park प्रोजेक्ट' : 'NIGAM-Park Project'}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {isHindi 
-                  ? 'दिल्ली के लिए AI-संचालित स्मार्ट पार्किंग समाधान'
-                  : 'AI-Powered Smart Parking Solution for Delhi'}
-              </p>
-            </div>
-            <TeamDialog />
-          </div>
 
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
             <p>© {currentYear} {isHindi ? 'निगम-पार्क। दिल्ली नगर निगम। सर्वाधिकार सुरक्षित।' : 'NIGAM-Park. Municipal Corporation of Delhi. All rights reserved.'}</p>

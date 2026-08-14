@@ -12,7 +12,6 @@ import { Camera, Wifi, WifiOff, AlertCircle, ChevronLeft, Maximize } from 'lucid
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { TeamDialog } from '@/components/TeamDialog';
 import { CameraWithEvents } from '@/types/ai-modules';
 import logo from '@/assets/logo.png';
 
@@ -60,7 +59,6 @@ export default function VisionDashboard() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <TeamDialog />
             <Button variant="outline" asChild>
               <Link to="/kiosk">
                 <Maximize className="w-4 h-4 mr-2" />
