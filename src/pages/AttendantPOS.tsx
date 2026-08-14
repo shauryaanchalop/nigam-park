@@ -21,6 +21,8 @@ import { GovHeader } from '@/components/ui/GovHeader';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationPanel } from '@/components/attendant/NotificationPanel';
 import { QRScannerDialog } from '@/components/attendant/QRScannerDialog';
+import { OfflineQueueBar } from '@/components/attendant/OfflineQueueBar';
+import { useOfflineQueue } from '@/hooks/useOfflineQueue';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTransactions, useTodayStats } from '@/hooks/useTransactions';
 import { useSensorLogs } from '@/hooks/useSensorLogs';
@@ -135,6 +137,7 @@ export default function AttendantPOS() {
   const { updateOccupancy } = useParkingLots();
   const { checkoutByVehicle } = useReservations();
   const { t, isHindi } = useLanguage();
+  const { isOnline, queue, isSyncing, sync, runOrQueue } = useOfflineQueue();
 
   // Assuming attendant is assigned to first lot for demo
   const assignedLot = lots?.[0];
@@ -212,16 +215,34 @@ export default function AttendantPOS() {
 
     setIsProcessing(true);
     try {
-      await createSensorLog.mutateAsync({
+      const sensorPayload = {
         lot_id: assignedLot.id,
-        event_type: 'entry',
+        event_type: 'entry' as const,
         vehicle_detected: vehicleNumber,
         has_payment: false,
-      });
+      };
 
-      await updateOccupancy.mutateAsync({ lotId: assignedLot.id, delta: 1 });
+      const { queued } = await runOrQueue(
+        'sensor_log',
+        sensorPayload,
+        `Check-in ${vehicleNumber}`,
+        () => createSensorLog.mutateAsync(sensorPayload)
+      );
 
-      toast.success(`Vehicle ${vehicleNumber} checked in`);
+      await runOrQueue(
+        'occupancy_update',
+        { lotId: assignedLot.id, delta: 1 },
+        `Occupancy +1 (${assignedLot.name})`,
+        () => updateOccupancy.mutateAsync({ lotId: assignedLot.id, delta: 1 })
+      );
+
+      if (queued) {
+        toast.success(`Vehicle ${vehicleNumber} checked in offline`, {
+          description: 'Will sync automatically when the network returns',
+        });
+      } else {
+        toast.success(`Vehicle ${vehicleNumber} checked in`);
+      }
       setVehicleNumber('');
       setCheckInDialogOpen(false);
     } catch (error: any) {
@@ -250,18 +271,27 @@ export default function AttendantPOS() {
     const amount = assignedLot.hourly_rate;
 
     try {
-      await createTransaction.mutateAsync({
+      const txPayload = {
         lot_id: assignedLot.id,
         vehicle_number: vehicle,
         amount,
         payment_method: method,
-        status: 'completed',
+        status: 'completed' as const,
         entry_time: new Date().toISOString(),
         exit_time: null,
-      });
+      };
+
+      const { queued } = await runOrQueue(
+        'transaction',
+        txPayload,
+        `₹${amount} ${method} · ${vehicle}`,
+        () => createTransaction.mutateAsync(txPayload)
+      );
 
       toast.success(`₹${amount} received via ${method}`, {
-        description: `Vehicle: ${vehicle}`,
+        description: queued
+          ? `Vehicle: ${vehicle} · saved offline, will sync`
+          : `Vehicle: ${vehicle}`,
       });
       setVehicleNumber('');
     } catch (error: any) {
@@ -359,6 +389,16 @@ export default function AttendantPOS() {
       />
 
       <main className="container mx-auto px-4 py-6 max-w-lg">
+        {/* Offline-first sync status */}
+        <div className="mb-4">
+          <OfflineQueueBar
+            isOnline={isOnline}
+            isSyncing={isSyncing}
+            queue={queue}
+            onSync={sync}
+          />
+        </div>
+
         {/* Verified Badge */}
         <Card className="mb-6 border-success bg-success/5">
           <CardContent className="p-4">

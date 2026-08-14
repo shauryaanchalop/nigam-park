@@ -16,6 +16,9 @@ import { useParkingLots } from '@/hooks/useParkingLots';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { occupancyHeatColor } from '@/lib/occupancyPrediction';
+import { EtaAvailability } from '@/components/citizen/EtaAvailability';
+import { Flame } from 'lucide-react';
 
 // Fix Leaflet marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -161,6 +164,7 @@ export default function LiveParkingMap() {
   const [isLocating, setIsLocating] = useState(false);
   const [sortBy, setSortBy] = useState<'distance' | 'availability'>('availability');
   const [showListSheet, setShowListSheet] = useState(false);
+  const [showHeatmap, setShowHeatmap] = useState(true);
 
   // Default center
   const defaultCenter: [number, number] = lots && lots.length > 0 
@@ -305,6 +309,13 @@ export default function LiveParkingMap() {
                       </Badge>
                     </div>
                     <Progress value={occupancyPercent} className="h-1.5 mb-2" />
+                    <EtaAvailability
+                      capacity={lot.capacity}
+                      currentOccupancy={lot.current_occupancy}
+                      distanceKm={distance}
+                      className="mb-2 flex-wrap"
+                      compact
+                    />
                     <div className="flex gap-2">
                       <Button 
                         size="sm" 
@@ -386,6 +397,31 @@ export default function LiveParkingMap() {
                 </>
               )}
               
+              {/* Live occupancy heat overlay */}
+              {showHeatmap && lots.map((lot) => {
+                const occupancyPercent = (lot.current_occupancy / lot.capacity) * 100;
+                const color = occupancyHeatColor(occupancyPercent);
+                return (
+                  <React.Fragment key={`heat-${lot.id}`}>
+                    <Circle
+                      center={[Number(lot.lat), Number(lot.lng)]}
+                      radius={420}
+                      pathOptions={{ color, fillColor: color, fillOpacity: 0.1, weight: 0 }}
+                    />
+                    <Circle
+                      center={[Number(lot.lat), Number(lot.lng)]}
+                      radius={260}
+                      pathOptions={{ color, fillColor: color, fillOpacity: 0.18, weight: 0 }}
+                    />
+                    <Circle
+                      center={[Number(lot.lat), Number(lot.lng)]}
+                      radius={130}
+                      pathOptions={{ color, fillColor: color, fillOpacity: 0.28, weight: 0 }}
+                    />
+                  </React.Fragment>
+                );
+              })}
+
               {/* Parking lot markers */}
               {lots.map((lot) => {
                 const occupancyPercent = (lot.current_occupancy / lot.capacity) * 100;
@@ -415,6 +451,14 @@ export default function LiveParkingMap() {
                           )}
                         </p>
                         
+                        <EtaAvailability
+                          capacity={lot.capacity}
+                          currentOccupancy={lot.current_occupancy}
+                          distanceKm={distance}
+                          className="mb-2 flex-wrap"
+                          compact
+                        />
+
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-sm">Available:</span>
                           <Badge variant={getOccupancyColor(lot.current_occupancy, lot.capacity) as any}>
@@ -456,6 +500,40 @@ export default function LiveParkingMap() {
               <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
           )}
+          {/* Heat overlay control + legend */}
+          <div className="absolute top-16 right-4 z-[1000] flex flex-col items-end gap-2">
+            <Button
+              size="sm"
+              variant={showHeatmap ? 'default' : 'secondary'}
+              onClick={() => setShowHeatmap((v) => !v)}
+              aria-pressed={showHeatmap}
+              aria-label="Toggle live occupancy heat overlay"
+              className="shadow-lg"
+            >
+              <Flame className="w-4 h-4 mr-1" />
+              Heatmap
+            </Button>
+            {showHeatmap && (
+              <div className="rounded-lg bg-background/95 backdrop-blur px-3 py-2 shadow-lg text-[11px] space-y-1">
+                <p className="font-medium text-xs">Live occupancy</p>
+                {[
+                  { label: 'Plenty free', color: '#22c55e' },
+                  { label: 'Filling up', color: '#f59e0b' },
+                  { label: 'Busy', color: '#f97316' },
+                  { label: 'Full', color: '#dc2626' },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center gap-2">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-muted-foreground">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
 
           {/* Mobile Bottom Card for Selected Lot */}
           {selectedLotData && (
