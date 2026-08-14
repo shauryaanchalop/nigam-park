@@ -99,7 +99,7 @@ export default function TransparencyPage() {
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
         title="Public Transparency Dashboard"
-        description="Anonymised, zone-level parking occupancy and revenue data published openly by the Municipal Corporation of Delhi."
+        description="Anonymised, zone-level parking occupancy and revenue data published openly for MCD parking zones."
         path="/transparency"
       />
       <GovHeader
