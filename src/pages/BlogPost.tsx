@@ -28,7 +28,7 @@ const articles: Record<string, BlogArticle> = {
     metaDescription: 'Essential parking tips for Delhi drivers. Learn how to find parking spots faster, use NIGAM-Park app, avoid illegal parking zones, and save money on parking fees.',
     keywords: 'Delhi parking tips, find parking Delhi, smart parking tips, parking spots Delhi, avoid parking fine Delhi',
     category: 'Tips & Guides',
-    author: 'NIGAM-Park Team',
+    author: 'NIGAM-Park Editorial Desk',
     date: '2025-01-15',
     readTime: '5 min read',
     content: (
@@ -106,7 +106,7 @@ const articles: Record<string, BlogArticle> = {
     metaDescription: 'Complete guide to avoiding parking fines in Delhi. Know MCD parking rules, fine amounts, legal parking zones, and how to dispute unfair challan tickets.',
     keywords: 'parking fine Delhi, avoid challan, MCD parking rules, parking violation Delhi, dispute parking ticket',
     category: 'Legal & Compliance',
-    author: 'NIGAM-Park Team',
+    author: 'NIGAM-Park Editorial Desk',
     date: '2025-01-10',
     readTime: '7 min read',
     content: (
@@ -202,7 +202,7 @@ const articles: Record<string, BlogArticle> = {
     metaDescription: 'Learn how smart parking technology is transforming Delhi. Reduce traffic congestion, lower pollution, save time, and modernize urban infrastructure with digital parking solutions.',
     keywords: 'smart parking Delhi, digital parking, reduce traffic congestion, improve air quality Delhi, smart city Delhi',
     category: 'Technology',
-    author: 'NIGAM-Park Team',
+    author: 'NIGAM-Park Editorial Desk',
     date: '2025-01-05',
     readTime: '4 min read',
     content: (

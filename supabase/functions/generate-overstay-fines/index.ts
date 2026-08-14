@@ -150,7 +150,7 @@ const handler = async (req: Request): Promise<Response> => {
                         <p style="margin: 5px 0; font-size: 14px;">Fine increases by ₹${OVERSTAY_RATE_PER_15MIN} every 15 minutes</p>
                       </div>
                       <p style="color: #dc2626; font-weight: bold;">Please exit the parking lot immediately to avoid additional charges.</p>
-                      <p>Best regards,<br>NigamPark Team</p>
+                      <p>Best regards,<br>NigamPark Support</p>
                     </div>
                   `,
                 });

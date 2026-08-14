@@ -112,7 +112,7 @@ export default function ReportViolation() {
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
               <h2 className="text-2xl font-bold mb-2">Report Submitted!</h2>
               <p className="text-muted-foreground mb-6">
-                Thank you for helping keep our parking areas safe. Our team will review your report shortly.
+                Thank you for helping keep our parking areas safe. Our moderators will review your report shortly.
               </p>
               <div className="flex gap-3 justify-center">
                 <Button variant="outline" onClick={() => navigate('/citizen')}>

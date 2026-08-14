@@ -60,23 +60,11 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
 
     return (
       <footer ref={ref} className="bg-muted/50 border-t mt-auto" {...props}>
-        {/* Scroll to Top Button */}
-        <div className="container pt-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={scrollToTop}
-            className="w-full sm:w-auto gap-2"
-          >
-            <ArrowUp className="w-4 h-4" />
-            {isHindi ? 'ऊपर जाएं' : 'Back to Top'}
-          </Button>
-        </div>
-
-        <div className="container py-8 md:py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 md:gap-8">
+        <div className="container py-10 md:py-14">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 md:gap-10">
             {/* Brand */}
-            <div className="col-span-2 md:col-span-4 lg:col-span-1">
+            <div className="col-span-2 md:col-span-4 lg:col-span-2 lg:pr-8">
+
               <Link to="/" className="flex items-center gap-3 mb-4" onClick={scrollToTop}>
                 <img 
                   src={logo} 
@@ -210,12 +198,19 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
 
           <Separator className="my-8" />
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground text-center md:text-left">
             <p>© {currentYear} {isHindi ? 'निगम-पार्क। दिल्ली नगर निगम। सर्वाधिकार सुरक्षित।' : 'NIGAM-Park. Municipal Corporation of Delhi. All rights reserved.'}</p>
-            <p className="flex items-center gap-1">
-              {isHindi ? 'एक' : 'A'} <span className="text-primary font-medium">{isHindi ? 'डिजिटल इंडिया' : 'Digital India'}</span> {isHindi ? 'पहल' : 'Initiative'}
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="flex items-center gap-1">
+                {isHindi ? 'एक' : 'A'} <span className="text-primary font-medium">{isHindi ? 'डिजिटल इंडिया' : 'Digital India'}</span> {isHindi ? 'पहल' : 'Initiative'}
+              </p>
+              <Button variant="outline" size="sm" onClick={scrollToTop} className="gap-2">
+                <ArrowUp className="w-4 h-4" />
+                {isHindi ? 'ऊपर जाएं' : 'Back to Top'}
+              </Button>
+            </div>
           </div>
+
         </div>
       </footer>
     );

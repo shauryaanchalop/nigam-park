@@ -96,7 +96,7 @@ const handler = async (req: Request): Promise<Response> => {
               <div class="content">
                 <h2>The management has responded to your review!</h2>
                 <p>Hi there,</p>
-                <p>The parking management team at <strong>${lot_name}</strong> has responded to your review.</p>
+                <p>The parking management desk at <strong>${lot_name}</strong> has responded to your review.</p>
                 
                 <div class="review-box">
                   <p style="margin: 0 0 10px 0; font-weight: 600;">Your Review:</p>
@@ -112,7 +112,7 @@ const handler = async (req: Request): Promise<Response> => {
                 </div>
                 
                 <p>We appreciate your feedback and hope to serve you better!</p>
-                <p>— The NIGAM-Park Team</p>
+                <p>— NIGAM-Park Support</p>
               </div>
               <div class="footer">
                 <p>Municipal Corporation of Delhi | Smart Parking Initiative</p>

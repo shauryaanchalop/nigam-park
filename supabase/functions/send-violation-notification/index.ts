@@ -16,7 +16,7 @@ interface ViolationNotificationRequest {
 const STATUS_MESSAGES: Record<string, { subject: string; message: string }> = {
   reviewing: {
     subject: "Your Violation Report is Being Reviewed",
-    message: "Our team is currently reviewing your submitted violation report. We will update you once a decision has been made.",
+    message: "Our moderators are currently reviewing your submitted violation report. We will update you once a decision has been made.",
   },
   resolved: {
     subject: "Your Violation Report Has Been Resolved",
