@@ -198,12 +198,19 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
 
           <Separator className="my-8" />
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground text-center md:text-left">
             <p>© {currentYear} {isHindi ? 'निगम-पार्क। दिल्ली नगर निगम। सर्वाधिकार सुरक्षित।' : 'NIGAM-Park. Municipal Corporation of Delhi. All rights reserved.'}</p>
-            <p className="flex items-center gap-1">
-              {isHindi ? 'एक' : 'A'} <span className="text-primary font-medium">{isHindi ? 'डिजिटल इंडिया' : 'Digital India'}</span> {isHindi ? 'पहल' : 'Initiative'}
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="flex items-center gap-1">
+                {isHindi ? 'एक' : 'A'} <span className="text-primary font-medium">{isHindi ? 'डिजिटल इंडिया' : 'Digital India'}</span> {isHindi ? 'पहल' : 'Initiative'}
+              </p>
+              <Button variant="outline" size="sm" onClick={scrollToTop} className="gap-2">
+                <ArrowUp className="w-4 h-4" />
+                {isHindi ? 'ऊपर जाएं' : 'Back to Top'}
+              </Button>
+            </div>
           </div>
+
         </div>
       </footer>
     );
