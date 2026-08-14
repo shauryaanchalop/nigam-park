@@ -53,6 +53,11 @@ const ROUTE_META: Record<string, RouteMeta> = {
     title: 'Loyalty Rewards',
     description: 'Earn points on every parking session and redeem them for discounts across Delhi parking lots.',
   },
+  '/referral': {
+    title: 'Refer & Earn',
+    description: 'Invite friends to NIGAM-Park and earn free parking credits when they complete their first booking.',
+  },
+
   '/report-violation': {
     title: 'Report a Parking Violation',
     description: 'Report illegal parking, overcharging or fake QR codes directly to the Municipal Corporation of Delhi.',
