@@ -118,6 +118,7 @@ const App = () => {
                   <Route path="/admin/surge-pricing" element={<AdminSurgePricing />} />
                   <Route path="/wallet" element={<WalletPage />} />
                   <Route path="/transparency" element={<TransparencyPage />} />
+                  <Route path="/home" element={<Landing />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
