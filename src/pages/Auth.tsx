@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate, useSearchParams } from 'react-router-dom';
-import { Shield, Eye, EyeOff, LogIn, UserPlus, User, Play, KeyRound, Mail, ArrowLeft, Lock } from 'lucide-react';
+import { Navigate, useSearchParams, useNavigate } from 'react-router-dom';
+import { Shield, Eye, EyeOff, LogIn, UserPlus, User, Play, KeyRound, Mail, ArrowLeft, Lock, Home } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +29,7 @@ type AuthView = 'main' | 'forgot-password' | 'reset-sent' | 'update-password';
 export default function Auth() {
   const { user, loading, signIn, signUp } = useAuth();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [demoLoading, setDemoLoading] = useState<DemoRole | null>(null);
@@ -364,7 +365,18 @@ export default function Auth() {
                 <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
               </div>
             </div>
+            <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="gap-1.5 bg-primary-foreground/15 text-primary-foreground hover:bg-primary-foreground/25 border-0"
+              onClick={() => navigate('/')}
+            >
+              <Home className="w-4 h-4" />
+              <span className="hidden sm:inline">Home</span>
+            </Button>
             <ThemeToggle />
+          </div>
           </div>
         </div>
 
@@ -440,7 +452,18 @@ export default function Auth() {
               <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
             </div>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="gap-1.5 bg-primary-foreground/15 text-primary-foreground hover:bg-primary-foreground/25 border-0"
+              onClick={() => navigate('/')}
+            >
+              <Home className="w-4 h-4" />
+              <span className="hidden sm:inline">Home</span>
+            </Button>
+            <ThemeToggle />
+          </div>
         </div>
       </div>
 
