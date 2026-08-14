@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Navigate } from 'react-router-dom';
+import Landing from './Landing';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useRoleSwitchSound } from '@/hooks/useRoleSwitchSound';
@@ -162,9 +162,9 @@ export default function Index() {
     );
   }
 
-  // If no user, redirect to auth
+  // If no user, show the public home page
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Landing />;
   }
 
   // Render view based on user role with transition

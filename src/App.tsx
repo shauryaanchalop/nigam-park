@@ -48,9 +48,27 @@ import WalletPage from "./pages/WalletPage";
 import TransparencyPage from "./pages/TransparencyPage";
 import { ParkingAssistant } from "./components/ParkingAssistant";
 import { RouteSEO } from "./components/RouteSEO";
+import Landing from "./pages/Landing";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
 const queryClient = new QueryClient();
 
-const App = () => (
+/** Tops up demo activity so the prototype always has entries for the current day. */
+function useDailyDemoData() {
+  useEffect(() => {
+    const key = `nigam-demo-seed-${new Date().toISOString().slice(0, 10)}`;
+    if (localStorage.getItem(key)) return;
+    (supabase as any)
+      .rpc("ensure_daily_demo_data", { _days: 14 })
+      .then(() => localStorage.setItem(key, "1"))
+      .catch(() => undefined);
+  }, []);
+}
+
+const App = () => {
+  useDailyDemoData();
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <LanguageProvider>
@@ -100,6 +118,7 @@ const App = () => (
                   <Route path="/admin/surge-pricing" element={<AdminSurgePricing />} />
                   <Route path="/wallet" element={<WalletPage />} />
                   <Route path="/transparency" element={<TransparencyPage />} />
+                  <Route path="/home" element={<Landing />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
@@ -112,6 +131,7 @@ const App = () => (
       </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

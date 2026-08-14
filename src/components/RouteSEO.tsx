@@ -62,6 +62,10 @@ const ROUTE_META: Record<string, RouteMeta> = {
     title: 'Public Transparency Dashboard',
     description: 'Anonymised, zone-level parking occupancy and revenue data published openly by the Municipal Corporation of Delhi.',
   },
+  '/home': {
+    title: 'Smart Parking for Delhi',
+    description: 'NIGAM-Park brings live parking availability, cashless booking, a prepaid wallet and AI revenue assurance to the Municipal Corporation of Delhi.',
+  },
   '/referral': {
     title: 'Refer & Earn',
     description: 'Invite friends to NIGAM-Park and earn free parking credits when they complete their first booking.',
