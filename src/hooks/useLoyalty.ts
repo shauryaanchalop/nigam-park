@@ -79,7 +79,7 @@ export function useMyLoyaltyTransactions() {
   return useQuery({
     queryKey: ['my-loyalty-transactions', account?.id],
     queryFn: async () => {
-      if (!account) return [];
+      if (!account) return DEMO_LOYALTY_TRANSACTIONS as LoyaltyTransaction[];
       
       const { data, error } = await supabase
         .from('loyalty_transactions')
@@ -89,9 +89,9 @@ export function useMyLoyaltyTransactions() {
         .limit(50);
       
       if (error) throw error;
-      return data as LoyaltyTransaction[];
+      return withDemoFallback<LoyaltyTransaction>(data as LoyaltyTransaction[], DEMO_LOYALTY_TRANSACTIONS);
     },
-    enabled: !!account,
+    enabled: !!user,
   });
 }
 
