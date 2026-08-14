@@ -32,13 +32,25 @@ export function BackButton() {
       <Button
         size="sm"
         variant="secondary"
-        onClick={() => navigate(user ? '/dashboard' : '/')}
-        aria-label={user ? 'Go to dashboard' : 'Go to home page'}
+        onClick={() => navigate('/')}
+        aria-label="Go to home page"
         className="shadow-lg border bg-background/90 backdrop-blur gap-1.5"
       >
-        {user ? <LayoutDashboard className="w-4 h-4" /> : <Home className="w-4 h-4" />}
-        <span className="hidden sm:inline">{user ? 'Dashboard' : 'Home'}</span>
+        <Home className="w-4 h-4" />
+        <span className="hidden sm:inline">Home</span>
       </Button>
+      {user && (
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => navigate('/dashboard')}
+          aria-label="Go to dashboard"
+          className="shadow-lg border bg-background/90 backdrop-blur gap-1.5"
+        >
+          <LayoutDashboard className="w-4 h-4" />
+          <span className="hidden sm:inline">Dashboard</span>
+        </Button>
+      )}
     </div>
   );
 }
