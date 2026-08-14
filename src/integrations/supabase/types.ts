@@ -1628,6 +1628,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ensure_daily_demo_data: { Args: { _days?: number }; Returns: undefined }
       get_daily_transparency: {
         Args: { _days?: number }
         Returns: {
