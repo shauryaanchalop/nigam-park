@@ -1,4 +1,4 @@
-import React, { useState, forwardRef } from 'react';
+import React, { useState } from 'react';
 import { LogOut, User, CalendarCheck, Repeat, Settings, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,8 +27,7 @@ interface GovHeaderProps {
 
 type DemoRole = 'admin' | 'attendant' | 'citizen';
 
-export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
-  function GovHeader({ title = "NIGAM-Park — Smart Parking for Delhi", subtitle = "Revenue Assurance & Smart Parking System" }, ref) {
+export function GovHeader({ title = "NIGAM-Park — Smart Parking for Delhi", subtitle = "Revenue Assurance & Smart Parking System" }: GovHeaderProps) {
     const { user, userRole, signOut, signIn, setIsSwitchingRole } = useAuth();
     const { profile } = useProfile();
     const { language, setLanguage, t } = useLanguage();
@@ -260,8 +259,7 @@ export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
         </div>
       </header>
     );
-  }
-);
+}
 
 // Default export for backwards compatibility
 export default GovHeader;
