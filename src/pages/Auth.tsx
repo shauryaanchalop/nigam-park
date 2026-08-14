@@ -264,7 +264,7 @@ export default function Auth() {
             <img src={logo} alt="NIGAM-Park logo" className="w-10 h-10 rounded-full object-cover" />
             <div className="text-center">
               <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
-              <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
+              <p className="text-primary-foreground/80 text-xs">MCD Smart Parking · Prototype</p>
             </div>
           </div>
         </div>
@@ -322,7 +322,7 @@ export default function Auth() {
             <img src={logo} alt="NIGAM-Park logo" className="w-10 h-10 rounded-full object-cover" />
             <div className="text-center">
               <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
-              <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
+              <p className="text-primary-foreground/80 text-xs">MCD Smart Parking · Prototype</p>
             </div>
           </div>
         </div>
@@ -362,7 +362,7 @@ export default function Auth() {
               <img src={logo} alt="NIGAM-Park logo" className="w-10 h-10 rounded-full object-cover" />
               <div>
                 <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
-                <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
+                <p className="text-primary-foreground/80 text-xs">MCD Smart Parking · Prototype</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -449,7 +449,7 @@ export default function Auth() {
             <img src={logo} alt="NIGAM-Park logo" className="w-10 h-10 rounded-full object-cover" />
             <div>
               <h1 className="text-primary-foreground font-bold text-xl">NIGAM-Park</h1>
-              <p className="text-primary-foreground/80 text-xs">Municipal Corporation of Delhi</p>
+              <p className="text-primary-foreground/80 text-xs">MCD Smart Parking · Prototype</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

@@ -60,7 +60,7 @@ export default function Landing() {
             <img src={logo} alt="NIGAM-Park logo" className="w-9 h-9 rounded-full object-cover" />
             <div className="leading-tight">
               <p className="font-bold text-sm">NIGAM-Park</p>
-              <p className="text-[10px] text-muted-foreground">Municipal Corporation of Delhi</p>
+              <p className="text-[10px] text-muted-foreground">MCD Smart Parking · Prototype</p>
             </div>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm">
