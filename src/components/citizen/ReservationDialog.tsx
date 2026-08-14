@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { useWallet } from '@/hooks/useWallet';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
@@ -50,6 +51,7 @@ export const ReservationDialog = forwardRef<HTMLDivElement, ReservationDialogPro
     const { user } = useAuth();
     const { isHindi } = useLanguage();
     const { createReservation } = useReservations();
+    const { wallet, applyTransaction } = useWallet();
     const { vehicles, isLoading: vehiclesLoading, addVehicle } = useSavedVehicles();
     const { profile } = useProfile();
     const { preferences } = useUserPreferences();
@@ -163,6 +165,25 @@ export const ReservationDialog = forwardRef<HTMLDivElement, ReservationDialogPro
         end_time: format(endDate, 'HH:mm'),
         amount: totalCost, // Include fines in the total
       });
+
+      // Auto-debit the prepaid parking wallet when enabled and funded
+      if (reservation && wallet?.auto_debit && Number(wallet.balance) >= totalCost) {
+        try {
+          await applyTransaction.mutateAsync({
+            amount: totalCost,
+            type: 'debit',
+            description: `Parking at ${parkingLot.name}`,
+            referenceId: (reservation as any)?.id ?? null,
+          });
+          toast.success(
+            isHindi
+              ? `वॉलेट से ₹${totalCost} काटे गए`
+              : `₹${totalCost} auto-debited from your parking wallet`
+          );
+        } catch (error) {
+          console.error('Wallet auto-debit failed:', error);
+        }
+      }
 
       // Mark pending fines as resolved with this reservation
       if (pendingFines.length > 0 && reservation) {
