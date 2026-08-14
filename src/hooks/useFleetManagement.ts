@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { DEMO_FLEET_VEHICLES, withDemoFallback } from '@/lib/demoData';
 
 interface BusinessAccount {
   id: string;
@@ -64,7 +65,7 @@ export function useFleetManagement() {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as FleetVehicle[];
+      return withDemoFallback<FleetVehicle>(data as FleetVehicle[], DEMO_FLEET_VEHICLES);
     },
     enabled: !!businessAccount,
   });

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { DEMO_WALLET_LEDGER, withDemoFallback } from '@/lib/demoData';
 
 export interface Wallet {
   id: string;
@@ -104,7 +105,7 @@ export function useWallet() {
   return {
     wallet: wallet.data ?? null,
     isLoading: wallet.isLoading,
-    ledger: ledger.data ?? [],
+    ledger: withDemoFallback<WalletLedgerEntry>(ledger.data, DEMO_WALLET_LEDGER),
     ledgerLoading: ledger.isLoading,
     applyTransaction,
     updateSettings,
