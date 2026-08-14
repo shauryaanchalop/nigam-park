@@ -200,8 +200,14 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
 
           <Separator className="my-8" />
 
+          <p className="text-xs text-muted-foreground text-center mb-6">
+            {isHindi
+              ? 'यह एक प्रोटोटाइप है और दिल्ली नगर निगम से आधिकारिक रूप से संबद्ध नहीं है।'
+              : 'This is a prototype demonstration and is not officially affiliated with the Municipal Corporation of Delhi.'}
+          </p>
+
           <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground text-center md:text-left">
-            <p>© {currentYear} {isHindi ? 'निगम-पार्क। दिल्ली नगर निगम। सर्वाधिकार सुरक्षित।' : 'NIGAM-Park. Municipal Corporation of Delhi. All rights reserved.'}</p>
+            <p>© {currentYear} {isHindi ? 'निगम-पार्क। एक प्रोटोटाइप।' : 'NIGAM-Park. A smart parking prototype.'}</p>
             <div className="flex items-center gap-4">
               <p className="flex items-center gap-1">
                 {isHindi ? 'एक' : 'A'} <span className="text-primary font-medium">{isHindi ? 'डिजिटल इंडिया' : 'Digital India'}</span> {isHindi ? 'पहल' : 'Initiative'}
