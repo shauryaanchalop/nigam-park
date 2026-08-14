@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Navigate } from 'react-router-dom';
+import Landing from './Landing';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useRoleSwitchSound } from '@/hooks/useRoleSwitchSound';
