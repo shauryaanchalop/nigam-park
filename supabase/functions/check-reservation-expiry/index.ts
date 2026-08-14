@@ -159,7 +159,7 @@ const handler = async (req: Request): Promise<Response> => {
                     <p style="margin: 5px 0; font-size: 14px;">This fine will be added to your next parking transaction.</p>
                   </div>
                   <p style="color: #6b7280; font-size: 14px;">Please ensure timely arrival for future reservations to avoid fines.</p>
-                  <p>Best regards,<br>NigamPark Team</p>
+                  <p>Best regards,<br>NigamPark Support</p>
                 </div>
               `,
             });
@@ -189,7 +189,7 @@ const handler = async (req: Request): Promise<Response> => {
                   <p style="margin: 5px 0;">Ends at: ${reservation.end_time}</p>
                 </div>
                 <p>Please ensure you exit the parking lot before your reservation expires to avoid any inconvenience.</p>
-                <p>Best regards,<br>NigamPark Team</p>
+                <p>Best regards,<br>NigamPark Support</p>
               </div>
             `,
           });
@@ -222,7 +222,7 @@ const handler = async (req: Request): Promise<Response> => {
                   <p style="margin: 5px 0;">Ends at: ${reservation.end_time}</p>
                 </div>
                 <p style="color: #dc2626; font-weight: bold;">Please exit the parking lot immediately to avoid overstay charges.</p>
-                <p>Best regards,<br>NigamPark Team</p>
+                <p>Best regards,<br>NigamPark Support</p>
               </div>
             `,
           });

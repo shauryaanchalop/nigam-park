@@ -30,7 +30,7 @@ export default function ContactPage() {
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
         title="Contact Us"
-        description="Contact NIGAM-Park support team. Get help with parking reservations, payments, or report issues. 24/7 customer support available."
+        description="Contact NIGAM-Park support. Get help with parking reservations, payments, or report issues. 24/7 customer support available."
         keywords="contact NIGAM-Park, MCD parking support, parking helpline Delhi, customer service"
         canonicalUrl="https://nigam-park.lovable.app/contact"
       />

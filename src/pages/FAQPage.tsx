@@ -192,7 +192,7 @@ export default function FAQPage() {
               <Phone className="h-12 w-12 text-primary mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Still have questions?</h3>
               <p className="text-muted-foreground mb-4">
-                Our support team is available 24/7 to help you.
+                Our support helpdesk is available 24/7 to help you.
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 <Button asChild>

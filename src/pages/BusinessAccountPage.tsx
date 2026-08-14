@@ -121,7 +121,7 @@ export default function BusinessAccountPage() {
     toast.success(
       isHindi 
         ? 'धन्यवाद! हमारी टीम जल्द ही संपर्क करेगी।' 
-        : 'Thank you! Our team will contact you shortly.'
+        : 'Thank you! Our officials will contact you shortly.'
     );
     setFormData({ companyName: '', contactName: '', email: '', phone: '', employees: '' });
   };
@@ -271,7 +271,7 @@ export default function BusinessAccountPage() {
                   <CardDescription>
                     {isHindi 
                       ? 'अपनी जानकारी भरें और हमारी टीम 24 घंटे में संपर्क करेगी'
-                      : 'Fill in your details and our team will contact you within 24 hours'}
+                      : 'Fill in your details and our officials will contact you within 24 hours'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
