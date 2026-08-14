@@ -70,7 +70,7 @@ export default function Landing() {
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Button asChild size="sm">
-              <Link to="/auth">Login</Link>
+              <Link to={user ? '/dashboard' : '/auth'}>{user ? 'Go to dashboard' : 'Login'}</Link>
             </Button>
           </div>
         </div>
@@ -95,7 +95,9 @@ export default function Landing() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild size="lg" className="gap-2">
-              <Link to="/auth">Login / Try demo modes <ArrowRight className="w-4 h-4" /></Link>
+              <Link to={user ? '/dashboard' : '/auth'}>
+                {user ? 'Open dashboard' : 'Login / Try demo modes'} <ArrowRight className="w-4 h-4" />
+              </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
               <Link to="/transparency">View public dashboard</Link>
