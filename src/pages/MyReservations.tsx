@@ -188,7 +188,7 @@ export default function MyReservations() {
       <main className="container mx-auto px-4 py-6 max-w-4xl">
         {/* Navigation */}
         <div className="flex items-center justify-between mb-4">
-          <Button variant="ghost" onClick={() => navigate('/')}>
+          <Button variant="ghost" onClick={() => navigate('/dashboard')}>
             ← Back to Parking Finder
           </Button>
           <Button variant="outline" onClick={() => navigate('/parking-history')} className="gap-2">
@@ -210,7 +210,7 @@ export default function MyReservations() {
               <p className="text-muted-foreground mb-4">
                 You haven't made any parking reservations.
               </p>
-              <Button onClick={() => navigate('/')}>Find Parking</Button>
+              <Button onClick={() => navigate('/dashboard')}>Find Parking</Button>
             </CardContent>
           </Card>
         ) : (

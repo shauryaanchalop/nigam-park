@@ -46,6 +46,7 @@ import InstallApp from "./pages/InstallApp";
 import AdminSurgePricing from "./pages/AdminSurgePricing";
 import WalletPage from "./pages/WalletPage";
 import TransparencyPage from "./pages/TransparencyPage";
+import { BackButton } from "@/components/ui/BackButton";
 import { ParkingAssistant } from "./components/ParkingAssistant";
 import { RouteSEO } from "./components/RouteSEO";
 import Landing from "./pages/Landing";
@@ -80,7 +81,8 @@ const App = () => {
               <RouteSEO />
               <div className="pb-16 md:pb-0">
                 <Routes>
-                  <Route path="/" element={<Index />} />
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/dashboard" element={<Index />} />
                   <Route path="/citizen" element={<CitizenPortal />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/admin/users" element={<AdminUserManagement />} />
@@ -123,6 +125,7 @@ const App = () => {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </div>
+              <BackButton />
               <MobileNav />
               <ParkingAssistant />
             </BrowserRouter>

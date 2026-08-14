@@ -218,7 +218,7 @@ export default function AdminParkingLots() {
       <main className="container mx-auto px-4 py-6">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-4">
-          <Link to="/">
+          <Link to="/dashboard">
             <ChevronLeft className="w-4 h-4 mr-1" />
             Back to Dashboard
           </Link>

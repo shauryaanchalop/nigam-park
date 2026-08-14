@@ -300,7 +300,7 @@ export default function Profile() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/dashboard')}
           className="mb-4 gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
