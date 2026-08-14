@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users, Building2, Star, TrendingUp, Headphones, ChevronRight } from 'lucide-react';
+import { Search, MapPin, Car, IndianRupee, Navigation, Leaf, Wind, Clock, CalendarPlus, RefreshCw, Map, Gift, History, Bell, AlertTriangle, BookOpen, Train, Zap, Umbrella, CreditCard, Users, Building2, Star, TrendingUp, Headphones, ChevronRight, Wallet as WalletIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useSurgePricing, calculateSurgePrice } from '@/hooks/useSurgePricing';
 import { SurgePricingBadge } from '@/components/SurgePricingBadge';
@@ -245,6 +245,12 @@ export default function CitizenPortal() {
             <Link to="/live-map">
               <Map className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               {isHindi ? 'लाइव मैप' : 'Live Map'}
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
+            <Link to="/wallet">
+              <WalletIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isHindi ? 'वॉलेट' : 'Wallet'}
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
