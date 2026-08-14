@@ -44,6 +44,8 @@ import BusinessAccountPage from "./pages/BusinessAccountPage";
 import ReviewModeration from "./pages/ReviewModeration";
 import InstallApp from "./pages/InstallApp";
 import AdminSurgePricing from "./pages/AdminSurgePricing";
+import WalletPage from "./pages/WalletPage";
+import TransparencyPage from "./pages/TransparencyPage";
 import { ParkingAssistant } from "./components/ParkingAssistant";
 import { RouteSEO } from "./components/RouteSEO";
 const queryClient = new QueryClient();
@@ -96,6 +98,8 @@ const App = () => (
                   <Route path="/attendant/checkin" element={<AttendantCheckIn />} />
                   <Route path="/install" element={<InstallApp />} />
                   <Route path="/admin/surge-pricing" element={<AdminSurgePricing />} />
+                  <Route path="/wallet" element={<WalletPage />} />
+                  <Route path="/transparency" element={<TransparencyPage />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>

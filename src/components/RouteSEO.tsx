@@ -53,6 +53,15 @@ const ROUTE_META: Record<string, RouteMeta> = {
     title: 'Loyalty Rewards',
     description: 'Earn points on every parking session and redeem them for discounts across Delhi parking lots.',
   },
+  '/wallet': {
+    title: 'Parking Wallet',
+    description: 'Load your NIGAM-Park prepaid wallet, pay parking fees automatically and download monthly statements.',
+    noIndex: true,
+  },
+  '/transparency': {
+    title: 'Public Transparency Dashboard',
+    description: 'Anonymised, zone-level parking occupancy and revenue data published openly by the Municipal Corporation of Delhi.',
+  },
   '/referral': {
     title: 'Refer & Earn',
     description: 'Invite friends to NIGAM-Park and earn free parking credits when they complete their first booking.',

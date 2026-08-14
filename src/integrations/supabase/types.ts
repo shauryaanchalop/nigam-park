@@ -1549,11 +1549,93 @@ export type Database = {
           },
         ]
       }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          transaction_type: string
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          transaction_type: string
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          transaction_type?: string
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          auto_debit: boolean
+          balance: number
+          created_at: string
+          id: string
+          low_balance_threshold: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_debit?: boolean
+          balance?: number
+          created_at?: string
+          id?: string
+          low_balance_threshold?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_debit?: boolean
+          balance?: number
+          created_at?: string
+          id?: string
+          low_balance_threshold?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_daily_transparency: {
+        Args: { _days?: number }
+        Returns: {
+          day: string
+          total_revenue: number
+          transaction_count: number
+        }[]
+      }
       get_demo_credentials: {
         Args: never
         Returns: {
@@ -1562,12 +1644,49 @@ export type Database = {
           demo_role: string
         }[]
       }
+      get_zone_transparency: {
+        Args: { _days?: number }
+        Returns: {
+          current_occupancy: number
+          lot_count: number
+          occupancy_percent: number
+          total_capacity: number
+          total_revenue: number
+          transaction_count: number
+          zone: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      wallet_apply_transaction: {
+        Args: {
+          _amount: number
+          _description: string
+          _reference_id?: string
+          _type: string
+        }
+        Returns: {
+          amount: number
+          balance_after: number
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          transaction_type: string
+          user_id: string
+          wallet_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "wallet_transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {
