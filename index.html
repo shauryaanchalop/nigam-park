@@ -84,6 +84,19 @@
   </head>
 
   <body>
+    <script>
+      // Light theme is the default; honour an explicit stored choice only.
+      (function () {
+        try {
+          var t = localStorage.getItem('nigam-park-theme');
+          document.documentElement.classList.remove('dark', 'light');
+          document.documentElement.classList.add(t === 'dark' ? 'dark' : 'light');
+        } catch (e) {
+          document.documentElement.classList.add('light');
+        }
+      })();
+    </script>
+
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

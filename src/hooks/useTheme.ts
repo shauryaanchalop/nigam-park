@@ -4,18 +4,14 @@ type Theme = 'light' | 'dark';
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {
-    // Check localStorage first
+    // Light is the default theme; only an explicit user choice switches it.
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('nigam-park-theme') as Theme;
-      if (stored) return stored;
-      
-      // Check system preference
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-      }
+      const stored = localStorage.getItem('nigam-park-theme') as Theme | null;
+      if (stored === 'dark' || stored === 'light') return stored;
     }
     return 'light';
   });
+
 
   useEffect(() => {
     const root = window.document.documentElement;
