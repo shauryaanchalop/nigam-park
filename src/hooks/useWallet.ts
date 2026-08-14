@@ -104,7 +104,7 @@ export function useWallet() {
   return {
     wallet: wallet.data ?? null,
     isLoading: wallet.isLoading,
-    ledger: ledger.data ?? [],
+    ledger: withDemoFallback<WalletLedgerEntry>(ledger.data, DEMO_WALLET_LEDGER),
     ledgerLoading: ledger.isLoading,
     applyTransaction,
     updateSettings,
