@@ -162,9 +162,9 @@ export default function Index() {
     );
   }
 
-  // If no user, redirect to auth
+  // If no user, show the public home page
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Landing />;
   }
 
   // Render view based on user role with transition
