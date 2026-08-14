@@ -36,7 +36,7 @@ export default function ParkingHistory() {
 
   // Only allow citizens to access this page (non-admin, non-attendant users)
   if (userRole === 'admin' || userRole === 'attendant') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   const today = startOfDay(new Date());

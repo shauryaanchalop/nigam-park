@@ -40,7 +40,7 @@ export default function AttendantCheckIn() {
 
   useEffect(() => {
     if (userRole !== 'attendant' && userRole !== 'admin') {
-      navigate('/');
+      navigate('/dashboard');
       return;
     }
     loadTodayData();

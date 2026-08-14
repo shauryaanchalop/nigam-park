@@ -53,7 +53,7 @@ export default function VisionDashboard() {
       <main className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <Button variant="ghost" asChild>
-            <Link to="/">
+            <Link to="/dashboard">
               <ChevronLeft className="w-4 h-4 mr-1" />
               Back to Dashboard
             </Link>

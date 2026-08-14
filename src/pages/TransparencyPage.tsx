@@ -109,7 +109,7 @@ export default function TransparencyPage() {
 
       <main className="container mx-auto px-4 py-6 space-y-6 flex-1">
         <Button variant="ghost" size="sm" asChild className="-ml-2">
-          <Link to="/">
+          <Link to="/dashboard">
             <ChevronLeft className="w-4 h-4 mr-1" /> Home
           </Link>
         </Button>

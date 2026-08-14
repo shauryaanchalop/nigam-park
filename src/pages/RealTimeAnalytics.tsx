@@ -182,7 +182,7 @@ export default function RealTimeAnalytics() {
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-2">
-          <Link to="/">
+          <Link to="/dashboard">
             <ChevronLeft className="w-4 h-4 mr-1" />
             Back to Dashboard
           </Link>

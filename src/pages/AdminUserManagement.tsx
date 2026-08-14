@@ -51,7 +51,7 @@ export default function AdminUserManagement() {
   }
 
   if (userRole !== 'admin') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   const filteredUsers = users?.filter(u => {

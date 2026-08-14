@@ -227,7 +227,7 @@ export default function KioskMode() {
           </Button>
           
           <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm">
-            <Link to="/">Exit</Link>
+            <Link to="/dashboard">Exit</Link>
           </Button>
         </div>
       </div>

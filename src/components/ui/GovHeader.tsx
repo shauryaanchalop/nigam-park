@@ -87,7 +87,7 @@ export const GovHeader = forwardRef<HTMLElement, GovHeaderProps>(
           // Small delay to let the auth state settle before clearing switching flag
           setTimeout(() => {
             setIsSwitchingRole(false);
-            navigate('/');
+            navigate('/dashboard');
           }, 100);
         }
       } catch {
