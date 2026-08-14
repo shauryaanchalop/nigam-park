@@ -18,7 +18,6 @@ import { VoiceSearch } from '@/components/VoiceSearch';
 import { AdvertisingSlot } from '@/components/ads/AdvertisingSlot';
 import { RatingBadge } from '@/components/reviews/RatingBadge';
 import { CustomerCareCard } from '@/components/CustomerCareCard';
-import { TeamDialog } from '@/components/TeamDialog';
 import { EVChargingReservation } from '@/components/features/EVChargingReservation';
 import { EVBatteryStatus } from '@/components/features/EVBatteryStatus';
 import { VehicleSizeDetection } from '@/components/features/VehicleSizeDetection';
@@ -302,20 +301,6 @@ export default function CitizenPortal() {
               {isHindi ? 'ऐप इंस्टॉल करें' : 'Install App'}
             </Link>
           </Button>
-        </div>
-
-        {/* Our Team Button - Highlighted Separately */}
-        <div className="mb-3 sm:mb-4">
-          <TeamDialog trigger={
-            <Button 
-              variant="default" 
-              size="sm" 
-              className="gap-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 font-bold text-xs sm:text-sm h-9 sm:h-10 px-4 sm:px-6 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-primary-foreground/20"
-            >
-              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
-              {isHindi ? '👨‍💻 हमारी टीम से मिलें' : '👨‍💻 Meet Our Team'}
-            </Button>
-          } />
         </div>
 
         {/* Report Violation - Separate & Last */}
