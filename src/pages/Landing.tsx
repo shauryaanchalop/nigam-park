@@ -11,6 +11,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Footer } from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
 import logo from '@/assets/logo.png';
+import { useAuth } from '@/contexts/AuthContext';
 
 const features = [
   { icon: MapPin, title: 'Live Parking Map', desc: 'See real-time availability across every MCD zone with occupancy heat overlays and turn-by-turn navigation.' },
@@ -44,6 +45,7 @@ const steps = [
 ];
 
 export default function Landing() {
+  const { user } = useAuth();
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
