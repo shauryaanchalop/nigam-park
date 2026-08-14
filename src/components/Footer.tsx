@@ -29,6 +29,7 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
       { name: 'Live Map', nameHi: 'लाइव मैप', path: '/live-map' },
       { name: 'My Reservations', nameHi: 'मेरी बुकिंग', path: '/my-reservations' },
       { name: 'Loyalty Program', nameHi: 'लॉयल्टी प्रोग्राम', path: '/loyalty' },
+      { name: 'Parking Wallet', nameHi: 'पार्किंग वॉलेट', path: '/wallet' },
       { name: 'Monthly Pass', nameHi: 'मासिक पास', path: '/monthly-pass' },
       { name: 'Referral Program', nameHi: 'रेफरल प्रोग्राम', path: '/referral' },
     ];
@@ -37,6 +38,7 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
       { name: 'Parking Tips', nameHi: 'पार्किंग टिप्स', path: '/blog' },
       { name: 'Avoid Fines Guide', nameHi: 'जुर्माने से बचें', path: '/blog/avoid-parking-fines' },
       { name: 'FAQ', nameHi: 'अक्सर पूछे जाने वाले प्रश्न', path: '/faq' },
+      { name: 'Open Data & Transparency', nameHi: 'ओपन डेटा एवं पारदर्शिता', path: '/transparency' },
     ];
 
     const legalLinks = [
