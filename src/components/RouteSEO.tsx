@@ -13,9 +13,14 @@ interface RouteMeta {
  */
 const ROUTE_META: Record<string, RouteMeta> = {
   '/': {
+    title: 'Smart Parking & Revenue Assurance for Delhi',
+    description: 'NIGAM-Park connects citizens, attendants and MCD on one platform — live availability, cashless booking and open revenue data.',
+  },
+  '/dashboard': {
     title: 'Smart Parking Dashboard',
     description: 'Live parking availability, bookings and revenue insights for Delhi on the official MCD NIGAM-Park platform.',
   },
+
   '/citizen': {
     title: 'Find & Book Parking in Delhi',
     description: 'Search nearby MCD parking lots, check live availability, compare rates and reserve your spot in seconds.',
