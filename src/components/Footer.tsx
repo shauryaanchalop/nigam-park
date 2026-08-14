@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, ExternalLink, ArrowUp, Facebook, Instagram } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import logo from '@/assets/logo.png';
 
-export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
-  function Footer(props, ref) {
+export function Footer(props: React.HTMLAttributes<HTMLElement>) {
     const currentYear = 2026;
     const { isHindi } = useLanguage();
 
@@ -61,7 +60,7 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
     ];
 
     return (
-      <footer ref={ref} className="bg-muted/50 border-t mt-auto" {...props}>
+      <footer className="bg-muted/50 border-t mt-auto" {...props}>
         <div className="container py-10 md:py-14">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 md:gap-10">
             {/* Brand */}
@@ -222,5 +221,4 @@ export const Footer = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
         </div>
       </footer>
     );
-  }
-);
+}
