@@ -13,9 +13,14 @@ export function BackButton() {
 
   if (HIDDEN_ON.includes(location.pathname)) return null;
 
+  /** Public pages should always fall back to the public home page. */
+  const PUBLIC_ROUTES = ['/transparency', '/blog', '/faq', '/contact', '/privacy-policy', '/terms', '/install'];
+  const isPublic = PUBLIC_ROUTES.some((r) => location.pathname.startsWith(r));
+
   const goBack = () => {
-    if (window.history.length > 1) navigate(-1);
-    else navigate(user ? '/dashboard' : '/');
+    if (isPublic) navigate('/');
+    else if (window.history.length > 1) navigate(-1);
+    else navigate('/');
   };
 
   return (
