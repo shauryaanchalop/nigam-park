@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { DEMO_WALLET_LEDGER, withDemoFallback } from '@/lib/demoData';
 
 export interface Wallet {
   id: string;
