@@ -4,11 +4,12 @@ import { GovHeader } from '@/components/ui/GovHeader';
 import { CameraCard } from '@/components/vision/CameraCard';
 import { CameraExpandedView } from '@/components/vision/CameraExpandedView';
 import { VisionDetectionDemo } from '@/components/vision/VisionDetectionDemo';
+import { LiveVisionCamera } from '@/components/vision/LiveVisionCamera';
 import { useCameras } from '@/hooks/useCameras';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Camera, Wifi, WifiOff, AlertCircle, ChevronLeft, Maximize } from 'lucide-react';
+import { Camera, Wifi, WifiOff, AlertCircle, ChevronLeft, Maximize, ScanLine } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,8 @@ export default function VisionDashboard() {
   const { cameras, isLoading } = useCameras();
   const [selectedCamera, setSelectedCamera] = useState<CameraWithEvents | null>(null);
   const [cameraDialogOpen, setCameraDialogOpen] = useState(false);
+  const [showLiveVision, setShowLiveVision] = useState(false);
+
 
   const handleCameraClick = (camera: CameraWithEvents) => {
     setSelectedCamera(camera);
@@ -59,6 +62,13 @@ export default function VisionDashboard() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
+            <Button
+              variant={showLiveVision ? 'default' : 'secondary'}
+              onClick={() => setShowLiveVision((v) => !v)}
+            >
+              <ScanLine className="w-4 h-4 mr-2" />
+              {showLiveVision ? 'Hide Live Vision AI' : 'Show Vision AI in action'}
+            </Button>
             <Button variant="outline" asChild>
               <Link to="/kiosk">
                 <Maximize className="w-4 h-4 mr-2" />
@@ -77,6 +87,13 @@ export default function VisionDashboard() {
             Real-time computer vision surveillance with AI-powered object detection
           </p>
         </div>
+
+        {showLiveVision && (
+          <div className="mb-6 animate-fade-in">
+            <LiveVisionCamera />
+          </div>
+        )}
+
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <Card>
