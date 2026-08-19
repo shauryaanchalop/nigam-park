@@ -21,6 +21,8 @@ export default function VisionDashboard() {
   const { cameras, isLoading } = useCameras();
   const [selectedCamera, setSelectedCamera] = useState<CameraWithEvents | null>(null);
   const [cameraDialogOpen, setCameraDialogOpen] = useState(false);
+  const [showLiveVision, setShowLiveVision] = useState(false);
+
 
   const handleCameraClick = (camera: CameraWithEvents) => {
     setSelectedCamera(camera);
