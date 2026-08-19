@@ -9,7 +9,7 @@ import { useCameras } from '@/hooks/useCameras';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Camera, Wifi, WifiOff, AlertCircle, ChevronLeft, Maximize } from 'lucide-react';
+import { Camera, Wifi, WifiOff, AlertCircle, ChevronLeft, Maximize, ScanLine } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
