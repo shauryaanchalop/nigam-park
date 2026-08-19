@@ -4,6 +4,7 @@ import { GovHeader } from '@/components/ui/GovHeader';
 import { CameraCard } from '@/components/vision/CameraCard';
 import { CameraExpandedView } from '@/components/vision/CameraExpandedView';
 import { VisionDetectionDemo } from '@/components/vision/VisionDetectionDemo';
+import { LiveVisionCamera } from '@/components/vision/LiveVisionCamera';
 import { useCameras } from '@/hooks/useCameras';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
