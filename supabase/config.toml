@@ -29,3 +29,5 @@ verify_jwt = false
 
 [functions.send-review-reply-notification]
 verify_jwt = true
+[functions.vision-detect]
+verify_jwt = false
