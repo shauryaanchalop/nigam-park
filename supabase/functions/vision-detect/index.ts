@@ -69,11 +69,12 @@ serve(async (req) => {
           {
             role: "user",
             content: [
-              { type: "text", text: "Detect number plates and objects in this CCTV frame." },
+              { type: "text", text: "Detect and transcribe every number plate and detect objects in this CCTV frame. Read plates character by character and mark occluded or blocked plates." },
               { type: "image_url", image_url: { url: image } },
             ],
           },
         ],
+        temperature: 0,
         response_format: { type: "json_object" },
       }),
     });
