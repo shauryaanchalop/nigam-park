@@ -55,13 +55,21 @@ serve(async (req) => {
       });
     }
 
-    const { image } = await req.json().catch(() => ({}));
+    const body = await req.json().catch(() => ({}));
+    const image = body?.image;
+    const mode = String(body?.mode ?? "strict").toLowerCase() === "relaxed" ? "relaxed" : "strict";
+    const minConfidence = Math.max(0, Math.min(1, Number(body?.min_confidence ?? 0)));
     if (!image || typeof image !== "string" || !image.startsWith("data:image")) {
       return new Response(JSON.stringify({ error: "Missing image frame" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const modeInstruction =
+      mode === "relaxed"
+        ? `MODE: RELAXED (recall-first). Report every plate or object you can see, even partial, low-light or heavily occluded ones. Emit best-effort partial reads with "?" for unresolved characters and honest low confidence. Do not suppress uncertain detections.`
+        : `MODE: STRICT (precision-first). Only emit a plate when the read matches a valid Indian plate pattern and you are genuinely confident; drop speculative detections rather than guessing. Prefer fewer, correct results.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -72,15 +80,16 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: `${SYSTEM_PROMPT}\n\n${modeInstruction}` },
           {
             role: "user",
             content: [
-              { type: "text", text: "Detect and transcribe every number plate and detect objects in this CCTV frame. Read plates character by character and mark occluded or blocked plates." },
+              { type: "text", text: "Detect and transcribe every number plate and detect objects in this CCTV frame. Read plates character by character, score frame and plate quality (blur, glare, occlusion) and mark occluded or blocked plates." },
               { type: "image_url", image_url: { url: image } },
             ],
           },
         ],
+
         temperature: 0,
         response_format: { type: "json_object" },
       }),
