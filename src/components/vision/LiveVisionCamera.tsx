@@ -6,8 +6,12 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import jsPDF from 'jspdf';
 import {
   Camera as CameraIcon,
+  FileDown,
+  Eye,
+  EyeOff,
   CameraOff,
   ScanLine,
   Loader2,
@@ -16,19 +20,35 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
+type DetectionStatus = 'CLEAR' | 'OCCLUDED' | 'BLOCKED';
+
 interface Box {
   label: string;
   confidence: number;
   box: [number, number, number, number];
   kind: 'plate' | 'object';
+  status: DetectionStatus;
+  note?: string;
 }
 
 interface VisionResult {
-  plates?: { text: string; confidence?: number; box?: number[] }[];
-  objects?: { label: string; confidence?: number; box?: number[] }[];
+  plates?: { text: string; confidence?: number; box?: number[]; status?: string; note?: string }[];
+  objects?: { label: string; confidence?: number; box?: number[]; status?: string }[];
+  frame_quality?: string;
   summary?: string;
   error?: string;
 }
+
+const normalizeStatus = (s?: string): DetectionStatus => {
+  const v = String(s ?? '').toUpperCase();
+  return v === 'OCCLUDED' || v === 'BLOCKED' ? v : 'CLEAR';
+};
+
+const STATUS_STYLES: Record<DetectionStatus, { border: string; chip: string; label: string }> = {
+  CLEAR: { border: 'border-emerald-400', chip: 'bg-emerald-400 text-background', label: 'Clear' },
+  OCCLUDED: { border: 'border-warning', chip: 'bg-warning text-background', label: 'Occluded' },
+  BLOCKED: { border: 'border-destructive', chip: 'bg-destructive text-destructive-foreground', label: 'Blocked' },
+};
 
 const clamp01 = (n: number) => Math.max(0, Math.min(1, Number.isFinite(n) ? n : 0));
 
@@ -60,6 +80,8 @@ export function LiveVisionCamera() {
   const [summary, setSummary] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [lastRun, setLastRun] = useState<Date | null>(null);
+  const [showOverlay, setShowOverlay] = useState(true);
+  const [frameQuality, setFrameQuality] = useState<string>('');
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -113,13 +135,13 @@ export function LiveVisionCamera() {
       : (source as HTMLVideoElement).videoHeight;
     if (!w || !h) return null;
 
-    const scale = Math.min(1, 1024 / Math.max(w, h));
+    const scale = Math.min(1, 1600 / Math.max(w, h));
     canvas.width = Math.round(w * scale);
     canvas.height = Math.round(h * scale);
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
     ctx.drawImage(source as CanvasImageSource, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/jpeg', 0.8);
+    return canvas.toDataURL('image/jpeg', 0.92);
   };
 
   const analyze = useCallback(async () => {
@@ -142,13 +164,29 @@ export function LiveVisionCamera() {
       const next: Box[] = [];
       (data?.plates ?? []).forEach((p) => {
         const b = normalizeBox(p.box);
-        if (b) next.push({ label: p.text, confidence: p.confidence ?? 0.9, box: b, kind: 'plate' });
+        if (b)
+          next.push({
+            label: p.text,
+            confidence: p.confidence ?? 0.9,
+            box: b,
+            kind: 'plate',
+            status: normalizeStatus(p.status),
+            note: p.note,
+          });
       });
       (data?.objects ?? []).forEach((o) => {
         const b = normalizeBox(o.box);
-        if (b) next.push({ label: o.label, confidence: o.confidence ?? 0.8, box: b, kind: 'object' });
+        if (b)
+          next.push({
+            label: o.label,
+            confidence: o.confidence ?? 0.8,
+            box: b,
+            kind: 'object',
+            status: normalizeStatus(o.status),
+          });
       });
       setBoxes(next);
+      setFrameQuality(data?.frame_quality ?? '');
       setSummary(data?.summary || (next.length ? `${next.length} detections` : 'No objects detected'));
       setLastRun(new Date());
     } catch (e) {
@@ -181,6 +219,82 @@ export function LiveVisionCamera() {
       setError('');
     };
     reader.readAsDataURL(file);
+  };
+
+  const exportPdf = () => {
+    if (!boxes.length && !summary) {
+      toast({ title: 'Nothing to export', description: 'Run a detection first.', variant: 'destructive' });
+      return;
+    }
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const margin = 40;
+    let y = margin;
+
+    doc.setFontSize(16);
+    doc.text('MCD Smart Parking — Vision AI Detection Report', margin, y);
+    y += 18;
+    doc.setFontSize(10);
+    doc.setTextColor(110);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, margin, y);
+    y += 13;
+    doc.text(`Source: ${uploadedImage ? 'Uploaded image' : 'Live camera frame'}`, margin, y);
+    y += 13;
+    doc.text(`Frame quality: ${frameQuality || 'N/A'}`, margin, y);
+    y += 22;
+    doc.setTextColor(0);
+
+    const frame = captureFrame();
+    if (frame) {
+      const canvas = canvasRef.current;
+      const ratio = canvas ? canvas.height / canvas.width : 0.5625;
+      const w = 515;
+      const h = Math.min(300, w * ratio);
+      try {
+        doc.addImage(frame, 'JPEG', margin, y, w, h);
+        y += h + 20;
+      } catch { /* ignore image failures */ }
+    }
+
+    doc.setFontSize(12);
+    doc.text(`Number plates (${plates.length})`, margin, y);
+    y += 15;
+    doc.setFontSize(10);
+    if (!plates.length) {
+      doc.text('No plates detected.', margin, y);
+      y += 14;
+    }
+    plates.forEach((p) => {
+      doc.text(
+        `• ${p.label} — ${Math.round(p.confidence * 100)}% — ${STATUS_STYLES[p.status].label}${p.note ? ` (${p.note})` : ''}`,
+        margin,
+        y,
+      );
+      y += 14;
+    });
+
+    y += 10;
+    doc.setFontSize(12);
+    doc.text(`Objects (${objects.length})`, margin, y);
+    y += 15;
+    doc.setFontSize(10);
+    if (!objects.length) {
+      doc.text('No objects detected.', margin, y);
+      y += 14;
+    }
+    objects.forEach((o) => {
+      if (y > 780) { doc.addPage(); y = margin; }
+      doc.text(`• ${o.label} — ${Math.round(o.confidence * 100)}% — ${STATUS_STYLES[o.status].label}`, margin, y);
+      y += 14;
+    });
+
+    if (summary) {
+      y += 12;
+      doc.setFontSize(11);
+      doc.text(doc.splitTextToSize(`Summary: ${summary}`, 515), margin, y);
+    }
+
+    doc.save(`vision-ai-report-${Date.now()}.pdf`);
+    toast({ title: 'Report exported', description: 'Vision AI detection summary saved as PDF.' });
   };
 
   const plates = boxes.filter((b) => b.kind === 'plate');
@@ -231,6 +345,19 @@ export function LiveVisionCamera() {
             </label>
           </Button>
 
+          <Button onClick={exportPdf} size="sm" variant="outline" disabled={!boxes.length && !summary}>
+            <FileDown className="h-4 w-4 mr-2" /> Export PDF
+          </Button>
+
+          <Button
+            onClick={() => setShowOverlay((v) => !v)}
+            size="sm"
+            variant={showOverlay ? 'secondary' : 'outline'}
+          >
+            {showOverlay ? <Eye className="h-4 w-4 mr-2" /> : <EyeOff className="h-4 w-4 mr-2" />}
+            {showOverlay ? 'Overlay on' : 'Overlay off'}
+          </Button>
+
           <div className="flex items-center gap-2 ml-auto">
             <Switch id="auto-scan" checked={autoScan} onCheckedChange={setAutoScan} disabled={!hasSource} />
             <Label htmlFor="auto-scan" className="text-sm">Auto-scan (6s)</Label>
@@ -261,12 +388,16 @@ export function LiveVisionCamera() {
           )}
 
           {/* Bounding boxes */}
-          {boxes.map((b, i) => (
+          {showOverlay && boxes.map((b, i) => (
             <div
               key={`${b.label}-${i}`}
               className={`absolute border-2 rounded-sm pointer-events-none transition-all duration-300 ${
-                b.kind === 'plate' ? 'border-warning' : 'border-cyan-400'
-              }`}
+                b.status === 'CLEAR'
+                  ? b.kind === 'plate'
+                    ? 'border-warning'
+                    : 'border-cyan-400'
+                  : STATUS_STYLES[b.status].border
+              } ${b.status === 'BLOCKED' ? 'border-dashed' : ''}`}
               style={{
                 left: `${b.box[0] * 100}%`,
                 top: `${b.box[1] * 100}%`,
@@ -276,12 +407,15 @@ export function LiveVisionCamera() {
             >
               <span
                 className={`absolute -top-6 left-0 text-[10px] font-mono px-1.5 py-0.5 rounded whitespace-nowrap ${
-                  b.kind === 'plate'
-                    ? 'bg-warning text-background'
-                    : 'bg-cyan-400 text-background'
+                  b.status !== 'CLEAR'
+                    ? STATUS_STYLES[b.status].chip
+                    : b.kind === 'plate'
+                      ? 'bg-warning text-background'
+                      : 'bg-cyan-400 text-background'
                 }`}
               >
                 {b.label} {Math.round((b.confidence ?? 0) * 100)}%
+                {b.status !== 'CLEAR' ? ` · ${STATUS_STYLES[b.status].label}` : ''}
               </span>
             </div>
           ))}
@@ -322,11 +456,22 @@ export function LiveVisionCamera() {
             {plates.length ? (
               <div className="space-y-1.5">
                 {plates.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between p-2 rounded-md border bg-warning/5">
-                    <span className="font-mono font-semibold">{p.label}</span>
-                    <Badge variant="outline" className="text-[10px]">
-                      {Math.round(p.confidence * 100)}% conf
-                    </Badge>
+                  <div key={i} className="flex items-center justify-between gap-2 p-2 rounded-md border bg-warning/5">
+                    <div className="min-w-0">
+                      <span className="font-mono font-semibold">{p.label}</span>
+                      {p.note && <p className="text-[11px] text-muted-foreground truncate">{p.note}</p>}
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <Badge
+                        variant={p.status === 'CLEAR' ? 'secondary' : 'destructive'}
+                        className="text-[10px]"
+                      >
+                        {STATUS_STYLES[p.status].label}
+                      </Badge>
+                      <Badge variant="outline" className="text-[10px]">
+                        {Math.round(p.confidence * 100)}% conf
+                      </Badge>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -345,6 +490,7 @@ export function LiveVisionCamera() {
                   <Badge key={i} variant="secondary" className="gap-1">
                     <Car className="h-3 w-3" />
                     {o.label} · {Math.round(o.confidence * 100)}%
+                    {o.status !== 'CLEAR' ? ` · ${STATUS_STYLES[o.status].label}` : ''}
                   </Badge>
                 ))}
               </div>
@@ -357,6 +503,7 @@ export function LiveVisionCamera() {
         {(summary || lastRun) && (
           <p className="text-xs text-muted-foreground border-t pt-3">
             {summary}
+            {frameQuality ? ` · frame: ${frameQuality}` : ''}
             {lastRun ? ` · last scan ${lastRun.toLocaleTimeString()}` : ''}
           </p>
         )}
