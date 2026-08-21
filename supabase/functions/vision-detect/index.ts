@@ -5,20 +5,36 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SYSTEM_PROMPT = `You are an ANPR (Automatic Number Plate Recognition) and object detection engine for a municipal smart-parking CCTV system.
-Analyse the given camera frame and return ONLY a JSON object, no markdown, no explanation, with this exact shape:
+const SYSTEM_PROMPT = `You are a high-precision ANPR (Automatic Number Plate Recognition) and object detection engine for a municipal smart-parking CCTV system in India.
+
+Return ONLY a JSON object, no markdown, no explanation, with this exact shape:
 
 {
-  "plates": [{ "text": "DL01AB1234", "confidence": 0.0-1.0, "box": [x, y, w, h] }],
-  "objects": [{ "label": "car", "confidence": 0.0-1.0, "box": [x, y, w, h] }],
+  "plates": [{ "text": "DL01AB1234", "confidence": 0.0-1.0, "box": [x, y, w, h], "status": "CLEAR" | "OCCLUDED" | "BLOCKED", "note": "short reason if not CLEAR" }],
+  "objects": [{ "label": "car", "confidence": 0.0-1.0, "box": [x, y, w, h], "status": "CLEAR" | "OCCLUDED" | "BLOCKED" }],
+  "frame_quality": "GOOD" | "LOW_LIGHT" | "BLURRY" | "OBSTRUCTED",
   "summary": "one short sentence"
 }
 
-Rules:
-- box values are NORMALISED floats between 0 and 1 relative to the image (x,y = top-left corner).
-- "plates": every readable vehicle number plate. Transcribe exactly as seen, uppercase, no spaces. If unreadable, omit it.
-- "objects": vehicles (car, motorcycle, truck, bus, auto-rickshaw, bicycle), people, and traffic-relevant objects. Max 12.
+Box rules:
+- box = [x, y, w, h] as NORMALISED floats 0..1 relative to the full image, where x,y is the TOP-LEFT corner and w,h are width/height. Never output pixel values.
+- Boxes must tightly wrap the object. A plate box wraps only the plate rectangle, not the whole vehicle.
+
+Plate reading rules (be extremely careful, accuracy matters more than quantity):
+- Zoom mentally into each plate region and read character by character.
+- Indian plates follow: 2 letters (state, e.g. DL, HR, UP, MH, KA) + 1-2 digits (RTO) + 1-3 letters (series) + 4 digits. BH-series: 2 digits + "BH" + 4 digits + 1-2 letters.
+- Output UPPERCASE, no spaces, no hyphens, no state-name words.
+- Resolve common OCR confusions using the position rule above: in LETTER positions prefer O over 0, I over 1, B over 8, S over 5, Z over 2, G over 6; in DIGIT positions prefer 0 over O/D/Q, 1 over I/L, 8 over B, 5 over S, 2 over Z, 6 over G.
+- If the read does not match a valid Indian pattern, re-examine before emitting; lower the confidence accordingly.
+- confidence must be honest: 0.95+ only for sharp, fully visible plates; 0.5-0.8 for partially readable; below 0.5 for guesses.
+- status: "CLEAR" = fully visible and readable. "OCCLUDED" = partially hidden (dirt, glare, angle, another vehicle, cropped) — still output your best partial read, using "?" for characters you cannot resolve. "BLOCKED" = plate present but completely unreadable/covered — output text as "UNREADABLE" with the box, and explain in note.
+- Never invent a plate that is not visibly present in the frame.
+
+Object rules:
+- "objects": vehicles (car, motorcycle, truck, bus, auto-rickshaw, bicycle), people, and traffic-relevant objects. Max 12, highest confidence first.
+- Mark an object OCCLUDED when it is partially hidden or cut off by the frame edge, BLOCKED when it is mostly hidden behind something else.
 - If nothing is detected, return empty arrays.`;
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
