@@ -10,11 +10,18 @@ const SYSTEM_PROMPT = `You are a high-precision ANPR (Automatic Number Plate Rec
 Return ONLY a JSON object, no markdown, no explanation, with this exact shape:
 
 {
-  "plates": [{ "text": "DL01AB1234", "confidence": 0.0-1.0, "box": [x, y, w, h], "status": "CLEAR" | "OCCLUDED" | "BLOCKED", "note": "short reason if not CLEAR" }],
+  "plates": [{ "text": "DL01AB1234", "confidence": 0.0-1.0, "box": [x, y, w, h], "status": "CLEAR" | "OCCLUDED" | "BLOCKED", "note": "short reason if not CLEAR", "quality": { "blur": 0.0-1.0, "glare": 0.0-1.0, "occlusion": 0.0-1.0 } }],
   "objects": [{ "label": "car", "confidence": 0.0-1.0, "box": [x, y, w, h], "status": "CLEAR" | "OCCLUDED" | "BLOCKED" }],
   "frame_quality": "GOOD" | "LOW_LIGHT" | "BLURRY" | "OBSTRUCTED",
+  "quality_scores": { "blur": 0.0-1.0, "glare": 0.0-1.0, "occlusion": 0.0-1.0, "note": "one short sentence explaining the scores" },
   "summary": "one short sentence"
 }
+
+Quality rules:
+- quality_scores are DEGRADATION scores for the whole frame: 0 = perfect (no blur / no glare / nothing hidden), 1 = unusable. Be honest and granular (e.g. 0.18, 0.44).
+- Each plate also carries its own "quality" object scored the same way for that plate region only.
+- The status MUST follow from the plate's own quality scores: CLEAR when max(blur, glare, occlusion) < 0.35, OCCLUDED when it is 0.35-0.7, BLOCKED when it is above 0.7. The note must name the dominant cause (e.g. "heavy glare on plate", "rear vehicle covers last 3 characters").
+
 
 Box rules:
 - box = [x, y, w, h] as NORMALISED floats 0..1 relative to the full image, where x,y is the TOP-LEFT corner and w,h are width/height. Never output pixel values.
@@ -48,13 +55,21 @@ serve(async (req) => {
       });
     }
 
-    const { image } = await req.json().catch(() => ({}));
+    const body = await req.json().catch(() => ({}));
+    const image = body?.image;
+    const mode = String(body?.mode ?? "strict").toLowerCase() === "relaxed" ? "relaxed" : "strict";
+    const minConfidence = Math.max(0, Math.min(1, Number(body?.min_confidence ?? 0)));
     if (!image || typeof image !== "string" || !image.startsWith("data:image")) {
       return new Response(JSON.stringify({ error: "Missing image frame" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const modeInstruction =
+      mode === "relaxed"
+        ? `MODE: RELAXED (recall-first). Report every plate or object you can see, even partial, low-light or heavily occluded ones. Emit best-effort partial reads with "?" for unresolved characters and honest low confidence. Do not suppress uncertain detections.`
+        : `MODE: STRICT (precision-first). Only emit a plate when the read matches a valid Indian plate pattern and you are genuinely confident; drop speculative detections rather than guessing. Prefer fewer, correct results.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -65,15 +80,16 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: `${SYSTEM_PROMPT}\n\n${modeInstruction}` },
           {
             role: "user",
             content: [
-              { type: "text", text: "Detect and transcribe every number plate and detect objects in this CCTV frame. Read plates character by character and mark occluded or blocked plates." },
+              { type: "text", text: "Detect and transcribe every number plate and detect objects in this CCTV frame. Read plates character by character, score frame and plate quality (blur, glare, occlusion) and mark occluded or blocked plates." },
               { type: "image_url", image_url: { url: image } },
             ],
           },
         ],
+
         temperature: 0,
         response_format: { type: "json_object" },
       }),
