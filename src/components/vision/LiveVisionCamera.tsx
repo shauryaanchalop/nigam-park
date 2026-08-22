@@ -444,6 +444,54 @@ export function LiveVisionCamera() {
           </div>
         </div>
 
+        <div className="grid sm:grid-cols-2 gap-4 p-3 rounded-lg border bg-muted/30">
+          <div className="space-y-2">
+            <Label className="text-xs uppercase tracking-wide text-muted-foreground">ANPR mode</Label>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant={mode === 'strict' ? 'default' : 'outline'}
+                onClick={() => setMode('strict')}
+              >
+                Strict (precision)
+              </Button>
+              <Button
+                size="sm"
+                variant={mode === 'relaxed' ? 'default' : 'outline'}
+                onClick={() => setMode('relaxed')}
+              >
+                Relaxed (recall)
+              </Button>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {mode === 'strict'
+                ? 'Only emits plates matching valid Indian patterns with high confidence.'
+                : 'Reports every possible plate, including partial and occluded reads.'}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                Minimum confidence
+              </Label>
+              <Badge variant="outline" className="text-[10px]">{minConfidence}%</Badge>
+            </div>
+            <Slider
+              value={[minConfidence]}
+              onValueChange={(v) => setMinConfidence(v[0])}
+              min={0}
+              max={95}
+              step={5}
+              aria-label="Minimum detection confidence"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Detections below this score are hidden from the overlay and report.
+            </p>
+          </div>
+        </div>
+
+
         <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted border">
           {uploadedImage ? (
             <img ref={imageRef} src={uploadedImage} alt="Uploaded frame for vision analysis" className="w-full h-full object-contain" />
