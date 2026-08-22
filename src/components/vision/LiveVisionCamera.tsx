@@ -584,24 +584,34 @@ export function LiveVisionCamera() {
             {plates.length ? (
               <div className="space-y-1.5">
                 {plates.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between gap-2 p-2 rounded-md border bg-warning/5">
-                    <div className="min-w-0">
-                      <span className="font-mono font-semibold">{p.label}</span>
-                      {p.note && <p className="text-[11px] text-muted-foreground truncate">{p.note}</p>}
+                  <div key={i} className="p-2 rounded-md border bg-warning/5 space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <span className="font-mono font-semibold">{p.label}</span>
+                        {p.note && <p className="text-[11px] text-muted-foreground truncate">{p.note}</p>}
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Badge
+                          variant={p.status === 'CLEAR' ? 'secondary' : 'destructive'}
+                          className="text-[10px]"
+                        >
+                          {STATUS_STYLES[p.status].label}
+                        </Badge>
+                        <Badge variant="outline" className="text-[10px]">
+                          {Math.round(p.confidence * 100)}% conf
+                        </Badge>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <Badge
-                        variant={p.status === 'CLEAR' ? 'secondary' : 'destructive'}
-                        className="text-[10px]"
-                      >
-                        {STATUS_STYLES[p.status].label}
-                      </Badge>
-                      <Badge variant="outline" className="text-[10px]">
-                        {Math.round(p.confidence * 100)}% conf
-                      </Badge>
-                    </div>
+                    {p.quality && (
+                      <div className="grid grid-cols-3 gap-2">
+                        <QualityBar label="Blur" value={p.quality.blur} />
+                        <QualityBar label="Glare" value={p.quality.glare} />
+                        <QualityBar label="Occlusion" value={p.quality.occlusion} />
+                      </div>
+                    )}
                   </div>
                 ))}
+
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">No plate read yet.</p>
