@@ -196,39 +196,78 @@ export function LiveVisionCamera() {
     setError('');
     try {
       const { data, error: fnError } = await supabase.functions.invoke<VisionResult>('vision-detect', {
-        body: { image: frame },
+        body: { image: frame, mode, min_confidence: minConfidence / 100 },
       });
       if (fnError) throw fnError;
       if (data?.error) throw new Error(data.error);
 
+      const threshold = minConfidence / 100;
       const next: Box[] = [];
       (data?.plates ?? []).forEach((p) => {
         const b = normalizeBox(p.box);
-        if (b)
+        const conf = p.confidence ?? 0.9;
+        if (b && conf >= threshold)
           next.push({
             label: p.text,
-            confidence: p.confidence ?? 0.9,
+            confidence: conf,
             box: b,
             kind: 'plate',
             status: normalizeStatus(p.status),
             note: p.note,
+            quality: p.quality
+              ? {
+                  blur: clamp01(Number(p.quality.blur ?? 0)),
+                  glare: clamp01(Number(p.quality.glare ?? 0)),
+                  occlusion: clamp01(Number(p.quality.occlusion ?? 0)),
+                }
+              : undefined,
           });
       });
       (data?.objects ?? []).forEach((o) => {
         const b = normalizeBox(o.box);
-        if (b)
+        const conf = o.confidence ?? 0.8;
+        if (b && conf >= threshold)
           next.push({
             label: o.label,
-            confidence: o.confidence ?? 0.8,
+            confidence: conf,
             box: b,
             kind: 'object',
             status: normalizeStatus(o.status),
           });
       });
+      const q: QualityScores | null = data?.quality_scores
+        ? {
+            blur: clamp01(Number(data.quality_scores.blur ?? 0)),
+            glare: clamp01(Number(data.quality_scores.glare ?? 0)),
+            occlusion: clamp01(Number(data.quality_scores.occlusion ?? 0)),
+            note: data.quality_scores.note,
+          }
+        : null;
+      const summaryText =
+        data?.summary || (next.length ? `${next.length} detections` : 'No objects detected');
       setBoxes(next);
+      setQuality(q);
       setFrameQuality(data?.frame_quality ?? '');
-      setSummary(data?.summary || (next.length ? `${next.length} detections` : 'No objects detected'));
-      setLastRun(new Date());
+      setSummary(summaryText);
+      const now = new Date();
+      setLastRun(now);
+      setHistory((h) =>
+        [
+          {
+            id: `${now.getTime()}`,
+            at: now,
+            thumb: frame,
+            source: uploadedImage ? ('upload' as const) : ('camera' as const),
+            mode,
+            minConfidence,
+            boxes: next,
+            summary: summaryText,
+            frameQuality: data?.frame_quality ?? '',
+            quality: q,
+          },
+          ...h,
+        ].slice(0, 12),
+      );
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Vision AI request failed';
       setError(message);
@@ -238,7 +277,8 @@ export function LiveVisionCamera() {
       setAnalyzing(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uploadedImage]);
+  }, [uploadedImage, mode, minConfidence]);
+
 
   useEffect(() => {
     if (!autoScan) return;
