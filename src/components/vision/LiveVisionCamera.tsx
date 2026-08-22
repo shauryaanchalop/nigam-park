@@ -635,6 +635,73 @@ export function LiveVisionCamera() {
             {lastRun ? ` · last scan ${lastRun.toLocaleTimeString()}` : ''}
           </p>
         )}
+
+        <div className="border-t pt-3">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+              <History className="h-3.5 w-3.5" /> Detection history ({history.length})
+            </p>
+            {history.length > 0 && (
+              <Button size="sm" variant="ghost" onClick={() => setHistory([])}>
+                <Trash2 className="h-3.5 w-3.5 mr-1" /> Clear
+              </Button>
+            )}
+          </div>
+          {history.length ? (
+            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+              {history.map((h) => {
+                const hp = h.boxes.filter((b) => b.kind === 'plate');
+                return (
+                  <button
+                    key={h.id}
+                    type="button"
+                    onClick={() => {
+                      setUploadedImage(h.thumb);
+                      stopCamera();
+                      setBoxes(h.boxes);
+                      setSummary(h.summary);
+                      setFrameQuality(h.frameQuality);
+                      setQuality(h.quality);
+                      setLastRun(h.at);
+                    }}
+                    className="w-full flex items-center gap-3 p-2 rounded-md border hover:bg-muted/50 transition-colors text-left"
+                  >
+                    <img
+                      src={h.thumb}
+                      alt={`Vision AI run at ${h.at.toLocaleTimeString()}`}
+                      className="h-12 w-20 object-cover rounded border shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium truncate">
+                        {hp.length ? hp.map((p) => p.label).join(', ') : 'No plate detected'}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        {h.at.toLocaleTimeString()} · {h.source} · {h.mode} · ≥{h.minConfidence}% ·{' '}
+                        {h.boxes.length} detections
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-1 justify-end shrink-0">
+                      {hp.slice(0, 3).map((p, i) => (
+                        <Badge
+                          key={i}
+                          variant={p.status === 'CLEAR' ? 'secondary' : 'destructive'}
+                          className="text-[10px]"
+                        >
+                          {STATUS_STYLES[p.status].label}
+                        </Badge>
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Runs you perform in this session will be listed here for review.
+            </p>
+          )}
+        </div>
+
       </CardContent>
     </Card>
   );
