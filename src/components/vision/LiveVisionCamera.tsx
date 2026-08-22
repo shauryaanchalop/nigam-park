@@ -576,6 +576,29 @@ export function LiveVisionCamera() {
           </div>
         )}
 
+        {quality && (
+          <div className="p-3 rounded-lg border bg-muted/30 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                Frame quality diagnostics
+              </p>
+              {frameQuality && (
+                <Badge variant="outline" className="text-[10px]">{frameQuality}</Badge>
+              )}
+            </div>
+            <div className="grid sm:grid-cols-3 gap-3">
+              <QualityBar label="Blur" value={quality.blur} />
+              <QualityBar label="Glare" value={quality.glare} />
+              <QualityBar label="Occlusion" value={quality.occlusion} />
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {quality.note ||
+                'Higher scores mean more degradation — a plate is marked Occluded above 0.35 and Blocked above 0.70.'}
+            </p>
+          </div>
+        )}
+
+
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
