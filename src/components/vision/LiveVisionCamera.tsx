@@ -99,6 +99,22 @@ function normalizeBox(box?: number[]): [number, number, number, number] | null {
   return [clamp01(x), clamp01(y), clamp01(w), clamp01(h)];
 }
 
+function QualityBar({ label, value }: { label: string; value: number }) {
+  const pct = Math.round(clamp01(value) * 100);
+  const tone = pct > 70 ? 'text-destructive' : pct > 35 ? 'text-warning' : 'text-emerald-500';
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-[11px]">
+        <span className="text-muted-foreground">{label}</span>
+        <span className={`font-mono font-medium ${tone}`}>{(pct / 100).toFixed(2)}</span>
+      </div>
+      <Progress value={pct} className="h-1.5" />
+    </div>
+  );
+}
+
+
+
 export function LiveVisionCamera() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
