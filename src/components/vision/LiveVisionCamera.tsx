@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
+import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
@@ -18,9 +20,19 @@ import {
   Upload,
   Car,
   AlertTriangle,
+  History,
+  Trash2,
 } from 'lucide-react';
 
 type DetectionStatus = 'CLEAR' | 'OCCLUDED' | 'BLOCKED';
+type AnprMode = 'strict' | 'relaxed';
+
+interface QualityScores {
+  blur: number;
+  glare: number;
+  occlusion: number;
+  note?: string;
+}
 
 interface Box {
   label: string;
@@ -29,12 +41,34 @@ interface Box {
   kind: 'plate' | 'object';
   status: DetectionStatus;
   note?: string;
+  quality?: QualityScores;
+}
+
+interface HistoryEntry {
+  id: string;
+  at: Date;
+  thumb: string;
+  source: 'camera' | 'upload';
+  mode: AnprMode;
+  minConfidence: number;
+  boxes: Box[];
+  summary: string;
+  frameQuality: string;
+  quality: QualityScores | null;
 }
 
 interface VisionResult {
-  plates?: { text: string; confidence?: number; box?: number[]; status?: string; note?: string }[];
+  plates?: {
+    text: string;
+    confidence?: number;
+    box?: number[];
+    status?: string;
+    note?: string;
+    quality?: Partial<QualityScores>;
+  }[];
   objects?: { label: string; confidence?: number; box?: number[]; status?: string }[];
   frame_quality?: string;
+  quality_scores?: Partial<QualityScores>;
   summary?: string;
   error?: string;
 }
@@ -49,6 +83,7 @@ const STATUS_STYLES: Record<DetectionStatus, { border: string; chip: string; lab
   OCCLUDED: { border: 'border-warning', chip: 'bg-warning text-background', label: 'Occluded' },
   BLOCKED: { border: 'border-destructive', chip: 'bg-destructive text-destructive-foreground', label: 'Blocked' },
 };
+
 
 const clamp01 = (n: number) => Math.max(0, Math.min(1, Number.isFinite(n) ? n : 0));
 
