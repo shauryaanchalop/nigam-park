@@ -117,6 +117,11 @@ export function LiveVisionCamera() {
   const [lastRun, setLastRun] = useState<Date | null>(null);
   const [showOverlay, setShowOverlay] = useState(true);
   const [frameQuality, setFrameQuality] = useState<string>('');
+  const [quality, setQuality] = useState<QualityScores | null>(null);
+  const [mode, setMode] = useState<AnprMode>('strict');
+  const [minConfidence, setMinConfidence] = useState(40);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
