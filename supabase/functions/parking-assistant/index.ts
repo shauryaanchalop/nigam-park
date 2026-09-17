@@ -67,6 +67,39 @@ Be friendly and focus on helping them save time and money while parking.`;
   }
 };
 
+/**
+ * Provider-agnostic AI config.
+ * Set GEMINI_API_KEY (Google AI Studio) or OPENAI_API_KEY to run this function
+ * on your own backend, with no dependency on the Lovable AI gateway.
+ */
+function getAiConfig() {
+  const gemini = Deno.env.get("GEMINI_API_KEY");
+  if (gemini) {
+    return {
+      url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+      key: gemini,
+      model: Deno.env.get("CHAT_MODEL") ?? "gemini-2.5-flash",
+    };
+  }
+  const openai = Deno.env.get("OPENAI_API_KEY");
+  if (openai) {
+    return {
+      url: "https://api.openai.com/v1/chat/completions",
+      key: openai,
+      model: Deno.env.get("CHAT_MODEL") ?? "gpt-4o-mini",
+    };
+  }
+  const lovable = Deno.env.get("LOVABLE_API_KEY");
+  if (lovable) {
+    return {
+      url: "https://ai.gateway.lovable.dev/v1/chat/completions",
+      key: lovable,
+      model: Deno.env.get("CHAT_MODEL") ?? "google/gemini-2.5-flash",
+    };
+  }
+  return null;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -74,22 +107,22 @@ serve(async (req) => {
 
   try {
     const { messages, userRole = 'citizen' } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const ai = getAiConfig();
+
+    if (!ai) {
+      throw new Error("No AI key configured. Set GEMINI_API_KEY or OPENAI_API_KEY.");
     }
 
     console.log(`Parking assistant request for role: ${userRole}`);
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch(ai.url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${ai.key}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: ai.model,
         messages: [
           { role: "system", content: getSystemPrompt(userRole) },
           ...messages,
