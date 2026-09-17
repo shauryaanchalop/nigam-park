@@ -36,7 +36,7 @@ declare global {
   }
 }
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parking-assistant`;
+import { streamChatResponse } from '@/services/aiAssistantService';
 
 export function ParkingAssistant() {
   const { user } = useAuth();
@@ -97,88 +97,47 @@ export function ParkingAssistant() {
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input.trim() };
-    setMessages(prev => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInput('');
     setIsLoading(true);
 
     let assistantContent = '';
 
     try {
-      const response = await fetch(CHAT_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ 
-          messages: [...messages, userMessage],
-          userRole: userRole || 'citizen'
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to get response');
-      }
-
-      if (!response.body) throw new Error('No response body');
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        buffer += decoder.decode(value, { stream: true });
-        
-        let newlineIndex: number;
-        while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-          let line = buffer.slice(0, newlineIndex);
-          buffer = buffer.slice(newlineIndex + 1);
-
-          if (line.endsWith('\r')) line = line.slice(0, -1);
-          if (line.startsWith(':') || line.trim() === '') continue;
-          if (!line.startsWith('data: ')) continue;
-
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === '[DONE]') break;
-
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-            if (content) {
-              assistantContent += content;
-              setMessages(prev => {
-                const last = prev[prev.length - 1];
-                if (last?.role === 'assistant') {
-                  return prev.map((m, i) => 
-                    i === prev.length - 1 ? { ...m, content: assistantContent } : m
-                  );
-                }
-                return [...prev, { role: 'assistant', content: assistantContent }];
-              });
+      await streamChatResponse(
+        newMessages,
+        userRole || 'citizen',
+        language || 'en',
+        (chunkText) => {
+          assistantContent = chunkText;
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (last?.role === 'assistant') {
+              return prev.map((m, i) =>
+                i === prev.length - 1 ? { ...m, content: assistantContent } : m
+              );
             }
-          } catch {
-            buffer = line + '\n' + buffer;
-            break;
-          }
+            return [...prev, { role: 'assistant', content: assistantContent }];
+          });
         }
-      }
+      );
     } catch (error) {
       console.error('Chat error:', error);
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: language === 'hi' 
-          ? 'क्षमा करें, कुछ गड़बड़ हो गई। कृपया पुनः प्रयास करें।'
-          : 'Sorry, something went wrong. Please try again.' 
+        {
+          role: 'assistant',
+          content:
+            language === 'hi'
+              ? 'क्षमा करें, कुछ गड़बड़ हो गई। कृपया पुनः प्रयास करें।'
+              : 'Sorry, something went wrong. Please try again.',
         },
       ]);
     } finally {
       setIsLoading(false);
     }
-  }, [input, messages, isLoading, language, userRole]);
+  }, [input, isLoading, messages, userRole, language]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {

@@ -70,7 +70,11 @@ const DEMO_SAMPLES = [
 ];
 
 export function getStoredGeminiKey(): string {
-  return localStorage.getItem('nigam_gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
+  return (
+    localStorage.getItem('nigam_gemini_api_key') ||
+    import.meta.env.VITE_GEMINI_API_KEY ||
+    ''
+  );
 }
 
 export function setStoredGeminiKey(key: string): void {
@@ -87,7 +91,7 @@ async function callGeminiVision(
   mode: 'strict' | 'relaxed' = 'strict'
 ): Promise<VisionResult> {
   const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, '');
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-3.5-flash-lite';
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const modePrompt = mode === 'relaxed'
