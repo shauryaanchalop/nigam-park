@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
+import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +19,7 @@ import {
   getStoredGeminiKey,
   setStoredGeminiKey,
   VisionResult,
+  QualityScores,
 } from '@/services/visionDetection';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
@@ -33,9 +36,19 @@ import {
   AlertTriangle,
   Key,
   Sparkles,
+  History,
+  Trash2,
 } from 'lucide-react';
 
 type DetectionStatus = 'CLEAR' | 'OCCLUDED' | 'BLOCKED';
+type AnprMode = 'strict' | 'relaxed';
+
+interface QualityScores {
+  blur: number;
+  glare: number;
+  occlusion: number;
+  note?: string;
+}
 
 interface Box {
   label: string;
@@ -44,7 +57,22 @@ interface Box {
   kind: 'plate' | 'object';
   status: DetectionStatus;
   note?: string;
+  quality?: QualityScores;
 }
+
+interface HistoryEntry {
+  id: string;
+  at: Date;
+  thumb: string;
+  source: 'camera' | 'upload';
+  mode: AnprMode;
+  minConfidence: number;
+  boxes: Box[];
+  summary: string;
+  frameQuality: string;
+  quality: QualityScores | null;
+}
+
 
 
 const normalizeStatus = (s?: string): DetectionStatus => {
@@ -57,6 +85,7 @@ const STATUS_STYLES: Record<DetectionStatus, { border: string; chip: string; lab
   OCCLUDED: { border: 'border-warning', chip: 'bg-warning text-background', label: 'Occluded' },
   BLOCKED: { border: 'border-destructive', chip: 'bg-destructive text-destructive-foreground', label: 'Blocked' },
 };
+
 
 const clamp01 = (n: number) => Math.max(0, Math.min(1, Number.isFinite(n) ? n : 0));
 
@@ -71,6 +100,22 @@ function normalizeBox(box?: number[]): [number, number, number, number] | null {
   }
   return [clamp01(x), clamp01(y), clamp01(w), clamp01(h)];
 }
+
+function QualityBar({ label, value }: { label: string; value: number }) {
+  const pct = Math.round(clamp01(value) * 100);
+  const tone = pct > 70 ? 'text-destructive' : pct > 35 ? 'text-warning' : 'text-emerald-500';
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-[11px]">
+        <span className="text-muted-foreground">{label}</span>
+        <span className={`font-mono font-medium ${tone}`}>{(pct / 100).toFixed(2)}</span>
+      </div>
+      <Progress value={pct} className="h-1.5" />
+    </div>
+  );
+}
+
+
 
 export function LiveVisionCamera() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -95,6 +140,10 @@ export function LiveVisionCamera() {
   );
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
   const [keyInput, setKeyInput] = useState(getStoredGeminiKey());
+  const [quality, setQuality] = useState<QualityScores | null>(null);
+  const [mode, setMode] = useState<AnprMode>('strict');
+  const [minConfidence, setMinConfidence] = useState(40);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -168,38 +217,77 @@ export function LiveVisionCamera() {
     setAnalyzing(true);
     setError('');
     try {
-      const data = await detectVision(frame);
+      const data = await detectVision(frame, mode, minConfidence / 100);
       if (data?.error) throw new Error(data.error);
       if (data?.provider) setActiveProvider(data.provider);
 
+      const threshold = minConfidence / 100;
       const next: Box[] = [];
       (data?.plates ?? []).forEach((p) => {
         const b = normalizeBox(p.box);
-        if (b)
+        const conf = p.confidence ?? 0.9;
+        if (b && conf >= threshold)
           next.push({
             label: p.text,
-            confidence: p.confidence ?? 0.9,
+            confidence: conf,
             box: b,
             kind: 'plate',
             status: normalizeStatus(p.status),
             note: p.note,
+            quality: p.quality
+              ? {
+                  blur: clamp01(Number(p.quality.blur ?? 0)),
+                  glare: clamp01(Number(p.quality.glare ?? 0)),
+                  occlusion: clamp01(Number(p.quality.occlusion ?? 0)),
+                }
+              : undefined,
           });
       });
       (data?.objects ?? []).forEach((o) => {
         const b = normalizeBox(o.box);
-        if (b)
+        const conf = o.confidence ?? 0.8;
+        if (b && conf >= threshold)
           next.push({
             label: o.label,
-            confidence: o.confidence ?? 0.8,
+            confidence: conf,
             box: b,
             kind: 'object',
             status: normalizeStatus(o.status),
           });
       });
+      const q: QualityScores | null = data?.quality_scores
+        ? {
+            blur: clamp01(Number(data.quality_scores.blur ?? 0)),
+            glare: clamp01(Number(data.quality_scores.glare ?? 0)),
+            occlusion: clamp01(Number(data.quality_scores.occlusion ?? 0)),
+            note: data.quality_scores.note,
+          }
+        : null;
+      const summaryText =
+        data?.summary || (next.length ? `${next.length} detections` : 'No objects detected');
       setBoxes(next);
+      setQuality(q);
       setFrameQuality(data?.frame_quality ?? '');
-      setSummary(data?.summary || (next.length ? `${next.length} detections` : 'No objects detected'));
-      setLastRun(new Date());
+      setSummary(summaryText);
+      const now = new Date();
+      setLastRun(now);
+      setHistory((h) =>
+        [
+          {
+            id: `${now.getTime()}`,
+            at: now,
+            thumb: frame,
+            source: uploadedImage ? ('upload' as const) : ('camera' as const),
+            mode,
+            minConfidence,
+            boxes: next,
+            summary: summaryText,
+            frameQuality: data?.frame_quality ?? '',
+            quality: q,
+          },
+          ...h,
+        ].slice(0, 12),
+      );
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Vision AI request failed';
       setError(message);
@@ -209,7 +297,8 @@ export function LiveVisionCamera() {
       setAnalyzing(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uploadedImage]);
+  }, [uploadedImage, mode, minConfidence]);
+
 
   useEffect(() => {
     if (!autoScan) return;
@@ -398,6 +487,54 @@ export function LiveVisionCamera() {
           </div>
         </div>
 
+        <div className="grid sm:grid-cols-2 gap-4 p-3 rounded-lg border bg-muted/30">
+          <div className="space-y-2">
+            <Label className="text-xs uppercase tracking-wide text-muted-foreground">ANPR mode</Label>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant={mode === 'strict' ? 'default' : 'outline'}
+                onClick={() => setMode('strict')}
+              >
+                Strict (precision)
+              </Button>
+              <Button
+                size="sm"
+                variant={mode === 'relaxed' ? 'default' : 'outline'}
+                onClick={() => setMode('relaxed')}
+              >
+                Relaxed (recall)
+              </Button>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {mode === 'strict'
+                ? 'Only emits plates matching valid Indian patterns with high confidence.'
+                : 'Reports every possible plate, including partial and occluded reads.'}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                Minimum confidence
+              </Label>
+              <Badge variant="outline" className="text-[10px]">{minConfidence}%</Badge>
+            </div>
+            <Slider
+              value={[minConfidence]}
+              onValueChange={(v) => setMinConfidence(v[0])}
+              min={0}
+              max={95}
+              step={5}
+              aria-label="Minimum detection confidence"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Detections below this score are hidden from the overlay and report.
+            </p>
+          </div>
+        </div>
+
+
         <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted border">
           {uploadedImage ? (
             <img ref={imageRef} src={uploadedImage} alt="Uploaded frame for vision analysis" className="w-full h-full object-contain" />
@@ -482,6 +619,29 @@ export function LiveVisionCamera() {
           </div>
         )}
 
+        {quality && (
+          <div className="p-3 rounded-lg border bg-muted/30 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                Frame quality diagnostics
+              </p>
+              {frameQuality && (
+                <Badge variant="outline" className="text-[10px]">{frameQuality}</Badge>
+              )}
+            </div>
+            <div className="grid sm:grid-cols-3 gap-3">
+              <QualityBar label="Blur" value={quality.blur} />
+              <QualityBar label="Glare" value={quality.glare} />
+              <QualityBar label="Occlusion" value={quality.occlusion} />
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {quality.note ||
+                'Higher scores mean more degradation — a plate is marked Occluded above 0.35 and Blocked above 0.70.'}
+            </p>
+          </div>
+        )}
+
+
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
@@ -490,24 +650,34 @@ export function LiveVisionCamera() {
             {plates.length ? (
               <div className="space-y-1.5">
                 {plates.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between gap-2 p-2 rounded-md border bg-warning/5">
-                    <div className="min-w-0">
-                      <span className="font-mono font-semibold">{p.label}</span>
-                      {p.note && <p className="text-[11px] text-muted-foreground truncate">{p.note}</p>}
+                  <div key={i} className="p-2 rounded-md border bg-warning/5 space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <span className="font-mono font-semibold">{p.label}</span>
+                        {p.note && <p className="text-[11px] text-muted-foreground truncate">{p.note}</p>}
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Badge
+                          variant={p.status === 'CLEAR' ? 'secondary' : 'destructive'}
+                          className="text-[10px]"
+                        >
+                          {STATUS_STYLES[p.status].label}
+                        </Badge>
+                        <Badge variant="outline" className="text-[10px]">
+                          {Math.round(p.confidence * 100)}% conf
+                        </Badge>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <Badge
-                        variant={p.status === 'CLEAR' ? 'secondary' : 'destructive'}
-                        className="text-[10px]"
-                      >
-                        {STATUS_STYLES[p.status].label}
-                      </Badge>
-                      <Badge variant="outline" className="text-[10px]">
-                        {Math.round(p.confidence * 100)}% conf
-                      </Badge>
-                    </div>
+                    {p.quality && (
+                      <div className="grid grid-cols-3 gap-2">
+                        <QualityBar label="Blur" value={p.quality.blur} />
+                        <QualityBar label="Glare" value={p.quality.glare} />
+                        <QualityBar label="Occlusion" value={p.quality.occlusion} />
+                      </div>
+                    )}
                   </div>
                 ))}
+
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">No plate read yet.</p>
@@ -541,6 +711,73 @@ export function LiveVisionCamera() {
             {lastRun ? ` · last scan ${lastRun.toLocaleTimeString()}` : ''}
           </p>
         )}
+
+        <div className="border-t pt-3">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+              <History className="h-3.5 w-3.5" /> Detection history ({history.length})
+            </p>
+            {history.length > 0 && (
+              <Button size="sm" variant="ghost" onClick={() => setHistory([])}>
+                <Trash2 className="h-3.5 w-3.5 mr-1" /> Clear
+              </Button>
+            )}
+          </div>
+          {history.length ? (
+            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+              {history.map((h) => {
+                const hp = h.boxes.filter((b) => b.kind === 'plate');
+                return (
+                  <button
+                    key={h.id}
+                    type="button"
+                    onClick={() => {
+                      setUploadedImage(h.thumb);
+                      stopCamera();
+                      setBoxes(h.boxes);
+                      setSummary(h.summary);
+                      setFrameQuality(h.frameQuality);
+                      setQuality(h.quality);
+                      setLastRun(h.at);
+                    }}
+                    className="w-full flex items-center gap-3 p-2 rounded-md border hover:bg-muted/50 transition-colors text-left"
+                  >
+                    <img
+                      src={h.thumb}
+                      alt={`Vision AI run at ${h.at.toLocaleTimeString()}`}
+                      className="h-12 w-20 object-cover rounded border shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium truncate">
+                        {hp.length ? hp.map((p) => p.label).join(', ') : 'No plate detected'}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        {h.at.toLocaleTimeString()} · {h.source} · {h.mode} · ≥{h.minConfidence}% ·{' '}
+                        {h.boxes.length} detections
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-1 justify-end shrink-0">
+                      {hp.slice(0, 3).map((p, i) => (
+                        <Badge
+                          key={i}
+                          variant={p.status === 'CLEAR' ? 'secondary' : 'destructive'}
+                          className="text-[10px]"
+                        >
+                          {STATUS_STYLES[p.status].label}
+                        </Badge>
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Runs you perform in this session will be listed here for review.
+            </p>
+          )}
+        </div>
+
       </CardContent>
 
       <Dialog open={keyDialogOpen} onOpenChange={setKeyDialogOpen}>

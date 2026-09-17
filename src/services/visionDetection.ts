@@ -1,5 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
 
+export interface QualityScores {
+  blur: number;
+  glare: number;
+  occlusion: number;
+  note?: string;
+}
+
 export interface VisionResult {
   plates?: {
     text: string;
@@ -7,7 +14,7 @@ export interface VisionResult {
     box?: number[];
     status?: string;
     note?: string;
-    quality?: { blur?: number; glare?: number; occlusion?: number };
+    quality?: Partial<QualityScores>;
   }[];
   objects?: {
     label: string;
@@ -16,6 +23,7 @@ export interface VisionResult {
     status?: string;
   }[];
   frame_quality?: string;
+  quality_scores?: Partial<QualityScores>;
   summary?: string;
   error?: string;
   provider?: 'gemini' | 'edge-function' | 'demo';
@@ -29,7 +37,9 @@ Analyze this CCTV or camera frame and return ONLY a valid JSON object (no markdo
       "text": "DL01AB1234",
       "confidence": 0.95,
       "box": [x, y, width, height],
-      "status": "CLEAR"
+      "status": "CLEAR",
+      "note": "short reason if occluded or blocked",
+      "quality": { "blur": 0.05, "glare": 0.08, "occlusion": 0.02 }
     }
   ],
   "objects": [
@@ -41,6 +51,7 @@ Analyze this CCTV or camera frame and return ONLY a valid JSON object (no markdo
     }
   ],
   "frame_quality": "GOOD",
+  "quality_scores": { "blur": 0.06, "glare": 0.07, "occlusion": 0.03, "note": "Clear frame" },
   "summary": "1 vehicle and 1 plate detected"
 }
 
@@ -70,10 +81,18 @@ export function setStoredGeminiKey(key: string): void {
   }
 }
 
-async function callGeminiVision(base64Image: string, apiKey: string): Promise<VisionResult> {
+async function callGeminiVision(
+  base64Image: string,
+  apiKey: string,
+  mode: 'strict' | 'relaxed' = 'strict'
+): Promise<VisionResult> {
   const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, '');
   const model = 'gemini-1.5-flash';
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+  const modePrompt = mode === 'relaxed'
+    ? 'MODE: RELAXED. Report every plate or object visible, even partial, low-light or occluded.'
+    : 'MODE: STRICT. Only emit plates matching valid Indian patterns with high confidence.';
 
   const response = await fetch(url, {
     method: 'POST',
@@ -82,7 +101,7 @@ async function callGeminiVision(base64Image: string, apiKey: string): Promise<Vi
       contents: [
         {
           parts: [
-            { text: GEMINI_PROMPT },
+            { text: `${GEMINI_PROMPT}\n\n${modePrompt}` },
             {
               inline_data: {
                 mime_type: 'image/jpeg',
@@ -136,18 +155,23 @@ function generateSmartFallback(): VisionResult {
       },
     ],
     frame_quality: 'GOOD',
+    quality_scores: { blur: 0.06, glare: 0.08, occlusion: 0.03, note: 'Clear daylight capture' },
     summary: `1 vehicle and 1 high-confidence license plate detected (${sample.text})`,
     provider: 'demo',
   };
 }
 
-export async function detectVision(base64Image: string): Promise<VisionResult> {
+export async function detectVision(
+  base64Image: string,
+  mode: 'strict' | 'relaxed' = 'strict',
+  minConfidence: number = 0.4
+): Promise<VisionResult> {
   const geminiKey = getStoredGeminiKey();
 
   // 1. If Gemini API key is configured, use real Gemini Vision AI
   if (geminiKey) {
     try {
-      return await callGeminiVision(base64Image, geminiKey);
+      return await callGeminiVision(base64Image, geminiKey, mode);
     } catch (err) {
       console.warn('Gemini vision detection failed, trying edge function fallback:', err);
     }
@@ -156,7 +180,7 @@ export async function detectVision(base64Image: string): Promise<VisionResult> {
   // 2. Try Supabase Edge Function if deployed
   try {
     const { data, error } = await supabase.functions.invoke<VisionResult>('vision-detect', {
-      body: { image: base64Image },
+      body: { image: base64Image, mode, min_confidence: minConfidence },
     });
     if (!error && data && !data.error) {
       data.provider = 'edge-function';
@@ -167,7 +191,6 @@ export async function detectVision(base64Image: string): Promise<VisionResult> {
   }
 
   // 3. Graceful smart fallback (Zero-Config Demo Mode)
-  // Simulate network latency for realism
   await new Promise((resolve) => setTimeout(resolve, 800));
   return generateSmartFallback();
 }
