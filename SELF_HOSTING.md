@@ -77,11 +77,22 @@ automatically by Supabase — do not set them yourself.
 7. Put the new values in `.env` and `.env.production`, then rebuild.
 
 ### AI functions note
-`vision-detect` and `parking-assistant` call `https://ai.gateway.lovable.dev`.
-On your own backend, change that URL to Google Gemini
-(`https://generativelanguage.googleapis.com/v1beta/openai/`) or OpenAI —
-both accept the same OpenAI-style request body, so only the URL, key and model
-name change.
+`vision-detect` and `parking-assistant` now pick their AI provider automatically
+from whichever secret is set, in this order:
+
+1. `GEMINI_API_KEY` -> Google AI Studio (`gemini-2.5-flash`), free tier available
+   at https://aistudio.google.com/apikey
+2. `OPENAI_API_KEY` -> OpenAI (`gpt-4o-mini`)
+3. `LOVABLE_API_KEY` -> Lovable AI gateway (only inside Lovable)
+
+Set just one, as an Edge Function secret in your own Supabase project:
+
+```bash
+supabase secrets set GEMINI_API_KEY=your_key_here
+```
+
+Optional overrides: `VISION_MODEL` (camera/plate reading) and `CHAT_MODEL`
+(assistant chatbot). No code changes needed to move providers.
 
 ---
 

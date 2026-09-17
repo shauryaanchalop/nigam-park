@@ -43,13 +43,46 @@ Object rules:
 - If nothing is detected, return empty arrays.`;
 
 
+/**
+ * Provider-agnostic AI config.
+ * Set GEMINI_API_KEY (Google AI Studio) or OPENAI_API_KEY to run this function
+ * on your own backend, with no dependency on the Lovable AI gateway.
+ */
+function getAiConfig() {
+  const gemini = Deno.env.get("GEMINI_API_KEY");
+  if (gemini) {
+    return {
+      url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+      key: gemini,
+      model: Deno.env.get("VISION_MODEL") ?? "gemini-2.5-flash",
+    };
+  }
+  const openai = Deno.env.get("OPENAI_API_KEY");
+  if (openai) {
+    return {
+      url: "https://api.openai.com/v1/chat/completions",
+      key: openai,
+      model: Deno.env.get("VISION_MODEL") ?? "gpt-4o-mini",
+    };
+  }
+  const lovable = Deno.env.get("LOVABLE_API_KEY");
+  if (lovable) {
+    return {
+      url: "https://ai.gateway.lovable.dev/v1/chat/completions",
+      key: lovable,
+      model: Deno.env.get("VISION_MODEL") ?? "google/gemini-2.5-flash",
+    };
+  }
+  return null;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: "AI is not configured" }), {
+    const ai = getAiConfig();
+    if (!ai) {
+      return new Response(JSON.stringify({ error: "AI is not configured. Set GEMINI_API_KEY or OPENAI_API_KEY." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -71,14 +104,14 @@ serve(async (req) => {
         ? `MODE: RELAXED (recall-first). Report every plate or object you can see, even partial, low-light or heavily occluded ones. Emit best-effort partial reads with "?" for unresolved characters and honest low confidence. Do not suppress uncertain detections.`
         : `MODE: STRICT (precision-first). Only emit a plate when the read matches a valid Indian plate pattern and you are genuinely confident; drop speculative detections rather than guessing. Prefer fewer, correct results.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch(ai.url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${ai.key}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: ai.model,
         messages: [
           { role: "system", content: `${SYSTEM_PROMPT}\n\n${modeInstruction}` },
           {
