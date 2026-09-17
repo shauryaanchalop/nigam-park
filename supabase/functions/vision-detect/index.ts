@@ -104,14 +104,14 @@ serve(async (req) => {
         ? `MODE: RELAXED (recall-first). Report every plate or object you can see, even partial, low-light or heavily occluded ones. Emit best-effort partial reads with "?" for unresolved characters and honest low confidence. Do not suppress uncertain detections.`
         : `MODE: STRICT (precision-first). Only emit a plate when the read matches a valid Indian plate pattern and you are genuinely confident; drop speculative detections rather than guessing. Prefer fewer, correct results.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch(ai.url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${ai.key}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: ai.model,
         messages: [
           { role: "system", content: `${SYSTEM_PROMPT}\n\n${modeInstruction}` },
           {
