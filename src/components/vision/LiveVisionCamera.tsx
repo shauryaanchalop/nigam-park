@@ -4,7 +4,20 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/integrations/supabase/client';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  detectVision,
+  getStoredGeminiKey,
+  setStoredGeminiKey,
+  VisionResult,
+} from '@/services/visionDetection';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import {
@@ -18,6 +31,8 @@ import {
   Upload,
   Car,
   AlertTriangle,
+  Key,
+  Sparkles,
 } from 'lucide-react';
 
 type DetectionStatus = 'CLEAR' | 'OCCLUDED' | 'BLOCKED';
@@ -31,13 +46,6 @@ interface Box {
   note?: string;
 }
 
-interface VisionResult {
-  plates?: { text: string; confidence?: number; box?: number[]; status?: string; note?: string }[];
-  objects?: { label: string; confidence?: number; box?: number[]; status?: string }[];
-  frame_quality?: string;
-  summary?: string;
-  error?: string;
-}
 
 const normalizeStatus = (s?: string): DetectionStatus => {
   const v = String(s ?? '').toUpperCase();
@@ -82,6 +90,11 @@ export function LiveVisionCamera() {
   const [lastRun, setLastRun] = useState<Date | null>(null);
   const [showOverlay, setShowOverlay] = useState(true);
   const [frameQuality, setFrameQuality] = useState<string>('');
+  const [activeProvider, setActiveProvider] = useState<'gemini' | 'edge-function' | 'demo'>(
+    getStoredGeminiKey() ? 'gemini' : 'demo'
+  );
+  const [keyDialogOpen, setKeyDialogOpen] = useState(false);
+  const [keyInput, setKeyInput] = useState(getStoredGeminiKey());
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -155,11 +168,9 @@ export function LiveVisionCamera() {
     setAnalyzing(true);
     setError('');
     try {
-      const { data, error: fnError } = await supabase.functions.invoke<VisionResult>('vision-detect', {
-        body: { image: frame },
-      });
-      if (fnError) throw fnError;
+      const data = await detectVision(frame);
       if (data?.error) throw new Error(data.error);
+      if (data?.provider) setActiveProvider(data.provider);
 
       const next: Box[] = [];
       (data?.plates ?? []).forEach((p) => {
@@ -309,7 +320,30 @@ export function LiveVisionCamera() {
             <ScanLine className="h-5 w-5 text-primary" />
             Live Vision AI — ANPR &amp; Object Detection
           </CardTitle>
-          <Badge variant="outline" className="text-[10px]">REAL AI · LIVE CAMERA</Badge>
+          <div className="flex items-center gap-2 flex-wrap">
+            {activeProvider === 'gemini' ? (
+              <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] gap-1">
+                <Sparkles className="h-3 w-3" /> GEMINI 1.5 VISION ACTIVE
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-[10px] gap-1">
+                <Sparkles className="h-3 w-3 text-primary" /> SMART DEMO VISION AI
+              </Badge>
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setKeyInput(getStoredGeminiKey());
+                setKeyDialogOpen(true);
+              }}
+              className="h-7 text-xs gap-1.5 px-2.5"
+            >
+              <Key className="h-3.5 w-3.5 text-primary" />
+              {getStoredGeminiKey() ? 'Gemini API Key' : 'Connect Gemini API'}
+            </Button>
+          </div>
         </div>
         <p className="text-sm text-muted-foreground">
           Point your camera at a vehicle (or upload a photo). The AI reads number plates and draws bounding
@@ -508,6 +542,90 @@ export function LiveVisionCamera() {
           </p>
         )}
       </CardContent>
+
+      <Dialog open={keyDialogOpen} onOpenChange={setKeyDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              Vision AI Engine Configuration
+            </DialogTitle>
+            <DialogDescription>
+              Connect Google Gemini Multimodal Vision AI to automatically read license plates and detect vehicles from real camera feeds.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="gemini-key">Google Gemini API Key (Free)</Label>
+              <Input
+                id="gemini-key"
+                type="password"
+                placeholder="Paste AIzaSy... here"
+                value={keyInput}
+                onChange={(e) => setKeyInput(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Get a 100% free Gemini API key in 1 click from{' '}
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary underline font-medium hover:text-primary/80"
+                >
+                  Google AI Studio (aistudio.google.com)
+                </a>
+                .
+              </p>
+            </div>
+
+            <div className="p-3 bg-muted/60 rounded-md text-xs text-muted-foreground space-y-1 border">
+              <p className="font-semibold text-foreground">Zero-Config Demo Mode Active</p>
+              <p>
+                Even without an API key, NIGAM-Park automatically detects vehicles, generates valid Indian ANPR license plates, draws overlay bounding boxes, and generates PDF violation reports.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-2 pt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setStoredGeminiKey('');
+                setKeyInput('');
+                setActiveProvider('demo');
+                setKeyDialogOpen(false);
+                toast({ title: 'Using Smart Demo AI', description: 'API key cleared.' });
+              }}
+            >
+              Use Demo Mode
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => {
+                setStoredGeminiKey(keyInput);
+                if (keyInput.trim()) {
+                  setActiveProvider('gemini');
+                } else {
+                  setActiveProvider('demo');
+                }
+                setKeyDialogOpen(false);
+                toast({
+                  title: keyInput.trim() ? 'Gemini Vision AI Enabled' : 'Using Smart Demo Mode',
+                  description: keyInput.trim()
+                    ? 'Live camera frames will now be analyzed by Google Gemini 1.5 Flash!'
+                    : 'System will use smart demo vision detection.',
+                });
+              }}
+            >
+              Save Configuration
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

@@ -65,30 +65,42 @@ export function GovHeader({ title = "NIGAM-Park — Smart Parking for Delhi", su
         // Sign out first
         await supabase.auth.signOut();
 
-        // Call demo-login edge function
-        const { data, error } = await supabase.functions.invoke('demo-login', {
-          body: { role },
-        });
+        const demoCreds: Record<DemoRole, { email: string; password: string }> = {
+          admin: { email: 'demo.admin@nigampark.gov.in', password: 'DemoAdmin123!' },
+          attendant: { email: 'demo.attendant@nigampark.gov.in', password: 'DemoAttendant123!' },
+          citizen: { email: 'demo.citizen@nigampark.gov.in', password: 'DemoCitizen123!' },
+        };
 
-        if (error || !data?.email || !data?.password) {
-          toast.error('Failed to switch role');
+        let email = demoCreds[role].email;
+        let password = demoCreds[role].password;
+
+        // Call demo-login edge function if deployed
+        try {
+          const { data, error } = await supabase.functions.invoke('demo-login', {
+            body: { role },
+          });
+          if (!error && data?.email && data?.password) {
+            email = data.email;
+            password = data.password;
+          }
+        } catch {
+          // Fallback to direct demo credentials
+        }
+
+        const { error: signInErr } = await signIn(email, password);
+        if (signInErr) {
+          toast.error('Sign in failed: ' + signInErr.message);
           setIsSwitchingRole(false);
           setSwitchLoading(null);
           return;
         }
 
-        const { error: signInErr } = await signIn(data.email, data.password);
-        if (signInErr) {
-          toast.error('Sign in failed');
+        toast.success(`Switched to ${roleLabels[role]}`);
+        // Small delay to let the auth state settle before clearing switching flag
+        setTimeout(() => {
           setIsSwitchingRole(false);
-        } else {
-          toast.success(`Switched to ${roleLabels[role]}`);
-          // Small delay to let the auth state settle before clearing switching flag
-          setTimeout(() => {
-            setIsSwitchingRole(false);
-            navigate('/dashboard');
-          }, 100);
-        }
+          navigate('/dashboard');
+        }, 100);
       } catch {
         toast.error('Failed to switch role');
         setIsSwitchingRole(false);

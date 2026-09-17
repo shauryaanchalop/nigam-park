@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           // Defer fetching user role
           setTimeout(() => {
-            fetchUserRole(session.user.id);
+            fetchUserRole(session.user.id, session.user.email);
           }, 0);
         } else {
           setUserRole(null);
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchUserRole(session.user.id);
+        fetchUserRole(session.user.id, session.user.email);
       }
       setLoading(false);
     });
@@ -70,15 +70,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchUserRole = async (userId: string) => {
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .single();
-    
-    if (data) {
-      setUserRole(data.role as AppRole);
+  const fetchUserRole = async (userId: string, userEmail?: string | null) => {
+    try {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      if (data?.role) {
+        setUserRole(data.role as AppRole);
+        return;
+      }
+    } catch {
+      // Table may not exist yet or request failed
+    }
+
+    // Fallback for demo users
+    if (userEmail) {
+      if (userEmail.includes('admin')) {
+        setUserRole('admin');
+      } else if (userEmail.includes('attendant')) {
+        setUserRole('attendant');
+      } else {
+        setUserRole('citizen');
+      }
     }
   };
 

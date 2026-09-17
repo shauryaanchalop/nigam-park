@@ -212,34 +212,52 @@ export default function Auth() {
     }
   };
 
+  const DEMO_CREDENTIALS: Record<DemoRole, { email: string; password: string; label: string }> = {
+    admin: {
+      email: 'demo.admin@nigampark.gov.in',
+      password: 'DemoAdmin123!',
+      label: 'MCD Commissioner',
+    },
+    attendant: {
+      email: 'demo.attendant@nigampark.gov.in',
+      password: 'DemoAttendant123!',
+      label: 'Parking Attendant',
+    },
+    citizen: {
+      email: 'demo.citizen@nigampark.gov.in',
+      password: 'DemoCitizen123!',
+      label: 'Citizen',
+    },
+  };
+
   const handleDemoLogin = async (role: DemoRole) => {
     setDemoLoading(role);
     
     try {
-      const { data, error } = await supabase.functions.invoke('demo-login', {
-        body: { role },
-      });
+      const demoUser = DEMO_CREDENTIALS[role];
+      let email = demoUser.email;
+      let password = demoUser.password;
 
-      if (error) {
-        console.error('Demo login error:', error);
-        toast.error('Failed to setup demo account. Please try again.');
-        setDemoLoading(null);
-        return;
+      // Try edge function if available
+      try {
+        const { data, error } = await supabase.functions.invoke('demo-login', {
+          body: { role },
+        });
+        if (!error && data?.email && data?.password) {
+          email = data.email;
+          password = data.password;
+        }
+      } catch {
+        // Fallback to direct demo credentials
       }
 
-      if (data?.email && data?.password) {
-        const { error: signInError } = await signIn(data.email, data.password);
-        
-        if (signInError) {
-          toast.error('Failed to sign in with demo account');
-        } else {
-          const roleLabels = {
-            admin: 'MCD Commissioner',
-            attendant: 'Parking Attendant',
-            citizen: 'Citizen',
-          };
-          toast.success(`Welcome! Logged in as ${roleLabels[role]}`);
-        }
+      const { error: signInError } = await signIn(email, password);
+      
+      if (signInError) {
+        console.error('Sign in error:', signInError);
+        toast.error('Failed to sign in with demo account: ' + signInError.message);
+      } else {
+        toast.success(`Welcome! Logged in as ${demoUser.label}`);
       }
     } catch (err) {
       console.error('Demo login error:', err);
