@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { ParkingLotSkeleton } from '@/components/ui/ParkingLotSkeleton';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { ReservationDialog } from '@/components/citizen/ReservationDialog';
@@ -229,6 +230,7 @@ export default function CitizenPortal() {
       />
 
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-4xl pb-24 md:pb-6">
+        <BackButton inline to="/" label={isHindi ? 'होम पर वापस' : 'Back to Home'} />
         {/* Pending Fines Banner */}
         {user && (
           <div className="mb-4 sm:mb-6">

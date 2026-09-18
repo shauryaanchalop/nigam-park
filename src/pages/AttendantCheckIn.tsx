@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import {
   QrCode, Car, CheckCircle, Clock, MapPin, Search,
-  Camera, LogOut, User, RefreshCw, AlertTriangle, XCircle
+  Camera, LogOut, User, RefreshCw, AlertTriangle, XCircle,
+  LayoutDashboard
 } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -176,18 +178,31 @@ export default function AttendantCheckIn() {
               </p>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-primary-foreground"
-            onClick={() => signOut()}
-          >
-            <LogOut className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-primary-foreground hover:bg-primary-foreground/10 text-xs gap-1"
+              onClick={() => navigate('/dashboard')}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span className="hidden sm:inline">Dashboard</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-primary-foreground hover:bg-primary-foreground/10"
+              onClick={() => signOut()}
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
       <main className="p-4 max-w-lg mx-auto space-y-4">
+        <BackButton inline to="/dashboard" label="Back to Dashboard" />
         {/* Today's Stats */}
         <div className="grid grid-cols-3 gap-3">
           <Card>

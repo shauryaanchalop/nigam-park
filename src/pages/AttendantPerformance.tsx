@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { useAttendantPerformance, useAdminAttendantPerformance } from '@/hooks/useAttendantPerformance';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
@@ -65,6 +66,7 @@ export default function AttendantPerformance() {
       />
 
       <main className="container mx-auto px-4 py-6 space-y-6">
+        <BackButton inline to="/dashboard" label="Back to Dashboard" />
         {/* Today's Progress */}
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
           <CardHeader className="pb-2">

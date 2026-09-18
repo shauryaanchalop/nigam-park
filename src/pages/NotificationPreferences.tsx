@@ -171,7 +171,7 @@ export default function NotificationPreferences() {
       />
 
       <main className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
-        <BackButton />
+        <BackButton inline to="/dashboard" label="Back to Dashboard" />
         {/* Phone Number */}
         <Card>
           <CardHeader>

@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { SEOHead } from '@/components/SEOHead';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -125,6 +126,7 @@ export default function ZoneParkingPage() {
       <GovHeader />
       
       <main className="container py-8">
+        <BackButton inline to="/citizen" label="Back to Parking Locations" />
         {/* Hero Section */}
         <div className="mb-8">
           <Badge variant="outline" className="mb-2">{zoneConfig.zone}</Badge>

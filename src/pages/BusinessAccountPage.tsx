@@ -140,7 +140,7 @@ export default function BusinessAccountPage() {
       
       <main className="flex-1">
         <div className="container pt-4">
-          <BackButton />
+          <BackButton inline to="/citizen" label="Back to Citizen Portal" />
         </div>
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-primary/10 via-background to-background py-16">
