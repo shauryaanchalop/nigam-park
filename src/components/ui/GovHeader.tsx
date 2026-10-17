@@ -28,7 +28,7 @@ interface GovHeaderProps {
 type DemoRole = 'admin' | 'attendant' | 'citizen';
 
 export function GovHeader({ title = "NIGAM-Park — Smart Parking for Delhi", subtitle = "Revenue Assurance & Smart Parking System" }: GovHeaderProps) {
-    const { user, userRole, signOut, signIn, setIsSwitchingRole } = useAuth();
+    const { user, userRole, signOut, signIn, setIsSwitchingRole, loginAsDemo } = useAuth();
     const { profile } = useProfile();
     const { language, setLanguage, t } = useLanguage();
     const navigate = useNavigate();
@@ -62,41 +62,24 @@ export function GovHeader({ title = "NIGAM-Park — Smart Parking for Delhi", su
       setIsSwitchingRole(true, role);
 
       try {
-        // Sign out first
-        await supabase.auth.signOut();
-
-        const demoCreds: Record<DemoRole, { email: string; password: string }> = {
-          admin: { email: 'demo.admin@nigampark.gov.in', password: 'DemoAdmin123!' },
-          attendant: { email: 'demo.attendant@nigampark.gov.in', password: 'DemoAttendant123!' },
-          citizen: { email: 'demo.citizen@nigampark.gov.in', password: 'DemoCitizen123!' },
-        };
-
-        let email = demoCreds[role].email;
-        let password = demoCreds[role].password;
-
-        // Call demo-login edge function if deployed
-        try {
-          const { data, error } = await supabase.functions.invoke('demo-login', {
-            body: { role },
-          });
-          if (!error && data?.email && data?.password) {
-            email = data.email;
-            password = data.password;
+        if (loginAsDemo) {
+          await loginAsDemo(role);
+        } else {
+          const demoCreds: Record<DemoRole, { email: string; password: string }> = {
+            admin: { email: 'demo.admin@nigampark.gov.in', password: 'DemoAdmin123!' },
+            attendant: { email: 'demo.attendant@nigampark.gov.in', password: 'DemoAttendant123!' },
+            citizen: { email: 'demo.citizen@nigampark.gov.in', password: 'DemoCitizen123!' },
+          };
+          const { error: signInErr } = await signIn(demoCreds[role].email, demoCreds[role].password);
+          if (signInErr) {
+            toast.error('Sign in failed: ' + signInErr.message);
+            setIsSwitchingRole(false);
+            setSwitchLoading(null);
+            return;
           }
-        } catch {
-          // Fallback to direct demo credentials
-        }
-
-        const { error: signInErr } = await signIn(email, password);
-        if (signInErr) {
-          toast.error('Sign in failed: ' + signInErr.message);
-          setIsSwitchingRole(false);
-          setSwitchLoading(null);
-          return;
         }
 
         toast.success(`Switched to ${roleLabels[role]}`);
-        // Small delay to let the auth state settle before clearing switching flag
         setTimeout(() => {
           setIsSwitchingRole(false);
           navigate('/dashboard');

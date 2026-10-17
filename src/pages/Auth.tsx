@@ -27,7 +27,7 @@ type DemoRole = 'admin' | 'attendant' | 'citizen';
 type AuthView = 'main' | 'forgot-password' | 'reset-sent' | 'update-password';
 
 export default function Auth() {
-  const { user, loading, signIn, signUp } = useAuth();
+  const { user, loading, signIn, signUp, loginAsDemo } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -234,30 +234,22 @@ export default function Auth() {
     setDemoLoading(role);
     
     try {
-      const demoUser = DEMO_CREDENTIALS[role];
-      let email = demoUser.email;
-      let password = demoUser.password;
-
-      // Try edge function if available
-      try {
-        const { data, error } = await supabase.functions.invoke('demo-login', {
-          body: { role },
-        });
-        if (!error && data?.email && data?.password) {
-          email = data.email;
-          password = data.password;
-        }
-      } catch {
-        // Fallback to direct demo credentials
+      if (loginAsDemo) {
+        await loginAsDemo(role);
+        toast.success(`Welcome! Logged in as ${DEMO_CREDENTIALS[role].label}`);
+        navigate('/dashboard');
+        return;
       }
 
-      const { error: signInError } = await signIn(email, password);
+      const demoUser = DEMO_CREDENTIALS[role];
+      const { error: signInError } = await signIn(demoUser.email, demoUser.password);
       
       if (signInError) {
         console.error('Sign in error:', signInError);
         toast.error('Failed to sign in with demo account: ' + signInError.message);
       } else {
         toast.success(`Welcome! Logged in as ${demoUser.label}`);
+        navigate('/dashboard');
       }
     } catch (err) {
       console.error('Demo login error:', err);
