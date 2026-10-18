@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      parking_incidents: {
+        Row: {
+          id: string
+          camera_id: string
+          lot_zone: string
+          incident_type: string
+          severity: string
+          involved_track_ids: number[]
+          involved_plates: string[]
+          iou_score: number | null
+          snapshot_url: string | null
+          status: string
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          camera_id: string
+          lot_zone: string
+          incident_type?: string
+          severity?: string
+          involved_track_ids?: number[]
+          involved_plates?: string[]
+          iou_score?: number | null
+          snapshot_url?: string | null
+          status?: string
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          camera_id?: string
+          lot_zone?: string
+          incident_type?: string
+          severity?: string
+          involved_track_ids?: number[]
+          involved_plates?: string[]
+          iou_score?: number | null
+          snapshot_url?: string | null
+          status?: string
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       alerts: {
         Row: {
           alert_type: string

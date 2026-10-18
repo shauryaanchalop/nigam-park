@@ -1,0 +1,10 @@
+# NIGAM-Park Edge AI Dependencies
+# Install with: pip install -r edge_ai/requirements.txt
+
+ultralytics>=8.0.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+python-dotenv>=1.0.0
+httpx>=0.24.0
+twilio>=8.0.0
+supabase>=2.0.0

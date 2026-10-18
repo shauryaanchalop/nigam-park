@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   MapPin, ShieldCheck, Wallet, Camera, BarChart3, Bell, Sparkles, ArrowRight,
   Smartphone, Clock, Users, IndianRupee, Leaf, Star, CheckCircle2, Shield, BadgeCheck, User,
@@ -46,6 +46,17 @@ const steps = [
 
 export default function Landing() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const cameraParam = searchParams.get('camera');
+    const incidentParam = searchParams.get('incident');
+    if (cameraParam || incidentParam) {
+      navigate(`/vision-dashboard?${searchParams.toString()}`, { replace: true });
+    }
+  }, [searchParams, navigate]);
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead

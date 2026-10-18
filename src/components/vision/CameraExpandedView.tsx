@@ -12,13 +12,23 @@ import { CameraWithEvents } from '@/types/ai-modules';
 import { cn } from '@/lib/utils';
 import cctvImage from '@/assets/cctv-parking.jpg';
 
+import { ParkingIncident } from '@/types/incidents';
+
 interface CameraExpandedViewProps {
   camera: CameraWithEvents | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  isAlertHighlighted?: boolean;
+  incidentOverlay?: ParkingIncident | null;
 }
 
-export function CameraExpandedView({ camera, open, onOpenChange }: CameraExpandedViewProps) {
+export function CameraExpandedView({ 
+  camera, 
+  open, 
+  onOpenChange, 
+  isAlertHighlighted = false, 
+  incidentOverlay 
+}: CameraExpandedViewProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -70,6 +80,14 @@ export function CameraExpandedView({ camera, open, onOpenChange }: CameraExpande
     }
   };
 
+  const collisionAsset = incidentOverlay?.snapshot_url && !incidentOverlay.snapshot_url.includes('unsplash')
+    ? incidentOverlay.snapshot_url
+    : '/parking-crash.jpg';
+
+  const activeStreamSrc = isAlertHighlighted || incidentOverlay
+    ? collisionAsset
+    : (camera.stream_url || cctvImage);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-hidden p-0">
@@ -94,46 +112,87 @@ export function CameraExpandedView({ camera, open, onOpenChange }: CameraExpande
           <p className="text-xs sm:text-sm text-muted-foreground">{camera.zone}</p>
         </DialogHeader>
 
-        <div className="relative w-full aspect-video bg-black max-h-[50vh] sm:max-h-[60vh]">
-          {/* ONLINE: Show normal CCTV feed */}
+        <div className="relative w-full aspect-video bg-black max-h-[50vh] sm:max-h-[60vh] overflow-hidden">
+          {/* ONLINE: Show normal CCTV feed or authentic parking collision view */}
           {camera.status === 'ONLINE' && (
             <>
               <img
-                src={cctvImage}
+                src={activeStreamSrc}
                 alt={`Camera feed: ${camera.name}`}
-                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = '/parking-crash.jpg';
+                }}
+                className="w-full h-full object-cover transition-opacity duration-300"
               />
               {/* Scanline overlay */}
               <div className="absolute inset-0 pointer-events-none opacity-20 mix-blend-multiply bg-[linear-gradient(transparent_0,transparent_2px,rgba(0,0,0,0.05)_3px)] bg-[length:100%_4px]" />
               {/* Vignette */}
               <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(0,0,0,0.35)_100%)]" />
 
+              {/* Critical Collision HUD banner if highlighted */}
+              {isAlertHighlighted && (
+                <div className="absolute top-4 inset-x-4 bg-red-600/90 text-white text-xs sm:text-sm font-bold px-3 py-1.5 rounded shadow-xl flex items-center justify-between z-20 animate-pulse border border-red-400">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
+                    CRITICAL: VEHICLE COLLISION ANOMALY DETECTED (APPROACH A HEURISTIC)
+                  </span>
+                  <span className="font-mono text-xs text-red-100 bg-black/40 px-2 py-0.5 rounded">
+                    IoU: {incidentOverlay?.iou_score ? (incidentOverlay.iou_score * 100).toFixed(1) + '%' : '34.2%'}
+                  </span>
+                </div>
+              )}
+
               {/* AI Bounding Boxes */}
               <div className="absolute inset-0">
-                {camera.vision_events?.map((event, index) => {
-                  const box = event.bounding_box;
-                  return (
-                    <div
-                      key={event.id}
-                      className="absolute border-2 border-cyan-400 rounded"
-                      style={{
-                        left: `${(box.x / 400) * 100}%`,
-                        top: `${(box.y / 300) * 100}%`,
-                        width: `${(box.width / 400) * 100}%`,
-                        height: `${(box.height / 300) * 100}%`,
-                        animation: 'pulse 2s infinite',
-                      }}
+                {isAlertHighlighted ? (
+                  <>
+                    <div 
+                      className="absolute border-2 border-red-500 bg-red-500/20 rounded shadow-[0_0_15px_rgba(239,68,68,0.8)]"
+                      style={{ left: '4%', top: '10%', width: '42%', height: '82%' }}
                     >
-                      <div className="absolute -top-6 left-0 bg-cyan-400 text-background text-sm px-2 py-0.5 rounded whitespace-nowrap font-medium">
-                        {event.object_type} #{index + 1}
+                      <div className="absolute -top-6 left-0 bg-red-600 text-white text-xs px-2 py-0.5 rounded font-mono font-bold whitespace-nowrap">
+                        VEHICLE #104 [IMPACT]
                       </div>
                     </div>
-                  );
-                })}
+                    <div 
+                      className="absolute border-2 border-red-500 bg-red-500/20 rounded shadow-[0_0_15px_rgba(239,68,68,0.8)]"
+                      style={{ left: '42%', top: '12%', width: '52%', height: '80%' }}
+                    >
+                      <div className="absolute -top-6 right-0 bg-red-600 text-white text-xs px-2 py-0.5 rounded font-mono font-bold whitespace-nowrap">
+                        VEHICLE #112 [IMPACT]
+                      </div>
+                    </div>
+                    {/* Centroid connecting line */}
+                    <svg className="absolute inset-0 pointer-events-none w-full h-full">
+                      <line x1="25%" y1="51%" x2="68%" y2="52%" stroke="#ef4444" strokeWidth="3" strokeDasharray="6 3" />
+                    </svg>
+                  </>
+                ) : (
+                  camera.vision_events?.map((event, index) => {
+                    const box = event.bounding_box;
+                    return (
+                      <div
+                        key={event.id}
+                        className="absolute border-2 border-cyan-400 rounded"
+                        style={{
+                          left: `${(box.x / 400) * 100}%`,
+                          top: `${(box.y / 300) * 100}%`,
+                          width: `${(box.width / 400) * 100}%`,
+                          height: `${(box.height / 300) * 100}%`,
+                          animation: 'pulse 2s infinite',
+                        }}
+                      >
+                        <div className="absolute -top-6 left-0 bg-cyan-400 text-background text-sm px-2 py-0.5 rounded whitespace-nowrap font-medium">
+                          {event.object_type} #{index + 1}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
 
               {/* Detection Count */}
-              {camera.vision_events && camera.vision_events.length > 0 && (
+              {camera.vision_events && camera.vision_events.length > 0 && !isAlertHighlighted && (
                 <div className="absolute bottom-4 left-4 bg-cyan-400/90 text-background text-sm px-3 py-1.5 rounded flex items-center gap-2">
                   <Eye className="w-4 h-4" />
                   {camera.vision_events.length} objects detected

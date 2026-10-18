@@ -31,6 +31,9 @@ import { SurgeRevenueWidget } from '@/components/dashboard/SurgeRevenueWidget';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { useTodayStats } from '@/hooks/useTransactions';
 import { useAlerts } from '@/hooks/useAlerts';
+import { useIncidentAlerts } from '@/hooks/useIncidentAlerts';
+import { CommissionerAlertBanner } from '@/components/alerts/CommissionerAlertBanner';
+import { IncidentFeedPanel } from '@/components/alerts/IncidentFeedPanel';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,6 +44,14 @@ export default function AdminDashboard() {
   const { data: lots } = useParkingLots();
   const { data: stats } = useTodayStats();
   const { unresolvedCount, fraudAlerts } = useAlerts();
+  const { 
+    activeIncident, 
+    setActiveIncident, 
+    acknowledgeIncident, 
+    resolveIncident, 
+    unresolvedIncidents 
+  } = useIncidentAlerts();
+
   const navigate = useNavigate();
   const { t, isHindi } = useLanguage();
 
@@ -69,6 +80,15 @@ export default function AdminDashboard() {
       <GovHeader 
         title={isHindi ? 'निगम-पार्क कमांड सेंटर' : 'NIGAM-Park Command Center'} 
         subtitle={isHindi ? 'MCD राजस्व आश्वासन डैशबोर्ड' : 'MCD Revenue Assurance Dashboard'}
+      />
+
+      {/* Real-time Commissioner Alert Banner */}
+      <CommissionerAlertBanner
+        incident={activeIncident}
+        onAcknowledge={(id) => acknowledgeIncident.mutate(id)}
+        onResolve={(id) => resolveIncident.mutate({ id, status: 'RESOLVED' })}
+        onDismiss={() => setActiveIncident(null)}
+        onFocusCamera={(camId) => navigate(`/vision-dashboard?camera=${encodeURIComponent(camId)}&incident=${activeIncident?.id || ''}`)}
       />
 
       <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-20 sm:pb-6">
@@ -230,6 +250,11 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Collision & Anomaly Tracking Panel for Municipal Commissioner */}
+        <div className="mb-6 sm:mb-8">
+          <IncidentFeedPanel onFocusCamera={(camId) => navigate(`/vision-dashboard?camera=${encodeURIComponent(camId)}`)} />
         </div>
 
         {/* Revenue Target Widget */}
