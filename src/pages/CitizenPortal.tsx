@@ -665,13 +665,13 @@ export default function CitizenPortal() {
           </div>
 
           {/* Vehicle Size & Sustainability - side by side */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4 items-start">
             <VehicleSizeDetection />
             <SustainabilityDashboard />
           </div>
 
           {/* Floor Selector */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 items-start">
             <MultiLevelFloorSelector />
             <EmergencyVehiclePriority />
           </div>
