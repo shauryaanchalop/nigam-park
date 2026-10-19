@@ -91,30 +91,30 @@ export default function AdminDashboard() {
         onFocusCamera={(camId) => navigate(`/vision-dashboard?camera=${encodeURIComponent(camId)}&incident=${activeIncident?.id || ''}`)}
       />
 
-      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-20 sm:pb-6">
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-20 sm:pb-6 animate-fade-in duration-300 ease-claude">
         {/* Hero Section with Live Status */}
-        <div className="relative mb-6 sm:mb-8">
-          <div className="mesh-gradient absolute inset-0 rounded-2xl opacity-50" />
-          <Card className="relative border-0 bg-card/60 backdrop-blur-sm overflow-hidden">
+        <div className="relative mb-6 sm:mb-8 animate-fade-in-up duration-400 ease-claude">
+          <div className="mesh-gradient absolute inset-0 rounded-3xl opacity-50" />
+          <Card className="relative border border-border/60 bg-card/80 backdrop-blur-md overflow-hidden rounded-3xl shadow-sm">
             <CardContent className="p-4 sm:p-6">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 {/* Live Status */}
                 <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 border border-success/20">
-                    <div className="w-2 h-2 rounded-full bg-success live-indicator" />
-                    <span className="text-sm font-medium text-success">
+                  <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-success/10 border border-success/20 shadow-sm">
+                    <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                    <span className="text-sm font-semibold text-success">
                       {isHindi ? 'सिस्टम चालू' : 'System Live'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="w-4 h-4" />
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground bg-muted/40 px-3 py-1.5 rounded-full border border-border/50">
+                    <Clock className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">
                       {isHindi ? 'अंतिम अपडेट:' : 'Last updated:'}
                     </span>
                     <span>{new Date().toLocaleTimeString(isHindi ? 'hi-IN' : 'en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   {fraudAlerts.length > 0 && (
-                    <Badge variant="destructive" className="animate-pulse gap-1.5">
+                    <Badge variant="destructive" className="animate-pulse gap-1.5 shadow-sm">
                       <AlertTriangle className="w-3 h-3" />
                       {fraudAlerts.length} {isHindi ? 'अलर्ट' : 'Alert'}{fraudAlerts.length > 1 && !isHindi ? 's' : ''}
                     </Badge>
@@ -129,10 +129,10 @@ export default function AdminDashboard() {
                       asChild
                       variant="outline"
                       size="sm"
-                      className="gap-2 hover:bg-primary/5 hover:border-primary/30"
+                      className="gap-2 rounded-xl border-border/70 bg-card/60 backdrop-blur-sm hover:bg-muted/80 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 ease-claude"
                     >
                       <Link to={action.href}>
-                        <action.icon className="w-4 h-4" />
+                        <action.icon className="w-4 h-4 text-primary" />
                         {action.label}
                       </Link>
                     </Button>
@@ -149,10 +149,10 @@ export default function AdminDashboard() {
                       asChild
                       variant="outline"
                       size="sm"
-                      className="gap-2 shrink-0 whitespace-nowrap"
+                      className="gap-2 shrink-0 whitespace-nowrap rounded-xl border-border/70 bg-card/60 backdrop-blur-sm active:scale-95 transition-all duration-200 ease-claude"
                     >
                       <Link to={action.href}>
-                        <action.icon className="w-4 h-4" />
+                        <action.icon className="w-4 h-4 text-primary" />
                         {action.label}
                       </Link>
                     </Button>
@@ -164,7 +164,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Grid - Responsive */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8 animate-fade-in-up stagger-1 ease-claude">
           <StatCard
             title={isHindi ? 'आज का राजस्व' : 'Revenue Today'}
             value={`₹${(stats?.totalRevenue ?? 0).toLocaleString(isHindi ? 'hi-IN' : 'en-IN')}`}

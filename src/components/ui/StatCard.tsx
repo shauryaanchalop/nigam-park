@@ -108,8 +108,8 @@ export function StatCard({
           )}
         </div>
         <div className={cn(
-          'rounded-xl flex items-center justify-center shrink-0 transition-all duration-300',
-          'group-hover:scale-110 group-hover:rotate-3',
+          'rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ease-claude',
+          'group-hover:scale-105 group-hover:-translate-y-0.5',
           iconBgStyles[variant],
           compact ? 'p-2' : 'p-2.5 sm:p-3'
         )}>

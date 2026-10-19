@@ -18,24 +18,24 @@ const NavItem = React.forwardRef<HTMLAnchorElement, NavItemProps>(
         ref={ref}
         to={to}
         className={cn(
-          'flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 transition-all duration-200 min-w-0 flex-1',
+          'flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 transition-all duration-200 ease-claude min-w-0 flex-1 active:scale-90 rounded-xl',
           isActive 
-            ? 'text-primary' 
+            ? 'text-primary font-semibold' 
             : 'text-muted-foreground hover:text-foreground'
         )}
       >
         <div className={cn(
-          'relative p-1.5 rounded-xl transition-all duration-200',
-          isActive && 'bg-primary/10'
+          'relative p-1.5 rounded-xl transition-all duration-200 ease-claude',
+          isActive && 'bg-primary/10 shadow-sm scale-105'
         )}>
-          <Icon className={cn('w-5 h-5', isActive && 'animate-scale-in')} />
+          <Icon className={cn('w-5 h-5 transition-transform duration-200', isActive && 'text-primary')} />
           {isActive && (
-            <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-primary rounded-full" />
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full animate-pulse" />
           )}
         </div>
         <span className={cn(
-          'text-[9px] sm:text-[10px] font-medium truncate max-w-full',
-          isActive && 'font-semibold'
+          'text-[10px] font-medium truncate max-w-full tracking-tight',
+          isActive ? 'text-primary font-semibold' : 'text-muted-foreground'
         )}>
           {label}
         </span>
@@ -78,13 +78,9 @@ export function MobileNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-      {/* Gradient fade effect at top */}
-      <div className="absolute -top-4 left-0 right-0 h-4 bg-gradient-to-t from-background to-transparent pointer-events-none" />
-      
-      {/* Navigation bar */}
-      <div className="bg-card/95 backdrop-blur-lg border-t border-border shadow-2xl">
-        <div className="flex items-center justify-around px-1 py-1 safe-area-bottom max-w-lg mx-auto">
+    <nav className="fixed bottom-2 left-2 right-2 z-50 md:hidden pointer-events-none">
+      <div className="pointer-events-auto max-w-md mx-auto claude-dock px-2 py-1.5 bg-card/90 backdrop-blur-2xl border border-border/80 shadow-2xl rounded-2xl">
+        <div className="flex items-center justify-around safe-area-bottom">
           {navItems.slice(0, 5).map((item) => (
             <NavItem
               key={item.to + item.label}

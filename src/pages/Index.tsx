@@ -9,6 +9,7 @@ import CitizenPortal from './CitizenPortal';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Shield, BadgeCheck, User } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import logo from '@/assets/logo.png';
 
 const roleConfig = {
@@ -180,22 +181,24 @@ export default function Index() {
     }
   };
 
-  const slideOutClass = slideDirection === 'right' 
-    ? 'translate-x-[-100%] opacity-0' 
-    : 'translate-x-[100%] opacity-0';
-
   return (
-    <div className="relative overflow-hidden">
-      {/* Role accent line at top */}
+    <div className="relative min-h-screen overflow-x-hidden">
+      {/* Role accent line at top with soft ambient glow */}
       <div 
-        className="absolute top-0 left-0 right-0 h-1 z-50 transition-all duration-500"
-        style={{ backgroundColor: currentRoleConfig.color }}
+        className="fixed top-0 left-0 right-0 h-1 z-50 transition-all duration-500 shadow-sm"
+        style={{ 
+          backgroundColor: currentRoleConfig.color,
+          boxShadow: `0 0 12px ${currentRoleConfig.color}80`
+        }}
       />
       
       <div 
-        className={`transition-all duration-300 ease-out ${
-          isTransitioning ? slideOutClass : 'translate-x-0 opacity-100'
-        }`}
+        className={cn(
+          "transition-all duration-350 ease-claude",
+          isTransitioning 
+            ? "opacity-0 scale-[0.98] blur-[2px]" 
+            : "opacity-100 scale-100 blur-0"
+        )}
       >
         {renderDashboard()}
       </div>

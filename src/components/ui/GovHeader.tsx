@@ -102,12 +102,12 @@ export function GovHeader({ title = "NIGAM-Park — Smart Parking for Delhi", su
     };
 
     return (
-      <header className="bg-card border-b border-border">
+      <header className="sticky top-0 z-40 bg-card/90 backdrop-blur-xl border-b border-border/70 shadow-sm transition-all duration-300">
         {/* Top Government Banner */}
         <div className="gradient-primary px-2 sm:px-4 py-2">
           <div className="container mx-auto flex items-center justify-between gap-2">
-            <Link to={user ? getHomeRoute() : '/'} className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity min-w-0 flex-shrink">
-              <img src={logo} alt="NIGAM-Park logo" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0" />
+            <Link to={user ? getHomeRoute() : '/'} className="flex items-center gap-2 sm:gap-3 hover:opacity-95 transition-all duration-200 active:scale-98 min-w-0 flex-shrink">
+              <img src={logo} alt="NIGAM-Park logo" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 shadow-sm" />
               <div className="min-w-0">
                 <h1 className="text-primary-foreground font-bold text-sm sm:text-lg tracking-tight truncate">{title}</h1>
                 <p className="text-primary-foreground/80 text-[10px] sm:text-xs truncate hidden xs:block">{subtitle}</p>

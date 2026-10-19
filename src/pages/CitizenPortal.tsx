@@ -354,34 +354,34 @@ export default function CitizenPortal() {
         </Card>
 
         {/* Search Section */}
-        <div className="mb-4 sm:mb-6">
+        <div className="mb-4 sm:mb-6 animate-fade-in duration-300 ease-claude">
           <div className="relative flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
               <Input
                 placeholder={isHindi ? 'पास में पार्किंग खोजें...' : 'Find parking near...'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 sm:pl-10 h-10 sm:h-12 text-sm sm:text-lg"
+                className="pl-10 sm:pl-11 h-11 sm:h-12 text-sm sm:text-base rounded-2xl border-border/80 bg-card/80 backdrop-blur-md focus-visible:ring-2 focus-visible:ring-primary/25 transition-all duration-200 shadow-sm"
               />
             </div>
             <VoiceSearch 
               onResult={(transcript) => setSearchQuery(transcript)} 
-              className="h-10 w-10 sm:h-12 sm:w-12"
+              className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl transition-transform active:scale-95 duration-200 shadow-sm"
             />
           </div>
           
           {/* Quick Select */}
-          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2.5 sm:mt-3">
             {popularLocations.map((location, index) => (
               <Button
                 key={index}
                 variant="outline"
                 size="sm"
                 onClick={() => setSearchQuery(location)}
-                className="text-xs sm:text-sm h-7 sm:h-8 px-2 sm:px-3"
+                className="text-xs sm:text-sm h-7 sm:h-8 px-3 rounded-full border-border/70 bg-card/60 backdrop-blur-sm hover:bg-muted/80 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 ease-claude"
               >
-                <MapPin className="w-3 h-3 mr-1" />
+                <MapPin className="w-3 h-3 mr-1 text-primary" />
                 {location}
               </Button>
             ))}
@@ -397,7 +397,7 @@ export default function CitizenPortal() {
         <ParkingFilters filters={filters} onChange={setFilters} />
 
         {/* Parking Lots Grid */}
-        <h2 className="text-lg sm:text-xl font-semibold mt-4 sm:mt-6 mb-3">Nearby Parking</h2>
+        <h2 className="text-lg sm:text-xl font-semibold mt-4 sm:mt-6 mb-3 tracking-tight">Nearby Parking</h2>
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[1, 2, 3, 4].map(i => (
@@ -418,7 +418,11 @@ export default function CitizenPortal() {
               );
               
               return (
-                <Card key={lot.id} className="data-card overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleLotClick(lot)}>
+                <Card 
+                  key={lot.id} 
+                  className="claude-card group overflow-hidden cursor-pointer border border-border/70 hover:border-primary/30 transition-all duration-300 ease-claude hover:-translate-y-1 hover:shadow-xl p-0" 
+                  onClick={() => handleLotClick(lot)}
+                >
                   <CardContent className="p-0">
                     {/* Status Bar */}
                     <div className={cn(
