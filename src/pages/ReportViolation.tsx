@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -141,14 +142,7 @@ export default function ReportViolation() {
       <GovHeader />
       
       <main className="container py-8">
-        <Button
-          variant="ghost"
-          className="mb-4"
-          onClick={() => navigate('/citizen')}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Portal
-        </Button>
+        <BackButton inline to="/citizen" label="Back to Citizen Portal" />
 
         <Card className="max-w-2xl mx-auto">
           <CardHeader>

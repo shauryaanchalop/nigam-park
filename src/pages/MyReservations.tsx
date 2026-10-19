@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { BackButton } from '@/components/ui/BackButton';
 
 export default function MyReservations() {
   const { user, loading: authLoading } = useAuth();
@@ -183,11 +184,14 @@ export default function MyReservations() {
       <main className="container mx-auto px-4 py-6 max-w-4xl">
         {/* Navigation */}
         <div className="flex items-center justify-between mb-4">
-          <Button variant="ghost" onClick={() => navigate('/dashboard')}>
-            ← Back to Parking Finder
-          </Button>
-          <Button variant="outline" onClick={() => navigate('/parking-history')} className="gap-2">
-            <History className="w-4 h-4" />
+          <BackButton inline to="/dashboard" label="Back to Parking Finder" className="mb-0" />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate('/parking-history')} 
+            className="h-8 sm:h-8.5 px-3 rounded-lg text-xs font-semibold gap-1.5 border-border/70 bg-card/90 hover:bg-accent cursor-pointer"
+          >
+            <History className="w-3.5 h-3.5 text-muted-foreground" />
             View History
           </Button>
         </div>

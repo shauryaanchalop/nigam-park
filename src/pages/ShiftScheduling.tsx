@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { format, parseISO, addDays, startOfWeek } from 'date-fns';
 import { Calendar, Clock, MapPin, Users, ChevronLeft, Plus, Check, X } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -129,12 +130,7 @@ export default function ShiftScheduling() {
       />
 
       <main className="container mx-auto px-4 py-6">
-        <Button variant="ghost" asChild className="mb-4">
-          <Link to="/dashboard">
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back to Dashboard
-          </Link>
-        </Button>
+        <BackButton inline to="/dashboard" label="Back to Dashboard" />
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

@@ -283,13 +283,13 @@ export default function Auth() {
           <Card className="w-full max-w-md">
             <CardHeader>
               <Button 
-                variant="ghost" 
+                variant="outline" 
                 size="sm" 
-                className="w-fit -ml-2 mb-2"
+                className="w-fit mb-3 h-8 px-3 rounded-lg text-xs font-semibold gap-1.5"
                 onClick={() => setAuthView('main')}
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to login
+                <ArrowLeft className="w-3.5 h-3.5 text-muted-foreground" />
+                Back to Login
               </Button>
               <CardTitle className="flex items-center gap-2">
                 <KeyRound className="w-5 h-5" />

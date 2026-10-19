@@ -10,6 +10,7 @@ import {
   Gift,
 } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -102,11 +103,7 @@ export default function WalletPage() {
 
       <main className="container mx-auto px-4 py-6 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <Button variant="ghost" size="sm" asChild className="-ml-2 w-fit">
-            <Link to="/citizen">
-              <ChevronLeft className="w-4 h-4 mr-1" /> Back to portal
-            </Link>
-          </Button>
+          <BackButton inline to="/citizen" label="Back to Citizen Portal" className="mb-0" />
 
           {!user && (
             <div className="flex items-center justify-between gap-3 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs">

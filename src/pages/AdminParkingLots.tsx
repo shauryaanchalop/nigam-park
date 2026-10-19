@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { BackButton } from '@/components/ui/BackButton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -217,12 +218,7 @@ export default function AdminParkingLots() {
 
       <main className="container mx-auto px-4 py-6">
         {/* Back Button */}
-        <Button variant="ghost" asChild className="mb-4">
-          <Link to="/dashboard">
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back to Dashboard
-          </Link>
-        </Button>
+        <BackButton inline to="/dashboard" label="Back to Dashboard" />
 
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between mb-6">

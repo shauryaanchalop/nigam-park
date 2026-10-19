@@ -21,6 +21,7 @@ import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -203,12 +204,7 @@ export default function RealTimeAnalytics() {
 
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Back Button */}
-        <Button variant="ghost" asChild className="mb-2">
-          <Link to="/dashboard">
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back to Dashboard
-          </Link>
-        </Button>
+        <BackButton inline to="/dashboard" label="Back to Dashboard" className="mb-2" />
 
         {/* Connection Status Bar */}
         <div className="flex items-center justify-between p-4 rounded-lg border bg-card">

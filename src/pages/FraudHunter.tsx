@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { FraudAlertFeed } from '@/components/fraud/FraudAlertFeed';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -153,12 +154,7 @@ export default function FraudHunter() {
       
       <main className="container mx-auto px-4 py-6">
         {/* Back Button */}
-        <Button variant="ghost" asChild className="mb-4">
-          <Link to="/dashboard">
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back to Dashboard
-          </Link>
-        </Button>
+        <BackButton inline to="/dashboard" label="Back to Dashboard" />
 
         {/* Page Header */}
         <div className="flex items-start justify-between mb-6">

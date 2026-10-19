@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { CameraCard } from '@/components/vision/CameraCard';
 import { CameraExpandedView } from '@/components/vision/CameraExpandedView';
 import { VisionDetectionDemo } from '@/components/vision/VisionDetectionDemo';
@@ -144,12 +145,7 @@ export default function VisionDashboard() {
 
       <main className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-          <Button variant="ghost" asChild>
-            <Link to="/dashboard">
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Back to Dashboard
-            </Link>
-          </Button>
+          <BackButton inline to="/dashboard" label="Back to Dashboard" className="mb-0" />
           <div className="flex items-center gap-2">
             <Button
               variant={showLiveVision ? 'default' : 'secondary'}

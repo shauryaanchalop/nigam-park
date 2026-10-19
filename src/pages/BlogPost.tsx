@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -345,12 +346,7 @@ export default function BlogPost() {
       
       <main className="container py-8">
         <article className="max-w-3xl mx-auto">
-          <Link to="/blog">
-            <Button variant="ghost" size="sm" className="mb-4">
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Back to Blog
-            </Button>
-          </Link>
+          <BackButton inline to="/blog" label="Back to Blog" />
           
           <header className="mb-8">
             <Badge variant="secondary" className="mb-3">{article.category}</Badge>

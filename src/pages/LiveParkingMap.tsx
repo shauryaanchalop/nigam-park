@@ -7,6 +7,7 @@ import {
   RefreshCw, Filter, SortAsc, Compass, Phone, X 
 } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -584,12 +585,7 @@ export default function LiveParkingMap() {
         {/* Desktop Sidebar */}
         <div className="hidden md:block w-96 border-l overflow-hidden">
           <div className="p-4 border-b">
-            <Button variant="ghost" asChild className="mb-2">
-              <Link to="/citizen">
-                <ChevronLeft className="w-4 h-4 mr-1" />
-                Back to Portal
-              </Link>
-            </Button>
+            <BackButton inline to="/citizen" label="Back to Portal" className="mb-3" />
             <div className="flex items-center justify-between">
               <h2 className="font-semibold">Parking Lots</h2>
               <div className="flex gap-1">

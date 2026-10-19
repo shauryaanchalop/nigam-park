@@ -4,6 +4,7 @@ import { User, Car, Bell, Phone, Mail, Edit2, Plus, Trash2, Star, ArrowLeft, Cam
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile, useSavedVehicles, useUserPreferences } from '@/hooks/useProfile';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -296,15 +297,7 @@ export default function Profile() {
 
       <main className="container mx-auto px-4 py-6 max-w-4xl">
         {/* Back Button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate('/dashboard')}
-          className="mb-4 gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Home
-        </Button>
+        <BackButton inline to="/dashboard" label="Back to Home" />
 
         <Tabs defaultValue="account" className="space-y-6">
           <TabsList className={`grid w-full ${isCitizen ? 'grid-cols-3' : userRole === 'admin' ? 'grid-cols-3' : 'grid-cols-2'}`}>

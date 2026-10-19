@@ -1,6 +1,7 @@
 import React from 'react';
 import { Award, Crown, Gem, Star, TrendingUp, ChevronLeft, Gift } from 'lucide-react';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -58,12 +59,7 @@ export default function LoyaltyProgram() {
       />
 
       <main className="container mx-auto px-4 py-6">
-        <Button variant="ghost" asChild className="mb-4">
-          <Link to="/citizen">
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back to Portal
-          </Link>
-        </Button>
+        <BackButton inline to="/citizen" label="Back to Citizen Portal" />
 
         {/* Current Status */}
         <div className="grid lg:grid-cols-3 gap-6 mb-8">
