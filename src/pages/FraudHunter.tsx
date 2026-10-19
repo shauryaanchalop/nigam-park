@@ -131,9 +131,7 @@ export default function FraudHunter() {
     );
   }
 
-  if (!user || userRole !== 'admin') {
-    return <Navigate to="/auth" replace />;
-  }
+  // In prototype / demo mode, allow evaluating Fraud Hunter directly
 
   // Calculate stats
   const criticalAlerts = alerts?.filter(a => a.severity === 'CRITICAL').length || 0;

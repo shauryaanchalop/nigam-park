@@ -79,7 +79,7 @@ const App = () => {
             <Sonner />
             <BrowserRouter>
               <RouteSEO />
-              <div className="pb-16 md:pb-0">
+              <div className="pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0 min-h-screen">
                 <Routes>
                   <Route path="/" element={<Landing />} />
                   <Route path="/dashboard" element={<Index />} />

@@ -3,7 +3,9 @@
  * so every screen in the prototype shows realistic content instead of an empty state.
  */
 
-const daysAgo = (d: number) => new Date(Date.now() - d * 86400000).toISOString();
+export const daysAgo = (d: number) => new Date(Date.now() - d * 86400000).toISOString();
+export const daysFromNow = (d: number) => new Date(Date.now() + d * 86400000).toISOString();
+export const futureDateStr = (d: number) => new Date(Date.now() + d * 86400000).toISOString().split('T')[0];
 
 export const DEMO_WALLET_LEDGER = [
   { id: 'demo-wt-1', wallet_id: 'demo', user_id: 'demo', amount: 2000, transaction_type: 'topup' as const, description: 'Wallet top-up via UPI', reference_id: null, balance_after: 2000, created_at: daysAgo(12) },
@@ -314,8 +316,850 @@ export const DEMO_PARKING_LOTS: ParkingLot[] = [
   },
 ];
 
+import { CameraWithEvents, FraudAlert } from '@/types/ai-modules';
+
+export const DEMO_CAMERAS: CameraWithEvents[] = [
+  {
+    id: 'CAM-DEL-01',
+    name: 'CP Block A - Main Entry & ANPR',
+    zone: 'Connaught Place - Block A Entry',
+    status: 'ONLINE',
+    stream_url: '/parking-crash.jpg',
+    created_at: daysAgo(30),
+    vision_events: [
+      { id: 'ev-1', camera_id: 'CAM-DEL-01', detected_at: daysAgo(0.01), object_type: 'Sedan (Collision)', bounding_box: { x: 22, y: 38, width: 30, height: 32 } },
+      { id: 'ev-2', camera_id: 'CAM-DEL-01', detected_at: daysAgo(0.01), object_type: 'Hatchback (DL01AB1234)', bounding_box: { x: 50, y: 40, width: 28, height: 30 } },
+      { id: 'ev-3', camera_id: 'CAM-DEL-01', detected_at: daysAgo(0.05), object_type: 'Number Plate (DL01AB1234)', bounding_box: { x: 55, y: 62, width: 14, height: 8 } },
+    ],
+  },
+  {
+    id: 'CAM-DEL-02',
+    name: 'CP Block B - Underground Ramp Bay 4',
+    zone: 'Connaught Place - Block B Underground',
+    status: 'ONLINE',
+    stream_url: '/cctv-parking.jpg',
+    created_at: daysAgo(30),
+    vision_events: [
+      { id: 'ev-4', camera_id: 'CAM-DEL-02', detected_at: daysAgo(0.02), object_type: 'Car (HR26DK4589)', bounding_box: { x: 15, y: 30, width: 35, height: 40 } },
+      { id: 'ev-5', camera_id: 'CAM-DEL-02', detected_at: daysAgo(0.03), object_type: 'SUV (UP16CD7823)', bounding_box: { x: 58, y: 35, width: 32, height: 38 } },
+    ],
+  },
+  {
+    id: 'CAM-DEL-03',
+    name: 'Karol Bagh Market - Main Gate ANPR',
+    zone: 'Karol Bagh Market - Entry Gate 1',
+    status: 'ONLINE',
+    stream_url: '/cctv-parking.jpg',
+    created_at: daysAgo(30),
+    vision_events: [
+      { id: 'ev-6', camera_id: 'CAM-DEL-03', detected_at: daysAgo(0.01), object_type: 'Motorcycle', bounding_box: { x: 10, y: 45, width: 20, height: 35 } },
+      { id: 'ev-7', camera_id: 'CAM-DEL-03', detected_at: daysAgo(0.02), object_type: 'Sedan (DL08EF9012)', bounding_box: { x: 42, y: 28, width: 40, height: 45 } },
+    ],
+  },
+  {
+    id: 'CAM-DEL-04',
+    name: 'Karol Bagh - Multi-Level Automated Bay',
+    zone: 'Karol Bagh - Slot D-01',
+    status: 'ONLINE',
+    stream_url: '/cctv-parking.jpg',
+    created_at: daysAgo(25),
+    vision_events: [
+      { id: 'ev-8', camera_id: 'CAM-DEL-04', detected_at: daysAgo(0.04), object_type: 'Car (DL03GH3456)', bounding_box: { x: 25, y: 35, width: 38, height: 35 } },
+    ],
+  },
+  {
+    id: 'CAM-DEL-05',
+    name: 'Nehru Place - IT Tower South Gate',
+    zone: 'Nehru Place IT Hub - Pedestrian Plaza',
+    status: 'ONLINE',
+    stream_url: '/cctv-parking.jpg',
+    created_at: daysAgo(20),
+    vision_events: [
+      { id: 'ev-9', camera_id: 'CAM-DEL-05', detected_at: daysAgo(0.02), object_type: 'EV Charger Spot [Occupied]', bounding_box: { x: 30, y: 30, width: 45, height: 40 } },
+    ],
+  },
+  {
+    id: 'CAM-DEL-06',
+    name: 'Chandni Chowk - Metro Gate 3 ANPR',
+    zone: 'Chandni Chowk Metro Parking',
+    status: 'OCCLUDED',
+    stream_url: '/cctv-parking.jpg',
+    created_at: daysAgo(15),
+    vision_events: [
+      { id: 'ev-10', camera_id: 'CAM-DEL-06', detected_at: daysAgo(0.08), object_type: 'Delivery Van', bounding_box: { x: 18, y: 32, width: 48, height: 45 } },
+    ],
+  },
+  {
+    id: 'CAM-DEL-07',
+    name: 'Lajpat Nagar - Central Ring ANPR',
+    zone: 'Lajpat Nagar Central Market - Level 2',
+    status: 'ONLINE',
+    stream_url: '/cctv-parking.jpg',
+    created_at: daysAgo(12),
+    vision_events: [
+      { id: 'ev-11', camera_id: 'CAM-DEL-07', detected_at: daysAgo(0.01), object_type: 'Sedan (DL04JK5678)', bounding_box: { x: 20, y: 25, width: 42, height: 45 } },
+    ],
+  },
+  {
+    id: 'CAM-DEL-08',
+    name: 'Sarojini Nagar - Entry Boom Barrier',
+    zone: 'Sarojini Nagar Market - West Gate',
+    status: 'OFFLINE',
+    stream_url: '/cctv-parking.jpg',
+    created_at: daysAgo(10),
+    vision_events: [],
+  },
+];
+
+export const DEMO_RESERVATIONS = [
+  {
+    id: 'res-demo-future-1',
+    user_id: 'demo',
+    lot_id: 'cp-block-a',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(1),
+    start_time: '14:00:00',
+    end_time: '18:00:00',
+    amount: 160,
+    status: 'confirmed',
+    created_at: daysAgo(0.1),
+    parking_lots: {
+      name: 'Connaught Place Block A',
+      zone: 'New Delhi',
+    },
+  },
+  {
+    id: 'res-demo-future-2',
+    user_id: 'demo',
+    lot_id: 'kb-market',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(1),
+    start_time: '10:00:00',
+    end_time: '13:00:00',
+    amount: 90,
+    status: 'confirmed',
+    created_at: daysAgo(0.2),
+    parking_lots: {
+      name: 'Karol Bagh Market',
+      zone: 'Central Delhi',
+    },
+  },
+  {
+    id: 'res-demo-future-3',
+    user_id: 'demo',
+    lot_id: 'np-it',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(2),
+    start_time: '11:00:00',
+    end_time: '16:00:00',
+    amount: 175,
+    status: 'confirmed',
+    created_at: daysAgo(0.3),
+    parking_lots: {
+      name: 'Nehru Place IT Hub',
+      zone: 'South-East Delhi',
+    },
+  },
+  {
+    id: 'res-demo-future-4',
+    user_id: 'demo',
+    lot_id: 'cc-metro',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(3),
+    start_time: '12:00:00',
+    end_time: '15:00:00',
+    amount: 60,
+    status: 'confirmed',
+    created_at: daysAgo(0.4),
+    parking_lots: {
+      name: 'Chandni Chowk Metro',
+      zone: 'Old Delhi',
+    },
+  },
+  {
+    id: 'res-demo-future-5',
+    user_id: 'demo',
+    lot_id: 'ln-central',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(4),
+    start_time: '15:00:00',
+    end_time: '19:00:00',
+    amount: 100,
+    status: 'confirmed',
+    created_at: daysAgo(0.5),
+    parking_lots: {
+      name: 'Lajpat Nagar Central',
+      zone: 'South Delhi',
+    },
+  },
+  {
+    id: 'res-demo-future-6',
+    user_id: 'demo',
+    lot_id: 'sn-market',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(5),
+    start_time: '13:00:00',
+    end_time: '17:00:00',
+    amount: 100,
+    status: 'confirmed',
+    created_at: daysAgo(0.6),
+    parking_lots: {
+      name: 'Sarojini Nagar Market',
+      zone: 'South-West Delhi',
+    },
+  },
+  {
+    id: 'res-demo-future-7',
+    user_id: 'demo',
+    lot_id: 'cp-block-a',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(7),
+    start_time: '10:00:00',
+    end_time: '14:00:00',
+    amount: 160,
+    status: 'confirmed',
+    created_at: daysAgo(0.7),
+    parking_lots: {
+      name: 'Connaught Place Block A',
+      zone: 'New Delhi',
+    },
+  },
+  {
+    id: 'res-demo-future-8',
+    user_id: 'demo',
+    lot_id: 'np-it',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(10),
+    start_time: '12:00:00',
+    end_time: '16:00:00',
+    amount: 140,
+    status: 'confirmed',
+    created_at: daysAgo(0.8),
+    parking_lots: {
+      name: 'Nehru Place IT Hub',
+      zone: 'South-East Delhi',
+    },
+  },
+  {
+    id: 'res-demo-future-9',
+    user_id: 'demo',
+    lot_id: 'kb-market',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(14),
+    start_time: '16:00:00',
+    end_time: '20:00:00',
+    amount: 120,
+    status: 'confirmed',
+    created_at: daysAgo(0.9),
+    parking_lots: {
+      name: 'Karol Bagh Market',
+      zone: 'Central Delhi',
+    },
+  },
+  {
+    id: 'res-demo-future-10',
+    user_id: 'demo',
+    lot_id: 'cc-metro',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(21),
+    start_time: '11:00:00',
+    end_time: '15:00:00',
+    amount: 80,
+    status: 'confirmed',
+    created_at: daysAgo(1),
+    parking_lots: {
+      name: 'Chandni Chowk Metro',
+      zone: 'Old Delhi',
+    },
+  },
+  {
+    id: 'res-demo-future-11',
+    user_id: 'demo',
+    lot_id: 'ln-central',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(30),
+    start_time: '14:00:00',
+    end_time: '18:00:00',
+    amount: 100,
+    status: 'confirmed',
+    created_at: daysAgo(1.2),
+    parking_lots: {
+      name: 'Lajpat Nagar Central',
+      zone: 'South Delhi',
+    },
+  },
+  {
+    id: 'res-demo-today-1',
+    user_id: 'demo',
+    lot_id: 'cp-block-a',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(0),
+    start_time: '14:00:00',
+    end_time: '18:00:00',
+    amount: 160,
+    status: 'confirmed',
+    created_at: daysAgo(0.1),
+    parking_lots: {
+      name: 'Connaught Place Block A',
+      zone: 'New Delhi',
+    },
+  },
+  {
+    id: 'res-demo-today-2',
+    user_id: 'demo',
+    lot_id: 'cc-metro',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: futureDateStr(0),
+    start_time: '10:00:00',
+    end_time: '13:00:00',
+    amount: 60,
+    status: 'checked_in',
+    checked_in_at: daysAgo(0.05),
+    parking_lots: {
+      name: 'Chandni Chowk Metro',
+      zone: 'Old Delhi',
+    },
+  },
+  {
+    id: 'res-demo-past-1',
+    user_id: 'demo',
+    lot_id: 'np-it',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: daysAgo(1).split('T')[0],
+    start_time: '11:00:00',
+    end_time: '15:00:00',
+    amount: 140,
+    status: 'completed',
+    checked_in_at: daysAgo(1.2),
+    parking_lots: {
+      name: 'Nehru Place IT Hub',
+      zone: 'South-East Delhi',
+    },
+  },
+  {
+    id: 'res-demo-past-2',
+    user_id: 'demo',
+    lot_id: 'kb-market',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: daysAgo(3).split('T')[0],
+    start_time: '16:00:00',
+    end_time: '19:00:00',
+    amount: 90,
+    status: 'completed',
+    checked_in_at: daysAgo(3.1),
+    parking_lots: {
+      name: 'Karol Bagh Market',
+      zone: 'Central Delhi',
+    },
+  },
+  {
+    id: 'res-demo-past-3',
+    user_id: 'demo',
+    lot_id: 'ln-central',
+    vehicle_number: 'DL01AB1234',
+    reservation_date: daysAgo(5).split('T')[0],
+    start_time: '12:00:00',
+    end_time: '14:00:00',
+    amount: 50,
+    status: 'cancelled',
+    parking_lots: {
+      name: 'Lajpat Nagar Central',
+      zone: 'South Delhi',
+    },
+  },
+];
+
+export const DEMO_FINES = [
+  {
+    id: 'fine-demo-1',
+    user_id: 'demo',
+    reservation_id: 'res-demo-1',
+    amount: 250,
+    reason: 'Overstaying beyond prepaid reservation duration (>45 min)',
+    status: 'pending',
+    applied_to_transaction_id: null,
+    created_at: daysAgo(0.5),
+    resolved_at: null,
+    profiles: { full_name: 'Rajesh Sharma' },
+    reservations: {
+      vehicle_number: 'DL01AB1234',
+      parking_lots: { name: 'Connaught Place Block A' },
+    },
+  },
+  {
+    id: 'fine-demo-2',
+    user_id: 'demo-u2',
+    reservation_id: null,
+    amount: 500,
+    reason: 'Parking in designated Divyang/accessible spot without valid MCD permit',
+    status: 'pending',
+    applied_to_transaction_id: null,
+    created_at: daysAgo(1.5),
+    resolved_at: null,
+    profiles: { full_name: 'Vikram Malhotra' },
+    reservations: {
+      vehicle_number: 'HR26DK4589',
+      parking_lots: { name: 'Karol Bagh Market' },
+    },
+  },
+  {
+    id: 'fine-demo-3',
+    user_id: 'demo-u3',
+    reservation_id: null,
+    amount: 200,
+    reason: 'Obstruction of emergency evacuation lane / barrier driveway',
+    status: 'resolved',
+    applied_to_transaction_id: 'tx-fine-3',
+    created_at: daysAgo(3),
+    resolved_at: daysAgo(2.8),
+    profiles: { full_name: 'Amit Verma' },
+    reservations: {
+      vehicle_number: 'UP16CD7823',
+      parking_lots: { name: 'Chandni Chowk Metro' },
+    },
+  },
+  {
+    id: 'fine-demo-4',
+    user_id: 'demo-u4',
+    reservation_id: null,
+    amount: 300,
+    reason: 'Failure to scan QR exit code / unpaid balance settlement',
+    status: 'waived',
+    applied_to_transaction_id: null,
+    created_at: daysAgo(4.2),
+    resolved_at: daysAgo(4.1),
+    profiles: { full_name: 'Priya Mehra' },
+    reservations: {
+      vehicle_number: 'DL08EF9012',
+      parking_lots: { name: 'Lajpat Nagar Central' },
+    },
+  },
+];
+
+export const DEMO_USERS = [
+  {
+    id: 'usr-admin-1',
+    email: 'demo.admin@nigampark.gov.in',
+    full_name: 'Dr. Sanjay Mathur (MCD Commissioner)',
+    created_at: daysAgo(180),
+    role: 'admin' as const,
+    role_id: 'role-1',
+    assigned_lot_id: null,
+  },
+  {
+    id: 'usr-att-1',
+    email: 'demo.attendant@nigampark.gov.in',
+    full_name: 'Rameshwar Lal (Senior Gate Marshal)',
+    created_at: daysAgo(120),
+    role: 'attendant' as const,
+    role_id: 'role-2',
+    assigned_lot_id: 'cp-block-a',
+  },
+  {
+    id: 'usr-att-2',
+    email: 'satish.attendant@nigampark.gov.in',
+    full_name: 'Satish Kumar (Barrier Attendant)',
+    created_at: daysAgo(90),
+    role: 'attendant' as const,
+    role_id: 'role-3',
+    assigned_lot_id: 'kb-market',
+  },
+  {
+    id: 'usr-att-3',
+    email: 'harish.attendant@nigampark.gov.in',
+    full_name: 'Harish Chander (Booth Operator)',
+    created_at: daysAgo(60),
+    role: 'attendant' as const,
+    role_id: 'role-4',
+    assigned_lot_id: 'cc-metro',
+  },
+  {
+    id: 'usr-cit-1',
+    email: 'demo.citizen@nigampark.gov.in',
+    full_name: 'Rajesh Sharma (Verified Citizen)',
+    created_at: daysAgo(45),
+    role: 'citizen' as const,
+    role_id: 'role-5',
+    assigned_lot_id: null,
+  },
+  {
+    id: 'usr-cit-2',
+    email: 'priya.mehra@gmail.com',
+    full_name: 'Priya Mehra',
+    created_at: daysAgo(30),
+    role: 'citizen' as const,
+    role_id: 'role-6',
+    assigned_lot_id: null,
+  },
+  {
+    id: 'usr-cit-3',
+    email: 'amit.verma@corp.in',
+    full_name: 'Amit Verma (Fleet Coordinator)',
+    created_at: daysAgo(15),
+    role: 'citizen' as const,
+    role_id: 'role-7',
+    assigned_lot_id: null,
+  },
+];
+
+export const DEMO_SHIFT_TEMPLATES = [
+  { id: 'tpl-1', name: 'Morning Rush Shift (07:00 - 15:00)', start_time: '07:00', end_time: '15:00', created_at: daysAgo(60) },
+  { id: 'tpl-2', name: 'Evening Peak Shift (15:00 - 23:00)', start_time: '15:00', end_time: '23:00', created_at: daysAgo(60) },
+  { id: 'tpl-3', name: 'Night Security Shift (23:00 - 07:00)', start_time: '23:00', end_time: '07:00', created_at: daysAgo(60) },
+];
+
+// Attendant pool rotated across MCD parking lots
+const ATTENDANT_POOL = [
+  { id: 'usr-att-1', name: 'Rameshwar Lal (Senior Gate Marshal)', lotId: 'cp-block-a', lotName: 'Connaught Place Block A' },
+  { id: 'usr-att-2', name: 'Satish Kumar (Barrier Attendant)', lotId: 'kb-market', lotName: 'Karol Bagh Market' },
+  { id: 'usr-att-3', name: 'Harish Chander (Booth Operator)', lotId: 'cc-metro', lotName: 'Chandni Chowk Metro' },
+  { id: 'usr-att-1', name: 'Rameshwar Lal (Senior Gate Marshal)', lotId: 'np-it', lotName: 'Nehru Place IT Hub' },
+  { id: 'usr-att-2', name: 'Satish Kumar (Barrier Attendant)', lotId: 'ln-central', lotName: 'Lajpat Nagar Central' },
+  { id: 'usr-att-3', name: 'Harish Chander (Booth Operator)', lotId: 'sn-market', lotName: 'Sarojini Nagar Market' },
+];
+
+export const DEMO_ATTENDANT_SHIFTS = (() => {
+  const list: Array<{
+    id: string;
+    user_id: string;
+    lot_id: string;
+    shift_date: string;
+    start_time: string;
+    end_time: string;
+    status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+    created_at: string;
+    updated_at: string;
+    parking_lots: { name: string };
+    profiles: { full_name: string };
+  }> = [];
+
+  // Generate shifts for every day from 7 days ago to 60 days into the future
+  for (let d = -7; d <= 60; d++) {
+    const dateStr = futureDateStr(d);
+    const morningAttendant = ATTENDANT_POOL[Math.abs(d) % ATTENDANT_POOL.length];
+    const eveningAttendant = ATTENDANT_POOL[(Math.abs(d) + 1) % ATTENDANT_POOL.length];
+    const nightAttendant = ATTENDANT_POOL[(Math.abs(d) + 2) % ATTENDANT_POOL.length];
+
+    const morningStatus = d < 0 ? 'completed' : d === 0 ? 'in_progress' : 'scheduled';
+    const eveningStatus = d < 0 ? 'completed' : 'scheduled';
+    const nightStatus = d < 0 ? 'completed' : 'scheduled';
+
+    list.push(
+      {
+        id: `shift-${d}-m`,
+        user_id: morningAttendant.id,
+        lot_id: morningAttendant.lotId,
+        shift_date: dateStr,
+        start_time: '07:00:00',
+        end_time: '15:00:00',
+        status: morningStatus,
+        created_at: daysAgo(Math.max(1, -d + 2)),
+        updated_at: daysAgo(0.1),
+        parking_lots: { name: morningAttendant.lotName },
+        profiles: { full_name: morningAttendant.name },
+      },
+      {
+        id: `shift-${d}-e`,
+        user_id: eveningAttendant.id,
+        lot_id: eveningAttendant.lotId,
+        shift_date: dateStr,
+        start_time: '15:00:00',
+        end_time: '23:00:00',
+        status: eveningStatus,
+        created_at: daysAgo(Math.max(1, -d + 2)),
+        updated_at: daysAgo(0.1),
+        parking_lots: { name: eveningAttendant.lotName },
+        profiles: { full_name: eveningAttendant.name },
+      },
+      {
+        id: `shift-${d}-n`,
+        user_id: nightAttendant.id,
+        lot_id: nightAttendant.lotId,
+        shift_date: dateStr,
+        start_time: '23:00:00',
+        end_time: '07:00:00',
+        status: nightStatus,
+        created_at: daysAgo(Math.max(1, -d + 2)),
+        updated_at: daysAgo(0.1),
+        parking_lots: { name: nightAttendant.lotName },
+        profiles: { full_name: nightAttendant.name },
+      }
+    );
+  }
+
+  return list;
+})();
+
+export const DEMO_REVENUE_FORECASTS = (() => {
+  const forecasts = [];
+  for (let i = 0; i < 30; i++) {
+    const date = futureDateStr(i);
+    const dayOfWeek = new Date(Date.now() + i * 86400000).getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const baseRev = isWeekend ? 74000 : 56000;
+    const predicted = Math.round(baseRev + Math.sin(i * 1.5) * 7000);
+    forecasts.push({
+      id: `rev-fc-${i}`,
+      lot_id: 'cp-block-a',
+      forecast_date: date,
+      predicted_revenue: predicted,
+      confidence_score: 0.94,
+      created_at: daysAgo(1),
+    });
+  }
+  return forecasts;
+})();
+
+export const DEMO_OCCUPANCY_FORECASTS = (() => {
+  const list = [];
+  for (let d = 0; d < 7; d++) {
+    for (let h = 8; h <= 22; h += 2) {
+      const dt = new Date(Date.now() + d * 86400000);
+      dt.setHours(h, 0, 0, 0);
+      const isPeak = (h >= 11 && h <= 14) || (h >= 17 && h <= 20);
+      const predictedOcc = isPeak ? 82 + (h % 5) : 48 + (h % 7);
+      list.push({
+        id: `occ-fc-${d}-${h}`,
+        parking_lot_id: 'cp-block-a',
+        forecast_time: dt.toISOString(),
+        predicted_occupancy: Math.min(96, predictedOcc),
+        confidence_score: 0.94,
+        created_at: daysAgo(1),
+      });
+    }
+  }
+  return list;
+})();
+
+export const DEMO_ATTENDANT_LEADERBOARD = [
+  {
+    user_id: 'usr-att-1',
+    full_name: 'Rameshwar Lal (Senior Gate Marshal)',
+    total_collections: 19450,
+    transaction_count: 98,
+    efficiency_score: 9.8,
+    rank: 1,
+  },
+  {
+    user_id: 'usr-att-2',
+    full_name: 'Satish Kumar (Barrier Attendant)',
+    total_collections: 16200,
+    transaction_count: 82,
+    efficiency_score: 9.2,
+    rank: 2,
+  },
+  {
+    user_id: 'usr-att-3',
+    full_name: 'Harish Chander (Booth Operator)',
+    total_collections: 13800,
+    transaction_count: 70,
+    efficiency_score: 8.7,
+    rank: 3,
+  },
+  {
+    user_id: 'usr-att-4',
+    full_name: 'Vikas Singh (Distribution Gate)',
+    total_collections: 10400,
+    transaction_count: 54,
+    efficiency_score: 8.1,
+    rank: 4,
+  },
+  {
+    user_id: 'usr-att-5',
+    full_name: 'Suresh Yadav (Logistics Marshal)',
+    total_collections: 8200,
+    transaction_count: 42,
+    efficiency_score: 7.6,
+    rank: 5,
+  },
+];
+
+export const DEMO_PERFORMANCE_HISTORY = (() => {
+  const history = [];
+  const baseAmounts = [4200, 4850, 5200, 4100, 4950, 5600, 5100];
+  const txCounts = [24, 28, 31, 23, 29, 34, 30];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
+    history.push({
+      date: d,
+      collections: baseAmounts[6 - i],
+      transactions: txCounts[6 - i],
+    });
+  }
+  return history;
+})();
+
+export const DEMO_FRAUD_ALERTS: FraudAlert[] = [
+  {
+    id: 'fa-1',
+    created_at: daysAgo(0.05),
+    severity: 'CRITICAL',
+    location: 'Connaught Place Block A - Exit Booth #2',
+    description: 'Cash collection discrepancy: System recorded ₹2,400 physical cash collection mismatch with turnstile loop counts.',
+    status: 'NEW',
+    metadata: { discrepancy_amount: 2400, expected_count: 60, logged_count: 42, operator: 'Attendant #104' },
+  },
+  {
+    id: 'fa-2',
+    created_at: daysAgo(0.2),
+    severity: 'HIGH',
+    location: 'Karol Bagh Market - Slot D-01',
+    description: 'Ghost vehicle anomaly: Camera detected vehicle entering without POS barrier check-in trigger.',
+    status: 'INVESTIGATING',
+    metadata: { plate: 'HR26DK4589', vehicle_type: 'SUV', duration_minutes: 85 },
+  },
+  {
+    id: 'fa-3',
+    created_at: daysAgo(0.8),
+    severity: 'MEDIUM',
+    location: 'Chandni Chowk Metro - East Gate',
+    description: 'Repeated fast-pass barcode reuse: Same monthly pass token scanned at two entry gates simultaneously within 3 minutes.',
+    status: 'NEW',
+    metadata: { pass_id: 'PASS-MCD-8921', gate_a: 'Gate 1', gate_b: 'Gate 3' },
+  },
+  {
+    id: 'fa-4',
+    created_at: daysAgo(1.5),
+    severity: 'LOW',
+    location: 'Nehru Place IT Hub - Level B1',
+    description: 'Frequent manual override by attendant without supervisor authorization pin.',
+    status: 'INVESTIGATING',
+    metadata: { override_count_today: 7, threshold: 3 },
+  },
+];
+
+export const DEMO_SURGE_RULES = [
+  {
+    id: 'surge-1',
+    lot_id: null,
+    min_occupancy_percent: 75,
+    max_occupancy_percent: 85,
+    multiplier: 1.25,
+    is_active: true,
+    created_at: daysAgo(60),
+  },
+  {
+    id: 'surge-2',
+    lot_id: null,
+    min_occupancy_percent: 85,
+    max_occupancy_percent: 95,
+    multiplier: 1.5,
+    is_active: true,
+    created_at: daysAgo(60),
+  },
+  {
+    id: 'surge-3',
+    lot_id: null,
+    min_occupancy_percent: 95,
+    max_occupancy_percent: 100,
+    multiplier: 2.0,
+    is_active: true,
+    created_at: daysAgo(60),
+  },
+  {
+    id: 'surge-4',
+    lot_id: 'cp-block-a',
+    min_occupancy_percent: 80,
+    max_occupancy_percent: 100,
+    multiplier: 1.75,
+    is_active: true,
+    created_at: daysAgo(30),
+  },
+];
+
+export const DEMO_PARKING_REVIEWS = [
+  {
+    id: 'rev-1',
+    lot_id: 'cp-block-a',
+    user_id: 'usr-cit-1',
+    rating: 5,
+    review_text: 'Excellent automated MCD parking! FASTag debit was instantaneous at the boom barrier. Very clean EV charging spots available.',
+    photo_url: null,
+    is_verified: true,
+    helpful_count: 24,
+    created_at: daysAgo(1),
+    parking_lots: { name: 'Connaught Place Block A' },
+    profiles: { full_name: 'Rajesh Sharma', avatar_url: null },
+  },
+  {
+    id: 'rev-2',
+    lot_id: 'kb-market',
+    user_id: 'usr-cit-2',
+    rating: 4,
+    review_text: 'Attendants were helpful during peak festival weekend rush. Multi-level automated stacker saved me at least 30 minutes of circling.',
+    photo_url: null,
+    is_verified: true,
+    helpful_count: 18,
+    created_at: daysAgo(2),
+    parking_lots: { name: 'Karol Bagh Market' },
+    profiles: { full_name: 'Priya Mehra', avatar_url: null },
+  },
+  {
+    id: 'rev-3',
+    lot_id: 'cc-metro',
+    user_id: 'usr-cit-3',
+    rating: 4,
+    review_text: 'Super convenient for Old Delhi market hopping. Metro station is literally right next to the pedestrian exit ramp.',
+    photo_url: null,
+    is_verified: true,
+    helpful_count: 12,
+    created_at: daysAgo(4),
+    parking_lots: { name: 'Chandni Chowk Metro' },
+    profiles: { full_name: 'Amit Verma', avatar_url: null },
+  },
+  {
+    id: 'rev-4',
+    lot_id: 'np-it',
+    user_id: 'usr-cit-4',
+    rating: 5,
+    review_text: 'Best tech parking facility in South Delhi. Real-time availability showed exactly 14 spots left on my phone before I arrived.',
+    photo_url: null,
+    is_verified: true,
+    helpful_count: 31,
+    created_at: daysAgo(6),
+    parking_lots: { name: 'Nehru Place IT Hub' },
+    profiles: { full_name: 'Vikas Malhotra', avatar_url: null },
+  },
+];
+
+export const DEMO_NOTIFICATIONS = [
+  {
+    id: 'notif-1',
+    title: 'Parking Booking Confirmed',
+    message: 'Your spot at Connaught Place Block A is reserved for today 14:00 - 18:00.',
+    type: 'booking',
+    created_at: daysAgo(0.1),
+    read: false,
+  },
+  {
+    id: 'notif-2',
+    title: 'FASTag Payment Receipt: ₹60',
+    message: 'Automatic exit debit processed at Chandni Chowk Metro Gate 2.',
+    type: 'payment',
+    created_at: daysAgo(0.5),
+    read: true,
+  },
+  {
+    id: 'notif-3',
+    title: 'Overstay Alert Warning',
+    message: 'Your parking at Karol Bagh will expire in 15 minutes. Extend online to avoid municipal penalty.',
+    type: 'alert',
+    created_at: daysAgo(1),
+    read: true,
+  },
+  {
+    id: 'notif-4',
+    title: 'Monthly Pass Renewal Confirmation',
+    message: 'Unlimited All-Delhi Central Zone pass renewed successfully.',
+    type: 'pass',
+    created_at: daysAgo(3),
+    read: true,
+  },
+];
+
 /** Returns live rows when present, otherwise the demo sample. */
 export function withDemoFallback<T>(rows: T[] | undefined | null, demo: unknown[]): T[] {
   if (rows && rows.length > 0) return rows;
   return demo as T[];
 }
+

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { DEMO_RESERVATIONS, withDemoFallback } from '@/lib/demoData';
 
 interface CreateReservationData {
   lot_id: string;
@@ -19,24 +20,31 @@ export function useReservations() {
   const reservationsQuery = useQuery({
     queryKey: ['reservations', user?.id],
     queryFn: async () => {
-      if (!user) return [];
-      
-      const { data, error } = await supabase
-        .from('reservations')
-        .select(`
-          *,
-          parking_lots (
-            name,
-            zone
-          )
-        `)
-        .eq('user_id', user.id)
-        .order('reservation_date', { ascending: false });
+      try {
+        if (!user) return DEMO_RESERVATIONS;
+        
+        const { data, error } = await supabase
+          .from('reservations')
+          .select(`
+            *,
+            parking_lots (
+              name,
+              zone
+            )
+          `)
+          .eq('user_id', user.id)
+          .order('reservation_date', { ascending: false });
 
-      if (error) throw error;
-      return data;
+        if (error || !data || data.length === 0) {
+          return DEMO_RESERVATIONS;
+        }
+        return withDemoFallback(data, DEMO_RESERVATIONS);
+      } catch (err) {
+        console.warn('[useReservations] Supabase fetch failed, using demo reservations:', err);
+        return DEMO_RESERVATIONS;
+      }
     },
-    enabled: !!user,
+    enabled: true,
   });
 
   // Real-time subscription for reservation updates
@@ -153,8 +161,8 @@ export function useReservations() {
   });
 
   return {
-    reservations: reservationsQuery.data ?? [],
-    isLoading: reservationsQuery.isLoading,
+    reservations: (reservationsQuery.data || DEMO_RESERVATIONS) as any[],
+    isLoading: reservationsQuery.isLoading && !reservationsQuery.data,
     createReservation,
     cancelReservation,
     updateReservationStatus,

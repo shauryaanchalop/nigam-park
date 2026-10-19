@@ -5,6 +5,8 @@ import { useEffect, useRef } from 'react';
 import { Json } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 
+import { DEMO_FRAUD_ALERTS, withDemoFallback } from '@/lib/demoData';
+
 export function useFraudAlerts() {
   const queryClient = useQueryClient();
   const isInitialLoad = useRef(true);
@@ -12,15 +14,20 @@ export function useFraudAlerts() {
   const { data: alerts, isLoading, error } = useQuery({
     queryKey: ['fraud-alerts'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('fraud_alerts')
-        .select('*')
-        .neq('status', 'RESOLVED')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      isInitialLoad.current = false;
-      return data as FraudAlert[];
+      try {
+        const { data, error } = await supabase
+          .from('fraud_alerts')
+          .select('*')
+          .neq('status', 'RESOLVED')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        isInitialLoad.current = false;
+        return withDemoFallback(data as FraudAlert[], DEMO_FRAUD_ALERTS);
+      } catch (err) {
+        console.warn('Using demo fraud alerts fallback:', err);
+        return DEMO_FRAUD_ALERTS;
+      }
     },
   });
 

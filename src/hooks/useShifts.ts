@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { DEMO_SHIFT_TEMPLATES, DEMO_ATTENDANT_SHIFTS, withDemoFallback } from '@/lib/demoData';
 
 export interface ShiftTemplate {
   id: string;
@@ -46,12 +47,16 @@ export function useShiftTemplates() {
   return useQuery({
     queryKey: ['shift-templates'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('shift_templates')
-        .select('*')
-        .order('start_time');
-      if (error) throw error;
-      return data as ShiftTemplate[];
+      try {
+        const { data, error } = await supabase
+          .from('shift_templates')
+          .select('*')
+          .order('start_time');
+        if (error || !data || data.length === 0) return DEMO_SHIFT_TEMPLATES as ShiftTemplate[];
+        return withDemoFallback(data as ShiftTemplate[], DEMO_SHIFT_TEMPLATES);
+      } catch {
+        return DEMO_SHIFT_TEMPLATES as ShiftTemplate[];
+      }
     },
   });
 }
@@ -62,23 +67,27 @@ export function useAttendantShifts(lotId?: string) {
   return useQuery({
     queryKey: ['attendant-shifts', lotId, user?.id],
     queryFn: async () => {
-      let query = supabase
-        .from('attendant_shifts')
-        .select(`
-          *,
-          parking_lots (name)
-        `)
-        .order('shift_date', { ascending: true });
-      
-      if (lotId) {
-        query = query.eq('lot_id', lotId);
+      try {
+        let query = supabase
+          .from('attendant_shifts')
+          .select(`
+            *,
+            parking_lots (name)
+          `)
+          .order('shift_date', { ascending: true });
+        
+        if (lotId) {
+          query = query.eq('lot_id', lotId);
+        }
+        
+        const { data, error } = await query;
+        if (error || !data || data.length === 0) return DEMO_ATTENDANT_SHIFTS as AttendantShift[];
+        return withDemoFallback(data as AttendantShift[], DEMO_ATTENDANT_SHIFTS);
+      } catch {
+        return DEMO_ATTENDANT_SHIFTS as AttendantShift[];
       }
-      
-      const { data, error } = await query;
-      if (error) throw error;
-      return data as AttendantShift[];
     },
-    enabled: !!user,
+    enabled: true,
   });
 }
 
@@ -88,22 +97,26 @@ export function useMyShifts() {
   return useQuery({
     queryKey: ['my-shifts', user?.id],
     queryFn: async () => {
-      if (!user) return [];
-      
-      const { data, error } = await supabase
-        .from('attendant_shifts')
-        .select(`
-          *,
-          parking_lots (name)
-        `)
-        .eq('user_id', user.id)
-        .gte('shift_date', new Date().toISOString().split('T')[0])
-        .order('shift_date', { ascending: true });
-      
-      if (error) throw error;
-      return data as AttendantShift[];
+      try {
+        if (!user) return DEMO_ATTENDANT_SHIFTS as AttendantShift[];
+        
+        const { data, error } = await supabase
+          .from('attendant_shifts')
+          .select(`
+            *,
+            parking_lots (name)
+          `)
+          .eq('user_id', user.id)
+          .gte('shift_date', new Date().toISOString().split('T')[0])
+          .order('shift_date', { ascending: true });
+        
+        if (error || !data || data.length === 0) return DEMO_ATTENDANT_SHIFTS as AttendantShift[];
+        return withDemoFallback(data as AttendantShift[], DEMO_ATTENDANT_SHIFTS);
+      } catch {
+        return DEMO_ATTENDANT_SHIFTS as AttendantShift[];
+      }
     },
-    enabled: !!user,
+    enabled: true,
   });
 }
 

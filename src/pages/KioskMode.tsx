@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -67,12 +67,12 @@ const playCapacityAlert = (muted: boolean) => {
 export default function KioskMode() {
   const { data: lots, isLoading } = useParkingLots();
   const [recentChanges, setRecentChanges] = useState<OccupancyChange[]>([]);
-  const [previousData, setPreviousData] = useState<Record<string, number>>({});
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  const [audioMuted, setAudioMuted] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [pulsingLots, setPulsingLots] = useState<Set<string>>(new Set());
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [audioMuted, setAudioMuted] = useState(false);
-  const [alertedHighCapacity, setAlertedHighCapacity] = useState<Set<string>>(new Set());
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const previousDataRef = useRef<Record<string, number>>({});
+  const alertedHighCapacityRef = useRef<Set<string>>(new Set());
 
   // Update time every second
   useEffect(() => {
@@ -91,12 +91,13 @@ export default function KioskMode() {
     const newHighCapacityAlerts = new Set<string>();
 
     lots.forEach((lot) => {
-      const prev = previousData[lot.id];
+      const prev = previousDataRef.current[lot.id];
       const percentage = (lot.current_occupancy / lot.capacity) * 100;
       
       // Check for high capacity
-      if (percentage >= 90 && !alertedHighCapacity.has(lot.id)) {
+      if (percentage >= 90 && !alertedHighCapacityRef.current.has(lot.id)) {
         newHighCapacityAlerts.add(lot.id);
+        alertedHighCapacityRef.current.add(lot.id);
         playCapacityAlert(audioMuted);
       }
       
@@ -111,10 +112,6 @@ export default function KioskMode() {
       }
     });
 
-    if (newHighCapacityAlerts.size > 0) {
-      setAlertedHighCapacity(prev => new Set([...prev, ...newHighCapacityAlerts]));
-    }
-
     if (newChanges.length > 0) {
       setRecentChanges((prev) => [...newChanges, ...prev].slice(0, 10));
       setPulsingLots(newPulsingLots);
@@ -128,7 +125,7 @@ export default function KioskMode() {
     lots.forEach((lot) => {
       newPrevData[lot.id] = lot.current_occupancy;
     });
-    setPreviousData(newPrevData);
+    previousDataRef.current = newPrevData;
   }, [lots, audioMuted]);
 
   const toggleFullscreen = () => {

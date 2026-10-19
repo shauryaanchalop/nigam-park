@@ -28,6 +28,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { DEMO_NOTIFICATIONS } from '@/lib/demoData';
 
 interface UserPreferences {
   id: string;
@@ -293,6 +294,42 @@ export default function NotificationPreferences() {
                 </li>
               ))}
             </ul>
+          </CardContent>
+        </Card>
+
+        {/* Recent Notifications Feed */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Bell className="w-4 h-4 text-primary" />
+                Recent Delivery Logs (Live Simulation)
+              </CardTitle>
+              <Badge variant="outline" className="text-xs">
+                {DEMO_NOTIFICATIONS.length} Dispatched
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {DEMO_NOTIFICATIONS.map((n) => (
+                <div
+                  key={n.id}
+                  className="p-3 rounded-lg border bg-card/60 flex items-start justify-between gap-3 text-sm"
+                >
+                  <div className="space-y-1">
+                    <p className="font-semibold text-foreground flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                      {n.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{n.message}</p>
+                  </div>
+                  <Badge variant="secondary" className="capitalize text-[10px] shrink-0">
+                    {n.type}
+                  </Badge>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 

@@ -93,25 +93,7 @@ export default function WalletPage() {
     toast.success('Statement downloaded');
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background">
-        <GovHeader title="Parking Wallet" subtitle="Prepaid balance & auto-debit" />
-        <main className="container mx-auto px-4 py-16 text-center">
-          <WalletIcon className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Sign in to use your parking wallet</h1>
-          <p className="text-muted-foreground mb-6">
-            Keep a prepaid balance, pay in one tap and download monthly statements.
-          </p>
-          <Button asChild>
-            <Link to="/auth">Sign in</Link>
-          </Button>
-        </main>
-      </div>
-    );
-  }
-
-  const balance = Number(wallet?.balance ?? 0);
+  const balance = Number(wallet?.balance ?? 1450);
   const lowBalance = balance < Number(wallet?.low_balance_threshold ?? 100);
 
   return (
@@ -119,11 +101,25 @@ export default function WalletPage() {
       <GovHeader title="Parking Wallet" subtitle="Prepaid balance, auto-debit & statements" />
 
       <main className="container mx-auto px-4 py-6 space-y-6">
-        <Button variant="ghost" size="sm" asChild className="-ml-2">
-          <Link to="/citizen">
-            <ChevronLeft className="w-4 h-4 mr-1" /> Back to portal
-          </Link>
-        </Button>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <Button variant="ghost" size="sm" asChild className="-ml-2 w-fit">
+            <Link to="/citizen">
+              <ChevronLeft className="w-4 h-4 mr-1" /> Back to portal
+            </Link>
+          </Button>
+
+          {!user && (
+            <div className="flex items-center justify-between gap-3 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs">
+              <span className="flex items-center gap-1.5 font-medium text-foreground">
+                <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+                Demo Citizen Mode — Simulated Live Wallet
+              </span>
+              <Button size="sm" variant="ghost" asChild className="h-6 px-2 text-xs text-primary hover:underline">
+                <Link to="/auth">Sign in</Link>
+              </Button>
+            </div>
+          )}
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Balance card */}

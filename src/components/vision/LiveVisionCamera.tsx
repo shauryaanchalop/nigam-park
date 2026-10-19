@@ -10,7 +10,6 @@ import {
   detectVision,
   getStoredGeminiKey,
   VisionResult,
-  QualityScores,
 } from '@/services/visionDetection';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
@@ -309,6 +308,47 @@ export function LiveVisionCamera() {
     reader.readAsDataURL(file);
   };
 
+  const loadSampleCctv = () => {
+    stopCamera();
+    setUploadedImage('/cctv-parking.jpg');
+    setBoxes([
+      {
+        label: 'DL01AB1234',
+        confidence: 0.96,
+        box: [0.15, 0.45, 0.22, 0.28],
+        kind: 'plate',
+        status: 'CLEAR',
+        quality: { blur: 0.08, glare: 0.12, occlusion: 0.05 },
+      },
+      {
+        label: 'White Sedan',
+        confidence: 0.94,
+        box: [0.12, 0.35, 0.32, 0.48],
+        kind: 'object',
+        status: 'CLEAR',
+      },
+      {
+        label: 'HR26DK4589',
+        confidence: 0.91,
+        box: [0.55, 0.42, 0.20, 0.25],
+        kind: 'plate',
+        status: 'CLEAR',
+        quality: { blur: 0.10, glare: 0.05, occlusion: 0.15 },
+      },
+      {
+        label: 'Silver SUV',
+        confidence: 0.93,
+        box: [0.52, 0.30, 0.35, 0.52],
+        kind: 'object',
+        status: 'CLEAR',
+      },
+    ]);
+    setSummary('2 vehicles & 2 number plates detected with 94% average confidence.');
+    setFrameQuality('HD (1080p, Good Lighting)');
+    setQuality({ blur: 0.09, glare: 0.08, occlusion: 0.10 });
+    setError('');
+  };
+
   const exportPdf = () => {
     if (!boxes.length && !summary) {
       toast({ title: 'Nothing to export', description: 'Run a detection first.', variant: 'destructive' });
@@ -443,6 +483,10 @@ export function LiveVisionCamera() {
             </label>
           </Button>
 
+          <Button onClick={loadSampleCctv} size="sm" variant="outline">
+            <Sparkles className="h-4 w-4 mr-2 text-primary" /> Sample Feed
+          </Button>
+
           <Button onClick={exportPdf} size="sm" variant="outline" disabled={!boxes.length && !summary}>
             <FileDown className="h-4 w-4 mr-2" /> Export PDF
           </Button>
@@ -512,7 +556,7 @@ export function LiveVisionCamera() {
 
         <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted border">
           {uploadedImage ? (
-            <img ref={imageRef} src={uploadedImage} alt="Uploaded frame for vision analysis" className="w-full h-full object-contain" />
+            <img ref={imageRef} src={uploadedImage} crossOrigin="anonymous" alt="Uploaded frame for vision analysis" className="w-full h-full object-contain" />
           ) : (
             <video
               ref={videoRef}
@@ -524,12 +568,22 @@ export function LiveVisionCamera() {
           )}
 
           {!hasSource && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-              <CameraIcon className="h-10 w-10 text-muted-foreground mb-3" />
-              <p className="font-medium">Camera feed is off</p>
-              <p className="text-sm text-muted-foreground">
-                Start the camera or upload an image to run live detection.
-              </p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 space-y-3 bg-muted/40 backdrop-blur-xs">
+              <CameraIcon className="h-10 w-10 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-base">Camera feed is off</p>
+                <p className="text-sm text-muted-foreground max-w-sm">
+                  Start your webcam, upload an image, or load a live sample MCD CCTV feed with AI bounding boxes.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 pt-1 flex-wrap justify-center">
+                <Button onClick={startCamera} size="sm">
+                  <CameraIcon className="h-4 w-4 mr-2" /> Start camera
+                </Button>
+                <Button onClick={loadSampleCctv} size="sm" variant="secondary">
+                  <Sparkles className="h-4 w-4 mr-2 text-primary" /> Load Sample CCTV
+                </Button>
+              </div>
             </div>
           )}
 

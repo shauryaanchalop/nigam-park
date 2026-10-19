@@ -144,7 +144,7 @@ export default function AdminViolations() {
         subtitle="Review and manage citizen-reported parking violations"
       />
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-24 md:pb-6">
         <BackButton inline to="/dashboard" label="Back to Dashboard" />
 
         {/* Stats Cards - Click to filter */}

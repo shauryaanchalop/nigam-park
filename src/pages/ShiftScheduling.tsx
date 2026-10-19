@@ -49,6 +49,23 @@ export default function ShiftScheduling() {
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [shiftDate, setShiftDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
 
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'tomorrow' | 'week' | 'month'>('all');
+  const [filterLot, setFilterLot] = useState<string>('all');
+
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const tomorrowStr = format(addDays(new Date(), 1), 'yyyy-MM-dd');
+  const next7Str = format(addDays(new Date(), 7), 'yyyy-MM-dd');
+  const next30Str = format(addDays(new Date(), 30), 'yyyy-MM-dd');
+
+  const filteredShifts = (shifts || []).filter((shift) => {
+    if (filterLot !== 'all' && shift.lot_id !== filterLot) return false;
+    if (dateFilter === 'today') return shift.shift_date === todayStr;
+    if (dateFilter === 'tomorrow') return shift.shift_date === tomorrowStr;
+    if (dateFilter === 'week') return shift.shift_date >= todayStr && shift.shift_date <= next7Str;
+    if (dateFilter === 'month') return shift.shift_date >= todayStr && shift.shift_date <= next30Str;
+    return true;
+  });
+
   const attendants = users?.filter(u => u.role === 'attendant') || [];
 
   const getStatusBadge = (status: string) => {
@@ -151,51 +168,103 @@ export default function ShiftScheduling() {
           />
         </div>
 
-        {/* Actions */}
-        <div className="flex justify-end mb-6">
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Schedule Shift
-          </Button>
+        {/* Filter Controls & Actions */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { id: 'all', label: 'All Dates' },
+              { id: 'today', label: 'Today' },
+              { id: 'tomorrow', label: 'Tomorrow' },
+              { id: 'week', label: 'Next 7 Days' },
+              { id: 'month', label: 'Next 30 Days' },
+            ].map((tab) => (
+              <Button
+                key={tab.id}
+                variant={dateFilter === tab.id ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setDateFilter(tab.id as typeof dateFilter)}
+                className="text-xs"
+              >
+                {tab.label}
+              </Button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Select value={filterLot} onValueChange={setFilterLot}>
+              <SelectTrigger className="w-[180px] h-9 text-xs">
+                <SelectValue placeholder="All Parking Lots" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Parking Lots</SelectItem>
+                {lots?.map((lot) => (
+                  <SelectItem key={lot.id} value={lot.id}>
+                    {lot.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Button onClick={() => setCreateDialogOpen(true)} size="sm">
+              <Plus className="w-4 h-4 mr-1.5" />
+              Schedule Shift
+            </Button>
+          </div>
         </div>
 
         {/* Shifts Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              All Shifts
-            </CardTitle>
+        <Card className="border border-border/70 shadow-xs">
+          <CardHeader className="pb-3 border-b border-border/40">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-primary" />
+                Attendant Shift Rosters ({filteredShifts.length})
+              </CardTitle>
+              <Badge variant="outline" className="text-xs">
+                MCD Delhi Zone
+              </Badge>
+            </div>
           </CardHeader>
-          <CardContent>
-            {shifts?.length === 0 ? (
+          <CardContent className="p-0">
+            {filteredShifts.length === 0 ? (
               <div className="text-center py-12">
                 <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-lg font-medium">No shifts scheduled</p>
-                <p className="text-muted-foreground">Create your first shift schedule</p>
+                <p className="text-lg font-medium">No shifts scheduled for this period</p>
+                <p className="text-muted-foreground text-sm">Select another date tab or schedule a new shift</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="bg-muted/30">
                     <TableRow>
                       <TableHead>Date</TableHead>
-                      <TableHead>Time</TableHead>
+                      <TableHead>Shift Time</TableHead>
+                      <TableHead>Attendant / Staff</TableHead>
                       <TableHead>Location</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {shifts?.map((shift) => (
-                      <TableRow key={shift.id}>
-                        <TableCell>
-                          {format(parseISO(shift.shift_date), 'EEE, MMM d')}
+                    {filteredShifts.map((shift) => (
+                      <TableRow key={shift.id} className="hover:bg-muted/40 transition-colors">
+                        <TableCell className="font-medium whitespace-nowrap">
+                          {format(parseISO(shift.shift_date), 'EEE, MMM d, yyyy')}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="font-mono text-xs whitespace-nowrap">
                           {shift.start_time.slice(0, 5)} - {shift.end_time.slice(0, 5)}
                         </TableCell>
                         <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-semibold shrink-0">
+                              {(shift.profiles?.full_name || 'Staff').charAt(0)}
+                            </div>
+                            <span className="font-medium text-sm">
+                              {shift.profiles?.full_name || 'Staff Attendant'}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
                           {shift.parking_lots?.name || 'Unknown'}
                         </TableCell>
                         <TableCell>
@@ -206,13 +275,13 @@ export default function ShiftScheduling() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-destructive"
+                              className="text-destructive h-8 px-2 text-xs"
                               onClick={() => updateShiftStatus.mutateAsync({ 
                                 shiftId: shift.id, 
                                 status: 'cancelled' 
                               })}
                             >
-                              <X className="w-3 h-3 mr-1" />
+                              <X className="w-3.5 h-3.5 mr-1" />
                               Cancel
                             </Button>
                           )}

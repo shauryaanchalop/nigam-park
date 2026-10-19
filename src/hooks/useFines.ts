@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { DEMO_FINES, withDemoFallback } from '@/lib/demoData';
 
 export interface UserFine {
   id: string;
@@ -34,37 +35,52 @@ export function useFines() {
   const finesQuery = useQuery({
     queryKey: ['user-fines', user?.id],
     queryFn: async () => {
-      if (!user) return [];
-      
-      const { data, error } = await supabase
-        .from('user_fines')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      try {
+        if (!user) return DEMO_FINES as unknown as UserFine[];
+        
+        const { data, error } = await supabase
+          .from('user_fines')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data as UserFine[];
+        if (error || !data || data.length === 0) return DEMO_FINES as unknown as UserFine[];
+        return withDemoFallback(data as UserFine[], DEMO_FINES);
+      } catch {
+        return DEMO_FINES as unknown as UserFine[];
+      }
     },
-    enabled: !!user,
+    enabled: true,
   });
 
   const pendingFinesQuery = useQuery({
     queryKey: ['pending-fines', user?.id],
     queryFn: async () => {
-      if (!user) return { fines: [], total: 0 };
-      
-      const { data, error } = await supabase
-        .from('user_fines')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'pending');
+      try {
+        if (!user) {
+          const pending = DEMO_FINES.filter(f => f.status === 'pending');
+          return { fines: pending as unknown as UserFine[], total: pending.reduce((sum, f) => sum + f.amount, 0) };
+        }
+        
+        const { data, error } = await supabase
+          .from('user_fines')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'pending');
 
-      if (error) throw error;
-      
-      const total = (data as UserFine[]).reduce((sum, fine) => sum + fine.amount, 0);
-      return { fines: data as UserFine[], total };
+        if (error || !data || data.length === 0) {
+          const pending = DEMO_FINES.filter(f => f.status === 'pending');
+          return { fines: pending as unknown as UserFine[], total: pending.reduce((sum, f) => sum + f.amount, 0) };
+        }
+        
+        const total = (data as UserFine[]).reduce((sum, fine) => sum + fine.amount, 0);
+        return { fines: data as UserFine[], total };
+      } catch {
+        const pending = DEMO_FINES.filter(f => f.status === 'pending');
+        return { fines: pending as unknown as UserFine[], total: pending.reduce((sum, f) => sum + f.amount, 0) };
+      }
     },
-    enabled: !!user,
+    enabled: true,
   });
 
   const resolveFine = useMutation({
@@ -131,21 +147,25 @@ export function useAdminFines() {
   const allFinesQuery = useQuery({
     queryKey: ['admin-fines'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('user_fines')
-        .select(`
-          *,
-          reservations (
-            vehicle_number,
-            parking_lots (
-              name
+      try {
+        const { data, error } = await supabase
+          .from('user_fines')
+          .select(`
+            *,
+            reservations (
+              vehicle_number,
+              parking_lots (
+                name
+              )
             )
-          )
-        `)
-        .order('created_at', { ascending: false });
+          `)
+          .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data as FineWithUser[];
+        if (error || !data || data.length === 0) return DEMO_FINES as unknown as FineWithUser[];
+        return withDemoFallback(data as FineWithUser[], DEMO_FINES);
+      } catch {
+        return DEMO_FINES as unknown as FineWithUser[];
+      }
     },
   });
 
@@ -261,18 +281,20 @@ export function useAdminFines() {
     },
   });
 
+  const resolvedAdminFines = withDemoFallback(allFinesQuery.data, DEMO_FINES) as FineWithUser[];
+
   const fineStats = {
-    total: allFinesQuery.data?.length ?? 0,
-    pending: allFinesQuery.data?.filter(f => f.status === 'pending').length ?? 0,
-    resolved: allFinesQuery.data?.filter(f => f.status === 'resolved').length ?? 0,
-    waived: allFinesQuery.data?.filter(f => f.status === 'waived').length ?? 0,
-    totalPendingAmount: allFinesQuery.data?.filter(f => f.status === 'pending').reduce((sum, f) => sum + f.amount, 0) ?? 0,
-    totalCollectedAmount: allFinesQuery.data?.filter(f => f.status === 'resolved').reduce((sum, f) => sum + f.amount, 0) ?? 0,
+    total: resolvedAdminFines.length,
+    pending: resolvedAdminFines.filter(f => f.status === 'pending').length,
+    resolved: resolvedAdminFines.filter(f => f.status === 'resolved').length,
+    waived: resolvedAdminFines.filter(f => f.status === 'waived').length,
+    totalPendingAmount: resolvedAdminFines.filter(f => f.status === 'pending').reduce((sum, f) => sum + f.amount, 0),
+    totalCollectedAmount: resolvedAdminFines.filter(f => f.status === 'resolved').reduce((sum, f) => sum + f.amount, 0),
   };
 
   return {
-    fines: allFinesQuery.data ?? [],
-    isLoading: allFinesQuery.isLoading,
+    fines: resolvedAdminFines,
+    isLoading: allFinesQuery.isLoading && !allFinesQuery.data,
     waiveFine,
     resolveFine,
     bulkResolveFines,

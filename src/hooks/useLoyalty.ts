@@ -126,11 +126,13 @@ export function useLoyaltyMutations() {
       referenceId?: string;
     }) => {
       // Get or create loyalty account
-      let { data: account, error: accountError } = await supabase
+      const { data: initialAccount, error: accountError } = await supabase
         .from('loyalty_accounts')
         .select('*')
         .eq('user_id', userId)
         .maybeSingle();
+      
+      let account = initialAccount;
       
       if (!account) {
         const { data: newAccount, error: createError } = await supabase

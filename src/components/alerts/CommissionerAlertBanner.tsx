@@ -268,13 +268,14 @@ export function CommissionerAlertBanner({
           </div>
 
           {/* Right: Commissioner Actions */}
-          <div className="flex items-center gap-2 w-full lg:w-auto justify-end flex-wrap sm:flex-nowrap">
+          {/* Right: Commissioner Actions */}
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full lg:w-auto justify-end">
             {currentIncident.snapshot_url && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setSnapshotDialogOpen(true)}
-                className="bg-black/30 hover:bg-black/50 text-white border-white/20 text-xs h-8 px-2 sm:px-3"
+                className="bg-black/30 hover:bg-black/50 text-white border-white/20 text-xs h-9 sm:h-8 px-2 sm:px-3 w-full sm:w-auto"
               >
                 <Maximize2 className="w-3.5 h-3.5 mr-1" />
                 Snapshot
@@ -285,7 +286,7 @@ export function CommissionerAlertBanner({
               variant="default"
               size="sm"
               onClick={handleAccessCCTV}
-              className="bg-white hover:bg-neutral-100 text-neutral-900 font-bold border border-white/40 text-xs sm:text-sm h-8 px-3 shadow-md"
+              className="col-span-2 sm:col-span-1 bg-white hover:bg-neutral-100 text-neutral-900 font-bold border border-white/40 text-xs sm:text-sm h-9 sm:h-8 px-3 shadow-md w-full sm:w-auto"
             >
               <Video className="w-4 h-4 mr-1.5 text-red-600 animate-pulse" />
               Access Live CCTV Feed
@@ -298,7 +299,7 @@ export function CommissionerAlertBanner({
               size="sm"
               disabled={isUpdating || currentIncident.status === 'INVESTIGATING'}
               onClick={() => handleUpdateStatus('INVESTIGATING')}
-              className={`text-xs h-8 px-2.5 sm:px-3 font-semibold transition-all ${
+              className={`text-xs h-9 sm:h-8 px-2 sm:px-3 font-semibold transition-all w-full sm:w-auto ${
                 currentIncident.status === 'INVESTIGATING'
                   ? 'bg-yellow-500/30 text-yellow-200 border-yellow-400 cursor-default ring-1 ring-yellow-400/50'
                   : 'bg-red-900/60 hover:bg-yellow-950/80 hover:border-yellow-400/70 text-white border-red-500/50'
@@ -319,7 +320,7 @@ export function CommissionerAlertBanner({
               size="sm"
               disabled={isUpdating || currentIncident.status === 'RESOLVED'}
               onClick={() => handleUpdateStatus('RESOLVED')}
-              className={`text-xs h-8 px-2.5 sm:px-3 font-semibold transition-all ${
+              className={`text-xs h-9 sm:h-8 px-2 sm:px-3 font-semibold transition-all w-full sm:w-auto ${
                 currentIncident.status === 'RESOLVED'
                   ? 'bg-emerald-500/30 text-emerald-200 border-emerald-400 cursor-default ring-1 ring-emerald-400/50'
                   : 'bg-red-900/40 hover:bg-emerald-950/80 hover:border-emerald-400/70 text-white border-red-500/30'
@@ -340,7 +341,7 @@ export function CommissionerAlertBanner({
               size="sm"
               disabled={isUpdating || currentIncident.status === 'FALSE_ALARM'}
               onClick={() => handleUpdateStatus('FALSE_ALARM')}
-              className={`text-xs h-8 px-2.5 sm:px-3 font-semibold transition-all ${
+              className={`col-span-2 sm:col-span-1 text-xs h-9 sm:h-8 px-2 sm:px-3 font-semibold transition-all w-full sm:w-auto ${
                 currentIncident.status === 'FALSE_ALARM'
                   ? 'bg-zinc-700/60 text-zinc-300 border-zinc-400 cursor-default ring-1 ring-zinc-400/50'
                   : 'bg-red-900/30 hover:bg-zinc-900/80 hover:border-zinc-400/70 text-white border-red-500/20'

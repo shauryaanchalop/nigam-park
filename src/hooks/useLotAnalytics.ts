@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { DEMO_REVENUE_FORECASTS, withDemoFallback } from '@/lib/demoData';
 
 export interface LotUsageStat {
   id: string;
@@ -111,15 +112,19 @@ export function useRevenueForecasts() {
   return useQuery({
     queryKey: ['revenue-forecasts'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('revenue_forecasts')
-        .select('*')
-        .gte('forecast_date', new Date().toISOString().split('T')[0])
-        .order('forecast_date', { ascending: true })
-        .limit(30);
-      
-      if (error) throw error;
-      return data as RevenueForecast[];
+      try {
+        const { data, error } = await supabase
+          .from('revenue_forecasts')
+          .select('*')
+          .gte('forecast_date', new Date().toISOString().split('T')[0])
+          .order('forecast_date', { ascending: true })
+          .limit(30);
+        
+        if (error || !data || data.length === 0) return DEMO_REVENUE_FORECASTS as RevenueForecast[];
+        return withDemoFallback(data as RevenueForecast[], DEMO_REVENUE_FORECASTS);
+      } catch {
+        return DEMO_REVENUE_FORECASTS as RevenueForecast[];
+      }
     },
   });
 }

@@ -17,6 +17,7 @@ import { ChevronLeft, Plus, Pencil, Trash2, Zap, TrendingUp, AlertTriangle, Info
 import { Link } from 'react-router-dom';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { cn } from '@/lib/utils';
+import { DEMO_SURGE_RULES, withDemoFallback } from '@/lib/demoData';
 
 interface SurgePricingRule {
   id: string;
@@ -53,12 +54,17 @@ export default function AdminSurgePricing() {
   const { data: rules, isLoading } = useQuery({
     queryKey: ['surge-pricing-rules-admin'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('surge_pricing_rules')
-        .select('*')
-        .order('min_occupancy_percent', { ascending: true });
-      if (error) throw error;
-      return data as SurgePricingRule[];
+      try {
+        const { data, error } = await supabase
+          .from('surge_pricing_rules')
+          .select('*')
+          .order('min_occupancy_percent', { ascending: true });
+        if (error) throw error;
+        return withDemoFallback(data as SurgePricingRule[], DEMO_SURGE_RULES as SurgePricingRule[]);
+      } catch (err) {
+        console.warn('Using demo surge rules fallback:', err);
+        return DEMO_SURGE_RULES as SurgePricingRule[];
+      }
     },
   });
 

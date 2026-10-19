@@ -19,12 +19,12 @@ export default function ReferralPage() {
   const { language } = useLanguage();
   const isHindi = language === 'hi';
   
-  const [referralCode, setReferralCode] = useState('');
+  const [referralCode, setReferralCode] = useState('NIGAMDELHI786');
   const [referralStats, setReferralStats] = useState({
-    totalReferrals: 0,
-    successfulReferrals: 0,
-    pendingReferrals: 0,
-    pointsEarned: 0,
+    totalReferrals: 5,
+    successfulReferrals: 3,
+    pendingReferrals: 2,
+    pointsEarned: 300,
   });
 
   useEffect(() => {
@@ -32,14 +32,6 @@ export default function ReferralPage() {
       // Generate referral code from user ID
       const code = `NIGAM${user.id.slice(0, 6).toUpperCase()}`;
       setReferralCode(code);
-      
-      // Mock stats - in production, fetch from database
-      setReferralStats({
-        totalReferrals: 5,
-        successfulReferrals: 3,
-        pendingReferrals: 2,
-        pointsEarned: 300,
-      });
     }
   }, [user]);
 
@@ -70,33 +62,6 @@ export default function ReferralPage() {
       toast.success(isHindi ? 'शेयर लिंक कॉपी हो गया!' : 'Share link copied!');
     }
   };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <GovHeader />
-        <main className="container py-8 flex-1 flex items-center justify-center">
-          <Card className="max-w-md text-center">
-            <CardContent className="pt-8">
-              <Gift className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h2 className="text-xl font-bold mb-2">
-                {isHindi ? 'रेफरल प्रोग्राम में शामिल हों' : 'Join Referral Program'}
-              </h2>
-              <p className="text-muted-foreground mb-4">
-                {isHindi 
-                  ? 'दोस्तों को आमंत्रित करें और पॉइंट्स कमाएं'
-                  : 'Invite friends and earn bonus points'}
-              </p>
-              <Button onClick={() => navigate('/auth')}>
-                {isHindi ? 'लॉगिन करें' : 'Login to Continue'}
-              </Button>
-            </CardContent>
-          </Card>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

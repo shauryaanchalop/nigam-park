@@ -388,66 +388,47 @@ export default function AttendantPOS() {
         subtitle="Parking Attendant Terminal"
       />
 
-      <main className="container mx-auto px-4 py-6 max-w-lg">
-        {/* Offline-first sync status */}
-        <div className="mb-4">
-          <OfflineQueueBar
-            isOnline={isOnline}
-            isSyncing={isSyncing}
-            queue={queue}
-            onSync={sync}
-          />
-        </div>
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-6xl pb-24 md:pb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Column: Attendant Controls & Verification */}
+          <div className="lg:col-span-5 space-y-4">
+            {/* Offline-first sync status */}
+            <OfflineQueueBar
+              isOnline={isOnline}
+              isSyncing={isSyncing}
+              queue={queue}
+              onSync={sync}
+            />
 
-        {/* Verified Badge */}
-        <Card className="mb-6 border-success bg-success/5">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center">
-                  <CheckCircle2 className="w-6 h-6 text-primary-foreground" />
+            {/* Verified Badge */}
+            <Card className="border-success bg-success/5 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center flex-shrink-0">
+                      <CheckCircle2 className="w-6 h-6 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-success text-sm sm:text-base">Verified MCD Attendant</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {assignedLot?.name ?? 'Loading...'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Dynamic QR Code */}
+                  <div className="text-center flex-shrink-0">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-card border border-border rounded-lg flex items-center justify-center mb-1">
+                      <QrCode className="w-10 h-10 sm:w-12 sm:h-12 text-foreground" key={qrRefreshKey} />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">Scan to verify</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-success">Verified MCD Attendant</p>
-                  <p className="text-sm text-muted-foreground">
-                    {assignedLot?.name ?? 'Loading...'}
-                  </p>
-                </div>
-              </div>
-              
-              {/* Dynamic QR Code */}
-              <div className="text-center">
-                <div className="w-16 h-16 bg-card border border-border rounded-lg flex items-center justify-center mb-1">
-                  <QrCode className="w-12 h-12 text-foreground" key={qrRefreshKey} />
-                </div>
-                <p className="text-xs text-muted-foreground">Scan to verify</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
-        {/* Today's Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-foreground">
-                ₹{(stats?.totalRevenue ?? 0).toLocaleString('en-IN')}
-              </p>
-              <p className="text-sm text-muted-foreground">Today's Collection</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-foreground">
-                {stats?.transactionCount ?? 0}
-              </p>
-              <p className="text-sm text-muted-foreground">Vehicles Processed</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="space-y-4">
+            {/* Action Buttons */}
+            <div className="space-y-3">
           {/* Mobile Check-in Mode */}
           <Button 
             className="w-full h-14 text-base gap-3" 
@@ -593,7 +574,61 @@ export default function AttendantPOS() {
           </div>
         </div>
 
-        {/* Currently Parked Vehicles */}
+          {/* Current Lot Status */}
+          <Card className="shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <p className="font-semibold text-foreground text-sm">{assignedLot?.name}</p>
+                    <p className="text-xs text-muted-foreground">{assignedLot?.zone}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-bold text-foreground">
+                    {assignedLot?.current_occupancy}/{assignedLot?.capacity}
+                  </p>
+                  <Badge 
+                    variant="outline"
+                    className={cn(
+                      "text-xs",
+                      assignedLot && (assignedLot.current_occupancy / assignedLot.capacity) >= 0.9 
+                        ? 'border-destructive text-destructive' 
+                        : 'border-success text-success'
+                    )}
+                  >
+                    {assignedLot && Math.round((assignedLot.current_occupancy / assignedLot.capacity) * 100)}% Full
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column: Shift Stats, Live Parked List & Feed */}
+        <div className="lg:col-span-7 space-y-4">
+          {/* Today's Stats */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card className="shadow-sm">
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-foreground">
+                  ₹{(stats?.totalRevenue ?? 0).toLocaleString('en-IN')}
+                </p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Today's Collection</p>
+              </CardContent>
+            </Card>
+            <Card className="shadow-sm">
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-foreground">
+                  {stats?.transactionCount ?? 0}
+                </p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Vehicles Processed</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Currently Parked Vehicles */}
         <Card className="mt-6">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -771,38 +806,9 @@ export default function AttendantPOS() {
         <NotificationPanel 
           defaultLot={assignedLot?.name}
         />
-
-        {/* Current Lot Status */}
-        <Card className="mt-4">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <div>
-                  <p className="font-semibold text-foreground text-sm">{assignedLot?.name}</p>
-                  <p className="text-xs text-muted-foreground">{assignedLot?.zone}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-xl font-bold text-foreground">
-                  {assignedLot?.current_occupancy}/{assignedLot?.capacity}
-                </p>
-                <Badge 
-                  variant="outline"
-                  className={cn(
-                    "text-xs",
-                    assignedLot && (assignedLot.current_occupancy / assignedLot.capacity) >= 0.9 
-                      ? 'border-destructive text-destructive' 
-                      : 'border-success text-success'
-                  )}
-                >
-                  {assignedLot && Math.round((assignedLot.current_occupancy / assignedLot.capacity) * 100)}% Full
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </main>
+        </div>
+      </div>
+    </main>
 
       {/* QR Scanner Dialog - Check-in */}
       <QRScannerDialog 

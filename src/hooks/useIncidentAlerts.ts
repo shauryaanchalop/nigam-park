@@ -45,29 +45,76 @@ function playEmergencyChime() {
   }
 }
 
+export const DEFAULT_MOCK_INCIDENTS: ParkingIncident[] = [
+  {
+    id: 'mock-incident-1',
+    camera_id: 'CAM_CP_LOT_04',
+    lot_zone: 'Connaught Place - Block A Entry',
+    incident_type: 'VEHICLE_COLLISION',
+    severity: 'CRITICAL',
+    involved_track_ids: [104, 112],
+    involved_plates: ['DL 01 AB 1234', 'HR 26 DQ 5678'],
+    iou_score: 0.38,
+    snapshot_url: '/parking-crash.jpg',
+    status: 'UNRESOLVED',
+    notes: 'Impact detected between sedan and hatchback near Block A automated entry gate.',
+    created_at: new Date(Date.now() - 8 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'mock-incident-2',
+    camera_id: 'CAM_KB_LOT_02',
+    lot_zone: 'Karol Bagh - Zone 3 South',
+    incident_type: 'ILLEGAL_STOPPAGE',
+    severity: 'HIGH',
+    involved_track_ids: [205],
+    involved_plates: ['UP 16 CD 7823'],
+    iou_score: 0.15,
+    snapshot_url: '/parking-crash.png',
+    status: 'INVESTIGATING',
+    notes: 'Vehicle stationary in emergency fire lane obstructing transit for >15 minutes.',
+    created_at: new Date(Date.now() - 32 * 60 * 1000).toISOString(),
+  },
+];
+
 export function useIncidentAlerts() {
   const queryClient = useQueryClient();
   const [activeIncident, setActiveIncident] = useState<ParkingIncident | null>(null);
   const audioEnabledRef = useRef(true);
 
   // Fetch recent incidents
-  const { data: incidents = [], isLoading, error, refetch } = useQuery({
+  const { data: incidents = DEFAULT_MOCK_INCIDENTS, isLoading, error, refetch } = useQuery({
     queryKey: ['parking-incidents'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('parking_incidents')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
+      try {
+        const { data, error } = await supabase
+          .from('parking_incidents')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(50);
 
-      if (error) {
-        console.warn('Failed to fetch parking incidents:', error);
-        return [];
+        if (error) {
+          console.warn('Failed to fetch parking incidents:', error);
+          return DEFAULT_MOCK_INCIDENTS;
+        }
+        if (data && data.length > 0) return data as ParkingIncident[];
+        return DEFAULT_MOCK_INCIDENTS;
+      } catch (err) {
+        console.warn('Using offline mock incidents:', err);
+        return DEFAULT_MOCK_INCIDENTS;
       }
-      return (data || []) as ParkingIncident[];
     },
     staleTime: 5000,
   });
+
+  // Auto-set the first unresolved incident as active on load
+  useEffect(() => {
+    if (!activeIncident && incidents.length > 0) {
+      const firstUnresolved = incidents.find((i) => i.status === 'UNRESOLVED');
+      if (firstUnresolved) {
+        setActiveIncident(firstUnresolved);
+      }
+    }
+  }, [incidents, activeIncident]);
 
   // Subscribe to real-time events on parking_incidents
   useEffect(() => {

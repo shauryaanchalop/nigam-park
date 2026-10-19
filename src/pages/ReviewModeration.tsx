@@ -48,6 +48,7 @@ import {
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Footer } from '@/components/Footer';
+import { DEMO_PARKING_REVIEWS, withDemoFallback } from '@/lib/demoData';
 
 interface Review {
   id: string;
@@ -75,39 +76,48 @@ export default function ReviewModeration() {
   const { data: reviews, isLoading } = useQuery({
     queryKey: ['admin-reviews', filterRating, filterVerified],
     queryFn: async () => {
-      let query = supabase
-        .from('parking_reviews')
-        .select(`
-          *,
-          parking_lots(name)
-        `)
-        .order('created_at', { ascending: false });
+      try {
+        let query = supabase
+          .from('parking_reviews')
+          .select(`
+            *,
+            parking_lots(name)
+          `)
+          .order('created_at', { ascending: false });
 
-      if (filterRating !== 'all') {
-        query = query.eq('rating', parseInt(filterRating));
+        if (filterRating !== 'all') {
+          query = query.eq('rating', parseInt(filterRating));
+        }
+        if (filterVerified === 'verified') {
+          query = query.eq('is_verified', true);
+        } else if (filterVerified === 'unverified') {
+          query = query.eq('is_verified', false);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        // Fetch profiles separately
+        const userIds = [...new Set(data?.map(r => r.user_id) || [])];
+        const { data: profiles } = userIds.length ? await supabase
+          .from('profiles')
+          .select('user_id, full_name, avatar_url')
+          .in('user_id', userIds) : { data: [] };
+
+        const profileMap = new Map<string, any>(
+          profiles?.map((p): [string, any] => [p.user_id, p]) || []
+        );
+        
+        const mapped = data?.map(review => ({
+          ...review,
+          profiles: profileMap.get(review.user_id) || null
+        })) as Review[];
+
+        return withDemoFallback(mapped, DEMO_PARKING_REVIEWS as unknown as Review[]);
+      } catch (err) {
+        console.warn('Using demo parking reviews fallback:', err);
+        return DEMO_PARKING_REVIEWS as unknown as Review[];
       }
-      if (filterVerified === 'verified') {
-        query = query.eq('is_verified', true);
-      } else if (filterVerified === 'unverified') {
-        query = query.eq('is_verified', false);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      // Fetch profiles separately
-      const userIds = [...new Set(data?.map(r => r.user_id) || [])];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, avatar_url')
-        .in('user_id', userIds);
-
-      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
-      
-      return data?.map(review => ({
-        ...review,
-        profiles: profileMap.get(review.user_id) || null
-      })) as Review[];
     }
   });
 

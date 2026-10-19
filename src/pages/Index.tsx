@@ -163,14 +163,10 @@ export default function Index() {
     );
   }
 
-  // Not signed in -> send to login (home page lives at "/")
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  // Render view based on user role with transition
+  // Render view based on user role with transition (defaults to admin in demo mode)
+  const activeViewRole = displayedRole || userRole || 'admin';
   const renderDashboard = () => {
-    switch (displayedRole) {
+    switch (activeViewRole) {
       case 'admin':
         return <AdminDashboard />;
       case 'attendant':

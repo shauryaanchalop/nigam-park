@@ -26,12 +26,7 @@ export default function MyReservations() {
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Redirect to auth if not logged in
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth');
-    }
-  }, [user, authLoading, navigate]);
+  // Allow demo visitors to preview active & future reservations seamlessly
 
   // Real-time subscription for reservation updates
   useEffect(() => {

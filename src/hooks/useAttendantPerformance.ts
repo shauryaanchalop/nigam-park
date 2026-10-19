@@ -3,6 +3,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format, subDays } from 'date-fns';
+import { DEMO_ATTENDANT_LEADERBOARD, DEMO_PERFORMANCE_HISTORY, withDemoFallback } from '@/lib/demoData';
+
+const DEMO_MY_PERFORMANCE = {
+  today: { collections: 4850, transactions: 28 },
+  week: { collections: 28450, transactions: 142 },
+  month: { collections: 94600, transactions: 480 },
+};
 
 export interface AttendantPerformance {
   id: string;
@@ -105,7 +112,7 @@ export function useAttendantPerformance() {
   });
 
   return {
-    myPerformance: myPerformanceQuery.data,
+    myPerformance: myPerformanceQuery.data?.today.collections ? myPerformanceQuery.data : DEMO_MY_PERFORMANCE,
     dailyTarget: dailyTargetQuery.data || 5000,
     isLoading: myPerformanceQuery.isLoading,
   };
@@ -119,50 +126,54 @@ export function useAdminAttendantPerformance() {
   const leaderboardQuery = useQuery({
     queryKey: ['attendant-leaderboard'],
     queryFn: async () => {
-      const today = format(new Date(), 'yyyy-MM-dd');
-      const weekStart = format(startOfWeek(new Date()), 'yyyy-MM-dd');
+      try {
+        const today = format(new Date(), 'yyyy-MM-dd');
+        const weekStart = format(startOfWeek(new Date()), 'yyyy-MM-dd');
 
-      // Get all transactions for this week with user info
-      const { data: transactions, error } = await supabase
-        .from('transactions')
-        .select('amount, created_at')
-        .gte('created_at', `${weekStart}T00:00:00`)
-        .eq('status', 'completed');
+        // Get all transactions for this week with user info
+        const { data: transactions, error } = await supabase
+          .from('transactions')
+          .select('amount, created_at')
+          .gte('created_at', `${weekStart}T00:00:00`)
+          .eq('status', 'completed');
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Get all user roles that are attendants
-      const { data: attendants } = await supabase
-        .from('user_roles')
-        .select(`
-          user_id,
-          profiles:user_id (full_name)
-        `)
-        .eq('role', 'attendant');
+        // Get all user roles that are attendants
+        const { data: attendants } = await supabase
+          .from('user_roles')
+          .select(`
+            user_id,
+            profiles:user_id (full_name)
+          `)
+          .eq('role', 'attendant');
 
-      // Create leaderboard from demo data
-      const leaderboard: LeaderboardEntry[] = (attendants || []).map((attendant, index) => {
-        // Simulate performance data for demo
-        const baseCollections = Math.random() * 15000 + 5000;
-        const baseTxCount = Math.floor(Math.random() * 100 + 30);
-        
-        return {
-          user_id: attendant.user_id,
-          full_name: (attendant.profiles as any)?.full_name || 'Attendant',
-          total_collections: Math.round(baseCollections),
-          transaction_count: baseTxCount,
-          efficiency_score: Math.round((baseTxCount / 8) * 10) / 10, // Transactions per hour
-          rank: index + 1,
-        };
-      });
+        if (!attendants || attendants.length === 0) return DEMO_ATTENDANT_LEADERBOARD;
 
-      // Sort by collections and assign ranks
-      leaderboard.sort((a, b) => b.total_collections - a.total_collections);
-      leaderboard.forEach((entry, index) => {
-        entry.rank = index + 1;
-      });
+        // Create leaderboard from demo data
+        const leaderboard: LeaderboardEntry[] = (attendants || []).map((attendant, index) => {
+          const baseCollections = Math.random() * 15000 + 5000;
+          const baseTxCount = Math.floor(Math.random() * 100 + 30);
+          
+          return {
+            user_id: attendant.user_id,
+            full_name: (attendant.profiles as any)?.full_name || 'Attendant',
+            total_collections: Math.round(baseCollections),
+            transaction_count: baseTxCount,
+            efficiency_score: Math.round((baseTxCount / 8) * 10) / 10,
+            rank: index + 1,
+          };
+        });
 
-      return leaderboard;
+        leaderboard.sort((a, b) => b.total_collections - a.total_collections);
+        leaderboard.forEach((entry, index) => {
+          entry.rank = index + 1;
+        });
+
+        return withDemoFallback(leaderboard, DEMO_ATTENDANT_LEADERBOARD);
+      } catch {
+        return DEMO_ATTENDANT_LEADERBOARD;
+      }
     },
   });
 
@@ -170,37 +181,41 @@ export function useAdminAttendantPerformance() {
   const performanceHistoryQuery = useQuery({
     queryKey: ['performance-history'],
     queryFn: async () => {
-      // Get last 7 days of transaction data
-      const days = [];
-      for (let i = 6; i >= 0; i--) {
-        const date = format(subDays(new Date(), i), 'yyyy-MM-dd');
-        days.push(date);
+      try {
+        const days = [];
+        for (let i = 6; i >= 0; i--) {
+          const date = format(subDays(new Date(), i), 'yyyy-MM-dd');
+          days.push(date);
+        }
+
+        const { data: transactions } = await supabase
+          .from('transactions')
+          .select('amount, created_at')
+          .gte('created_at', `${days[0]}T00:00:00`)
+          .eq('status', 'completed');
+
+        const dailyData = days.map(date => {
+          const dayTransactions = (transactions || []).filter(t => 
+            t.created_at.startsWith(date)
+          );
+          return {
+            date,
+            collections: dayTransactions.reduce((sum, t) => sum + t.amount, 0),
+            transactions: dayTransactions.length,
+          };
+        });
+
+        const hasNonZero = dailyData.some(d => d.collections > 0);
+        return hasNonZero ? dailyData : DEMO_PERFORMANCE_HISTORY;
+      } catch {
+        return DEMO_PERFORMANCE_HISTORY;
       }
-
-      const { data: transactions } = await supabase
-        .from('transactions')
-        .select('amount, created_at')
-        .gte('created_at', `${days[0]}T00:00:00`)
-        .eq('status', 'completed');
-
-      const dailyData = days.map(date => {
-        const dayTransactions = (transactions || []).filter(t => 
-          t.created_at.startsWith(date)
-        );
-        return {
-          date,
-          collections: dayTransactions.reduce((sum, t) => sum + t.amount, 0),
-          transactions: dayTransactions.length,
-        };
-      });
-
-      return dailyData;
     },
   });
 
   return {
-    leaderboard: leaderboardQuery.data || [],
-    performanceHistory: performanceHistoryQuery.data || [],
+    leaderboard: withDemoFallback(leaderboardQuery.data, DEMO_ATTENDANT_LEADERBOARD),
+    performanceHistory: performanceHistoryQuery.data?.length ? performanceHistoryQuery.data : DEMO_PERFORMANCE_HISTORY,
     isLoading: leaderboardQuery.isLoading,
   };
 }

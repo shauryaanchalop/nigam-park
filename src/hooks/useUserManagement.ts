@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { AppRole } from '@/types/database';
 import { z } from 'zod';
+import { DEMO_USERS, withDemoFallback } from '@/lib/demoData';
 
 interface UserWithRole {
   id: string;
@@ -26,38 +27,42 @@ export function useUserManagement() {
   const query = useQuery({
     queryKey: ['users-with-roles'],
     queryFn: async () => {
-      // First get all user roles
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('id, user_id, role, assigned_lot_id');
-      
-      if (rolesError) throw rolesError;
-      if (!roles || roles.length === 0) return [];
+      try {
+        // First get all user roles
+        const { data: roles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('id, user_id, role, assigned_lot_id');
+        
+        if (rolesError || !roles || roles.length === 0) return DEMO_USERS;
 
-      // Get profiles for these users
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, created_at');
-      
-      if (profilesError) throw profilesError;
+        // Get profiles for these users
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, created_at');
+        
+        if (profilesError) return DEMO_USERS;
 
-      // Combine the data - we'll use user_id as a lookup
-      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+        // Combine the data - we'll use user_id as a lookup
+        const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
 
-      const users: UserWithRole[] = roles.map(role => {
-        const profile = profileMap.get(role.user_id);
-        return {
-          id: role.user_id,
-          email: '', // We don't have access to auth.users email directly
-          full_name: profile?.full_name || null,
-          created_at: profile?.created_at || new Date().toISOString(),
-          role: role.role as AppRole,
-          role_id: role.id,
-          assigned_lot_id: role.assigned_lot_id,
-        };
-      });
+        const users: UserWithRole[] = roles.map(role => {
+          const profile = profileMap.get(role.user_id);
+          return {
+            id: role.user_id,
+            email: '', // We don't have access to auth.users email directly
+            full_name: profile?.full_name || null,
+            created_at: profile?.created_at || new Date().toISOString(),
+            role: role.role as AppRole,
+            role_id: role.id,
+            assigned_lot_id: role.assigned_lot_id,
+          };
+        });
 
-      return users;
+        return withDemoFallback(users, DEMO_USERS);
+      } catch (err) {
+        console.warn('[useUserManagement] Fetch failed, using demo users:', err);
+        return DEMO_USERS;
+      }
     },
   });
 
@@ -97,15 +102,18 @@ export function useUserManagement() {
     },
   });
 
+  const resolvedUsers = withDemoFallback(query.data, DEMO_USERS);
+
   const stats = {
-    total: query.data?.length ?? 0,
-    admins: query.data?.filter(u => u.role === 'admin').length ?? 0,
-    attendants: query.data?.filter(u => u.role === 'attendant').length ?? 0,
-    citizens: query.data?.filter(u => u.role === 'citizen').length ?? 0,
+    total: resolvedUsers.length,
+    admins: resolvedUsers.filter(u => u.role === 'admin').length,
+    attendants: resolvedUsers.filter(u => u.role === 'attendant').length,
+    citizens: resolvedUsers.filter(u => u.role === 'citizen').length,
   };
 
   return {
     ...query,
+    data: resolvedUsers,
     updateUserRole,
     stats,
   };

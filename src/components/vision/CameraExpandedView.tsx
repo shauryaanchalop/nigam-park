@@ -120,7 +120,7 @@ export function CameraExpandedView({
                 src={activeStreamSrc}
                 alt={`Camera feed: ${camera.name}`}
                 onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = '/parking-crash.jpg';
+                  (e.currentTarget as HTMLImageElement).src = isAlertHighlighted ? '/parking-crash.jpg' : cctvImage;
                 }}
                 className="w-full h-full object-cover transition-opacity duration-300"
               />

@@ -229,7 +229,7 @@ export default function CitizenPortal() {
         subtitle={isHindi ? 'दिल्ली में पार्किंग खोजें' : 'Find Parking in Delhi'}
       />
 
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-4xl pb-24 md:pb-6">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl pb-24 md:pb-6">
         <BackButton inline to="/" label={isHindi ? 'होम पर वापस' : 'Back to Home'} />
         {/* Pending Fines Banner */}
         {user && (
@@ -241,89 +241,150 @@ export default function CitizenPortal() {
         {/* Weather Recommendation */}
         <WeatherRecommendation />
 
-        {/* Quick Actions for Citizens */}
-        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4 mt-4">
-          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
-            <Link to="/live-map">
-              <Map className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isHindi ? 'लाइव मैप' : 'Live Map'}
+        {/* Quick Civic Services & Navigation */}
+        <div className="mb-6 mt-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold tracking-wide uppercase text-muted-foreground flex items-center gap-1.5">
+              <Car className="w-4 h-4 text-primary" />
+              {isHindi ? 'नागरिक सेवाएं और त्वरित पहुंच' : 'Citizen Smart Services'}
+            </h2>
+            <Link to="/live-map" className="text-xs text-primary hover:underline font-medium flex items-center gap-1">
+              <Map className="w-3.5 h-3.5" />
+              {isHindi ? 'पूरा दिल्ली मैप देखें' : 'View Full Delhi Map'}
             </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
-            <Link to="/wallet">
-              <WalletIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isHindi ? 'वॉलेट' : 'Wallet'}
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
-            <Link to="/loyalty">
-              <Gift className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isHindi ? 'लॉयल्टी' : 'Rewards'}
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
-            <Link to="/my-reservations">
-              <History className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isHindi ? 'मेरी बुकिंग' : 'Bookings'}
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
-            <Link to="/monthly-pass">
-              <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isHindi ? 'मासिक पास' : 'Pass'}
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
-            <Link to="/referral">
-              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isHindi ? 'रेफरल' : 'Refer'}
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
-            <Link to="/notifications">
-              <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isHindi ? 'अलर्ट' : 'Alerts'}
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
-            <Link to="/blog">
-              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isHindi ? 'टिप्स' : 'Tips'}
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
-            <Link to="/business">
-              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isHindi ? 'व्यापार' : 'Business'}
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
-            <Link to="/contact">
-              <Headphones className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isHindi ? 'सहायता' : 'Help'}
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild className="gap-1.5 sm:gap-2 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
-            <Link to="/install">
-              <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              {isHindi ? 'ऐप इंस्टॉल करें' : 'Install App'}
-            </Link>
-          </Button>
-        </div>
+          </div>
 
-        {/* Report Violation - Separate & Last */}
-        <div className="mb-4 sm:mb-6">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            asChild 
-            className="text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground font-medium"
-          >
-            <Link to="/report-violation">
-              <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-              {isHindi ? 'उल्लंघन की रिपोर्ट करें' : 'Report Violation'}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
+            <Link
+              to="/live-map"
+              className="group p-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/40 hover:shadow-xs transition-all flex items-center gap-2.5"
+            >
+              <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Map className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-foreground truncate">{isHindi ? 'लाइव मैप' : 'Live Map'}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{isHindi ? 'सजीव उपलब्धता' : 'Real-time slots'}</p>
+              </div>
             </Link>
-          </Button>
+
+            <Link
+              to="/wallet"
+              className="group p-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/40 hover:shadow-xs transition-all flex items-center gap-2.5"
+            >
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <WalletIcon className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-foreground truncate">{isHindi ? 'वॉलेट' : 'FASTag Wallet'}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{isHindi ? 'ऑटो डेबिट' : '₹1,450 balance'}</p>
+              </div>
+            </Link>
+
+            <Link
+              to="/my-reservations"
+              className="group p-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/40 hover:shadow-xs transition-all flex items-center gap-2.5"
+            >
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <History className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-foreground truncate">{isHindi ? 'मेरी बुकिंग' : 'Bookings'}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{isHindi ? 'सक्रिय स्लॉट' : 'Active & past'}</p>
+              </div>
+            </Link>
+
+            <Link
+              to="/monthly-pass"
+              className="group p-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/40 hover:shadow-xs transition-all flex items-center gap-2.5"
+            >
+              <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <CreditCard className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-foreground truncate">{isHindi ? 'मासिक पास' : 'Monthly Pass'}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{isHindi ? 'असीमित प्रवेश' : 'Central Zone'}</p>
+              </div>
+            </Link>
+
+            <Link
+              to="/loyalty"
+              className="group p-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/40 hover:shadow-xs transition-all flex items-center gap-2.5"
+            >
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Gift className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-foreground truncate">{isHindi ? 'रिवॉर्ड्स' : 'Rewards'}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{isHindi ? 'कैशबैक अंक' : '670 points'}</p>
+              </div>
+            </Link>
+
+            <Link
+              to="/referral"
+              className="group p-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/40 hover:shadow-xs transition-all flex items-center gap-2.5"
+            >
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Users className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-foreground truncate">{isHindi ? 'रेफरल' : 'Referral'}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{isHindi ? '100 अंक पाएं' : 'Get +100 pts'}</p>
+              </div>
+            </Link>
+
+            <Link
+              to="/notifications"
+              className="group p-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/40 hover:shadow-xs transition-all flex items-center gap-2.5"
+            >
+              <div className="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Bell className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-foreground truncate">{isHindi ? 'अधिसूचना' : 'Alerts'}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{isHindi ? 'अलर्ट लॉग' : 'Expiry & receipts'}</p>
+              </div>
+            </Link>
+
+            <Link
+              to="/business"
+              className="group p-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/40 hover:shadow-xs transition-all flex items-center gap-2.5"
+            >
+              <div className="w-8 h-8 rounded-lg bg-emerald-600/10 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Building2 className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-foreground truncate">{isHindi ? 'व्यापार' : 'Corporate Fleet'}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{isHindi ? 'कंपनी पार्किंग' : 'GST Billing'}</p>
+              </div>
+            </Link>
+
+            <Link
+              to="/contact"
+              className="group p-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/40 hover:shadow-xs transition-all flex items-center gap-2.5"
+            >
+              <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Headphones className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-foreground truncate">{isHindi ? 'सहायता' : '24x7 Help'}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{isHindi ? 'MCD हेल्पलाइन' : 'Toll-free 155304'}</p>
+              </div>
+            </Link>
+
+            <Link
+              to="/report-violation"
+              className="group p-3 rounded-xl border border-destructive/40 bg-destructive/5 hover:bg-destructive/15 hover:border-destructive/60 transition-all flex items-center gap-2.5 col-span-2 sm:col-span-1"
+            >
+              <div className="w-8 h-8 rounded-lg bg-destructive/15 text-destructive flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-destructive truncate">{isHindi ? 'उल्लंघन रिपोर्ट' : 'Report Issue'}</p>
+                <p className="text-[10px] text-destructive/80 truncate">{isHindi ? 'ट्रैफिक मार्शल' : 'Encroachment / fine'}</p>
+              </div>
+            </Link>
+          </div>
         </div>
 
         {/* AQI Banner */}
@@ -399,13 +460,13 @@ export default function CitizenPortal() {
         {/* Parking Lots Grid */}
         <h2 className="text-lg sm:text-xl font-semibold mt-4 sm:mt-6 mb-3 tracking-tight">Nearby Parking</h2>
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[1, 2, 3, 4].map(i => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6">
+            {[1, 2, 3, 4, 5, 6].map(i => (
               <ParkingLotSkeleton key={i} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6">
             {filteredLots?.map(lot => {
               const status = getAvailabilityStatus(lot.current_occupancy, lot.capacity);
               const travelTime = travelTimes[lot.id];

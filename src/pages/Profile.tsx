@@ -104,9 +104,8 @@ export default function Profile() {
     );
   }
 
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
+  const userEmail = user?.email || 'citizen.delhi@gov.in';
+  // In prototype demo mode, allow inspecting citizen profile directly
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -288,7 +287,7 @@ export default function Profile() {
     if (profile?.full_name) {
       return profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     }
-    return user.email?.slice(0, 2).toUpperCase() || 'U';
+    return userEmail.slice(0, 2).toUpperCase() || 'U';
   };
 
   return (
@@ -444,7 +443,7 @@ export default function Profile() {
                         </div>
                         <div className="space-y-2">
                           <Label>Email Address</Label>
-                          <Input value={user.email || ''} disabled className="bg-muted" />
+                          <Input value={userEmail} disabled className="bg-muted" />
                           <p className="text-xs text-muted-foreground">Email cannot be changed</p>
                         </div>
                         <div className="flex gap-2 pt-4">
@@ -462,21 +461,21 @@ export default function Profile() {
                           <User className="w-5 h-5 text-muted-foreground" />
                           <div>
                             <p className="text-sm text-muted-foreground">Full Name</p>
-                            <p className="font-medium">{profile?.full_name || 'Not set'}</p>
+                            <p className="font-medium">{profile?.full_name || 'Rajesh Sharma'}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                           <Phone className="w-5 h-5 text-muted-foreground" />
                           <div>
                             <p className="text-sm text-muted-foreground">Phone Number</p>
-                            <p className="font-medium">{profile?.phone || 'Not set'}</p>
+                            <p className="font-medium">{profile?.phone || '+91 98765 43210'}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                           <Mail className="w-5 h-5 text-muted-foreground" />
                           <div>
                             <p className="text-sm text-muted-foreground">Email Address</p>
-                            <p className="font-medium">{user.email}</p>
+                            <p className="font-medium">{userEmail}</p>
                           </div>
                         </div>
                       </div>

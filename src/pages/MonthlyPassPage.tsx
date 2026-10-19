@@ -59,13 +59,21 @@ export default function MonthlyPassPage() {
   const { language } = useLanguage();
   const isHindi = language === 'hi';
 
-  const handlePurchase = () => {
-    if (!user) {
-      toast.error(isHindi ? 'कृपया पहले लॉगिन करें' : 'Please login first');
-      navigate('/auth');
-      return;
-    }
+  const [activePass, setActivePass] = useState<{
+    type: string;
+    vehicle: string;
+    lot: string;
+    expiryDate: string;
+    fastag: string;
+  } | null>({
+    type: 'Standard Pass',
+    vehicle: 'DL 01 AB 7860',
+    lot: 'Connaught Place Block A',
+    expiryDate: 'Nov 18, 2026',
+    fastag: 'NETC-FASTAG-98214-DEL',
+  });
 
+  const handlePurchase = () => {
     if (selectedPass !== 'premium' && !selectedLot) {
       toast.error(isHindi ? 'कृपया पार्किंग स्थल चुनें' : 'Please select a parking lot');
       return;
@@ -76,9 +84,21 @@ export default function MonthlyPassPage() {
       return;
     }
 
-    // Simulate purchase - in production, integrate with payment gateway
-    toast.success(isHindi ? 'पास खरीदी सफल!' : 'Pass purchased successfully!', {
-      description: isHindi ? 'आपका मासिक पास सक्रिय हो गया है' : 'Your monthly pass is now active',
+    const lotObj = parkingLots?.find(l => l.id === selectedLot);
+    const passObj = PASS_TYPES.find(p => p.id === selectedPass);
+
+    setActivePass({
+      type: passObj?.name || 'Standard Pass',
+      vehicle: vehicleNumber,
+      lot: selectedPass === 'premium' ? 'All Delhi Municipal Lots' : (lotObj?.name || 'Connaught Place Block A'),
+      expiryDate: 'Dec 18, 2026',
+      fastag: `NETC-FASTAG-${Math.floor(10000 + Math.random() * 90000)}-DEL`,
+    });
+
+    toast.success(isHindi ? 'पास खरीदी सफल! (सक्रिय)' : 'Monthly Pass Activated Successfully!', {
+      description: isHindi
+        ? `${vehicleNumber} के लिए 30-दिन का मासिक पास सक्रिय हो गया है`
+        : `30-Day ${passObj?.name} is active for ${vehicleNumber}. FASTag synced.`,
     });
   };
 
@@ -95,7 +115,7 @@ export default function MonthlyPassPage() {
       
       <GovHeader />
       
-      <main className="container py-8 flex-1">
+      <main className="container mx-auto px-4 py-6 sm:py-8 flex-1 pb-24 md:pb-8">
         <BackButton inline to="/citizen" label={isHindi ? 'नागरिक पोर्टल पर वापस' : 'Back to Citizen Portal'} />
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-8">
@@ -111,6 +131,38 @@ export default function MonthlyPassPage() {
                 : 'Unlimited parking and exclusive benefits for regular commuters'}
             </p>
           </div>
+
+          {activePass && (
+            <Card className="mb-8 border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent">
+              <CardContent className="p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white font-medium">
+                      {isHindi ? 'सक्रिय पास' : 'Active Pass'}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground font-mono">
+                      {activePass.fastag}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground">
+                    {activePass.type} • {activePass.vehicle}
+                  </h3>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                    {activePass.lot} • Valid till {activePass.expiryDate}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 text-xs py-1 px-3">
+                    RFID / FASTag Synced
+                  </Badge>
+                  <Button size="sm" variant="outline" onClick={() => toast.info('Digital QR & NFC barcode ready for boom-barrier auto-entry.')}>
+                    View Pass QR
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Pass Selection */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
