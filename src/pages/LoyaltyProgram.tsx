@@ -44,7 +44,7 @@ export default function LoyaltyProgram() {
     return (
       <div className="min-h-screen bg-background">
         <GovHeader title="Loyalty Program" subtitle="Loading..." />
-        <main className="container mx-auto px-4 py-6">
+        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
           <Skeleton className="h-96" />
         </main>
       </div>
@@ -58,7 +58,7 @@ export default function LoyaltyProgram() {
         subtitle="Earn points and unlock rewards"
       />
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
         <BackButton inline to="/citizen" label="Back to Citizen Portal" />
 
         {/* Current Status */}

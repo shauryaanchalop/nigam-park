@@ -4,7 +4,8 @@ import { SEOHead } from '@/components/SEOHead';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Calendar, Clock, User, ChevronLeft } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
+import { ArrowRight, Calendar, Clock, User } from 'lucide-react';
 import { Footer } from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -88,15 +89,10 @@ export default function BlogIndex() {
       
       <GovHeader />
       
-      <main className="container py-8">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
         <div className="max-w-4xl mx-auto">
           {/* Back Button */}
-          <Button variant="ghost" asChild className="mb-4">
-            <Link to="/citizen">
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              {isHindi ? 'वापस जाएं' : 'Back'}
-            </Link>
-          </Button>
+          <BackButton inline to="/" label={isHindi ? 'होम पर वापस' : 'Back to Home'} />
 
           <div className="mb-8">
             <Badge variant="outline" className="mb-2">{isHindi ? 'ब्लॉग' : 'Blog'}</Badge>

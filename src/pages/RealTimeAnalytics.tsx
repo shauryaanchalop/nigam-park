@@ -202,7 +202,7 @@ export default function RealTimeAnalytics() {
         subtitle="Live System Monitoring"
       />
 
-      <main className="container mx-auto px-4 py-6 space-y-6">
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-28 md:pb-8 space-y-6">
         {/* Back Button */}
         <BackButton inline to="/dashboard" label="Back to Dashboard" className="mb-2" />
 

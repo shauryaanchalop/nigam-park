@@ -229,7 +229,7 @@ export default function CitizenPortal() {
         subtitle={isHindi ? 'दिल्ली में पार्किंग खोजें' : 'Find Parking in Delhi'}
       />
 
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl pb-24 md:pb-6">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl pb-28 md:pb-8">
         <BackButton inline to="/" label={isHindi ? 'होम पर वापस' : 'Back to Home'} />
         {/* Pending Fines Banner */}
         {user && (

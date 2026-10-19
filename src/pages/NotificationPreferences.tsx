@@ -171,7 +171,7 @@ export default function NotificationPreferences() {
         subtitle="Manage your parking alerts"
       />
 
-      <main className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-2xl space-y-6">
         <BackButton inline to="/dashboard" label="Back to Dashboard" />
         {/* Phone Number */}
         <Card>

@@ -295,7 +295,7 @@ export default function BlogPost() {
     return (
       <div className="min-h-screen bg-background">
         <GovHeader />
-        <main className="container py-8 text-center">
+        <main className="container mx-auto px-4 py-8 pb-28 md:pb-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Article Not Found</h1>
           <p className="text-muted-foreground mb-4">The article you&apos;re looking for doesn&apos;t exist.</p>
           <Link to="/blog">
@@ -344,7 +344,7 @@ export default function BlogPost() {
       
       <GovHeader />
       
-      <main className="container py-8">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
         <article className="max-w-3xl mx-auto">
           <BackButton inline to="/blog" label="Back to Blog" />
           

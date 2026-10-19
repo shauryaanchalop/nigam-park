@@ -155,7 +155,7 @@ export default function AdminFines() {
     return (
       <div className="min-h-screen bg-background">
         <GovHeader title="Fine Management" subtitle="Loading..." />
-        <main className="container mx-auto px-4 py-6">
+        <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-28 md:pb-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {[1, 2, 3, 4].map(i => (
               <Skeleton key={i} className="h-24" />
@@ -174,7 +174,7 @@ export default function AdminFines() {
         subtitle="View and manage user fines"
       />
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-28 md:pb-8">
         {/* Back Button */}
         <BackButton inline to="/dashboard" label="Back to Dashboard" />
 

@@ -388,7 +388,7 @@ export default function AttendantPOS() {
         subtitle="Parking Attendant Terminal"
       />
 
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-6xl pb-24 md:pb-6">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-6xl pb-28 md:pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: Attendant Controls & Verification */}
           <div className="lg:col-span-5 space-y-4">

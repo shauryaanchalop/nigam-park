@@ -74,7 +74,7 @@ export default function ReferralPage() {
       
       <GovHeader />
       
-      <main className="container py-8 flex-1">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 flex-1">
         <BackButton inline to="/citizen" label={isHindi ? 'नागरिक पोर्टल पर वापस' : 'Back to Citizen Portal'} />
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">

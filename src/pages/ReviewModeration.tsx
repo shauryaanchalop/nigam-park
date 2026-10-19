@@ -182,7 +182,7 @@ export default function ReviewModeration() {
       />
       <GovHeader />
       
-      <main className="container py-6 flex-1 space-y-6">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 flex-1 space-y-6">
         <BackButton inline to="/dashboard" label="Back to Dashboard" />
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>

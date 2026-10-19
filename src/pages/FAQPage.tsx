@@ -6,7 +6,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { HelpCircle, MapPin, CreditCard, Clock, Shield, Phone, ArrowLeft } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
+import { HelpCircle, MapPin, CreditCard, Clock, Shield, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const faqs = [
@@ -135,18 +136,10 @@ export default function FAQPage() {
       
       <GovHeader />
       
-      <main className="container py-8 flex-1">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 flex-1">
         <div className="max-w-4xl mx-auto">
           {/* Back Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="mb-4 gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </Button>
+          <BackButton inline to="/" label="Back to Home" />
 
           <div className="mb-8">
             <Badge variant="outline" className="mb-2">Help Center</Badge>

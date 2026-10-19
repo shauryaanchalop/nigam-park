@@ -115,7 +115,7 @@ export default function ShiftScheduling() {
     return (
       <div className="min-h-screen bg-background">
         <GovHeader title="Shift Scheduling" subtitle="Loading..." />
-        <main className="container mx-auto px-4 py-6">
+        <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-28 md:pb-8">
           <Skeleton className="h-96" />
         </main>
       </div>
@@ -129,7 +129,7 @@ export default function ShiftScheduling() {
         subtitle="Manage attendant shifts and attendance"
       />
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-28 md:pb-8">
         <BackButton inline to="/dashboard" label="Back to Dashboard" />
 
         {/* Stats */}

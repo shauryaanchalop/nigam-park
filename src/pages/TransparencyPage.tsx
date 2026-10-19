@@ -20,6 +20,7 @@ import {
   YAxis,
 } from 'recharts';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { Footer } from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -107,12 +108,8 @@ export default function TransparencyPage() {
         subtitle="Open, anonymised parking data for every Delhi zone"
       />
 
-      <main className="container mx-auto px-4 py-6 space-y-6 flex-1">
-        <Button variant="ghost" size="sm" asChild className="-ml-2">
-          <Link to="/dashboard">
-            <ChevronLeft className="w-4 h-4 mr-1" /> Home
-          </Link>
-        </Button>
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 space-y-6 flex-1">
+        <BackButton inline to="/" label="Back to Home" />
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>

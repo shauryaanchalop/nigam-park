@@ -101,7 +101,7 @@ export default function WalletPage() {
     <div className="min-h-screen bg-background">
       <GovHeader title="Parking Wallet" subtitle="Prepaid balance, auto-debit & statements" />
 
-      <main className="container mx-auto px-4 py-6 space-y-6">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-12 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <BackButton inline to="/citizen" label="Back to Citizen Portal" className="mb-0" />
 

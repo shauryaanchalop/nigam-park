@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { GovHeader } from '@/components/ui/GovHeader';
+import { BackButton } from '@/components/ui/BackButton';
 import { SEOHead } from '@/components/SEOHead';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,7 +47,7 @@ export default function LotDetails() {
     return (
       <div className="min-h-screen bg-background">
         <GovHeader />
-        <main className="container py-8">
+        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
           <Skeleton className="h-8 w-32 mb-4" />
           <Skeleton className="h-64 w-full" />
         </main>
@@ -58,7 +59,7 @@ export default function LotDetails() {
     return (
       <div className="min-h-screen bg-background">
         <GovHeader />
-        <main className="container py-8">
+        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
           <Card className="max-w-lg mx-auto text-center">
             <CardContent className="pt-8">
               <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
@@ -133,15 +134,8 @@ export default function LotDetails() {
       />
       <GovHeader />
       
-      <main className="container py-8">
-        <Button
-          variant="ghost"
-          className="mb-4"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
+        <BackButton inline to="/citizen" label="Back to Parking Finder" />
 
         <div className="grid gap-6 md:grid-cols-3">
           {/* Main Info Card */}

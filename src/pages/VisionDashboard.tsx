@@ -143,7 +143,7 @@ export default function VisionDashboard() {
         onFocusCamera={handleFocusCamera}
       />
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-28 md:pb-8">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <BackButton inline to="/dashboard" label="Back to Dashboard" className="mb-0" />
           <div className="flex items-center gap-2">

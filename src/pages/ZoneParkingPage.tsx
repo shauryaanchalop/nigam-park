@@ -72,7 +72,7 @@ export default function ZoneParkingPage() {
     return (
       <div className="min-h-screen bg-background">
         <GovHeader />
-        <main className="container py-8 text-center">
+        <main className="container mx-auto px-4 py-8 pb-28 md:pb-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Zone Not Found</h1>
           <p className="text-muted-foreground mb-4">The parking zone you&apos;re looking for doesn&apos;t exist.</p>
           <Link to="/citizen">
@@ -125,7 +125,7 @@ export default function ZoneParkingPage() {
       
       <GovHeader />
       
-      <main className="container py-8">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
         <BackButton inline to="/citizen" label="Back to Parking Locations" />
         {/* Hero Section */}
         <div className="mb-8">

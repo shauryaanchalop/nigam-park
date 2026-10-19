@@ -155,7 +155,7 @@ export default function MyReservations() {
     return (
       <div className="min-h-screen bg-background">
         <GovHeader title="My Reservations" subtitle="Loading your bookings..." />
-        <main className="container mx-auto px-4 py-6 max-w-4xl">
+        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-4xl">
           <div className="flex items-center justify-between mb-4">
             <div className="h-10 w-40 bg-muted rounded animate-pulse" />
             <div className="h-10 w-32 bg-muted rounded animate-pulse" />
@@ -181,7 +181,7 @@ export default function MyReservations() {
     <div className="min-h-screen bg-background">
       <GovHeader title="My Reservations" subtitle="View and manage your parking bookings" />
 
-      <main className="container mx-auto px-4 py-6 max-w-4xl">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-4xl">
         {/* Navigation */}
         <div className="flex items-center justify-between mb-4">
           <BackButton inline to="/dashboard" label="Back to Parking Finder" className="mb-0" />

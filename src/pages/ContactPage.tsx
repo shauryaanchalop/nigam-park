@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { BackButton } from '@/components/ui/BackButton';
 import { Label } from '@/components/ui/label';
-import { Phone, Mail, MapPin, Clock, ArrowLeft } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -37,17 +38,9 @@ export default function ContactPage() {
       
       <GovHeader />
       
-      <main className="container py-8 flex-1">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 flex-1">
         <div className="max-w-5xl mx-auto">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="mb-4 gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </Button>
+          <BackButton inline to="/" label="Back to Home" />
 
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-3">Contact Us</h1>

@@ -82,7 +82,7 @@ export default function ParkingHistory() {
         subtitle="View your past reservations and payments"
       />
 
-      <main className="container mx-auto px-4 py-6 max-w-4xl">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-4xl">
         <BackButton inline to="/citizen" label="Back to Citizen Portal" />
         {/* Summary Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">

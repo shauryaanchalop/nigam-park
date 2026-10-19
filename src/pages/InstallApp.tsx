@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { GovHeader } from '@/components/ui/GovHeader';
 import { Footer } from '@/components/Footer';
-import { Download, Smartphone, Check, Wifi, Bell, Zap, ChevronLeft } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
+import { Download, Smartphone, Check, Wifi, Bell, Zap } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -79,12 +80,9 @@ export default function InstallApp() {
         subtitle={isHindi ? 'NIGAM-Park अपने फोन पर' : 'NIGAM-Park on your phone'}
       />
 
-      <main className="container mx-auto px-4 py-8 max-w-2xl flex-1">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-2xl flex-1">
         {/* Back Button */}
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
-          <ChevronLeft className="w-4 h-4 mr-1" />
-          {isHindi ? 'वापस' : 'Back'}
-        </Button>
+        <BackButton inline to="/" label={isHindi ? 'होम पर वापस' : 'Back to Home'} />
 
         <Card className="mb-8">
           <CardHeader className="text-center">

@@ -292,7 +292,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-28 md:pb-12">
       <GovHeader title="My Profile" subtitle="Manage your account settings" />
 
       <main className="container mx-auto px-4 py-6 max-w-4xl">

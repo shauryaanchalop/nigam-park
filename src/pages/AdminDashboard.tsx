@@ -98,7 +98,7 @@ export default function AdminDashboard() {
         onFocusCamera={(camId) => navigate(`/vision-dashboard?camera=${encodeURIComponent(camId)}&incident=${activeIncident?.id || ''}`)}
       />
 
-      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-20 sm:pb-6 animate-fade-in duration-300 ease-claude">
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-28 md:pb-8 animate-fade-in duration-300 ease-claude">
         {/* Hero Section with Live Status */}
         <div className="relative mb-6 sm:mb-8 animate-fade-in-up duration-400 ease-claude">
           <div className="mesh-gradient absolute inset-0 rounded-3xl opacity-50" />
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Quick Actions - Mobile Horizontal Scroll */}
-              <div className="lg:hidden mt-4 -mx-4 px-4 overflow-x-auto scrollbar-none">
+              <div className="lg:hidden mt-4 -mx-4 px-4 overflow-x-auto no-scrollbar scrollbar-none">
                 <div className="flex gap-2 pb-2">
                   {quickActions.map((action) => (
                     <Button

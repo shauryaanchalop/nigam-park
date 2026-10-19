@@ -105,7 +105,7 @@ export default function ReportViolation() {
     return (
       <div className="min-h-screen bg-background">
         <GovHeader />
-        <main className="container py-8">
+        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
           <Card className="max-w-lg mx-auto text-center">
             <CardContent className="pt-8 pb-8">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
@@ -141,7 +141,7 @@ export default function ReportViolation() {
     <div className="min-h-screen bg-background">
       <GovHeader />
       
-      <main className="container py-8">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
         <BackButton inline to="/citizen" label="Back to Citizen Portal" />
 
         <Card className="max-w-2xl mx-auto">

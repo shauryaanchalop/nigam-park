@@ -65,7 +65,7 @@ export default function AttendantPerformance() {
         subtitle="Attendant Metrics & Leaderboard"
       />
 
-      <main className="container mx-auto px-4 py-6 space-y-6">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 space-y-6">
         <BackButton inline to="/dashboard" label="Back to Dashboard" />
         {/* Today's Progress */}
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">

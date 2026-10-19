@@ -538,7 +538,7 @@ export default function LiveParkingMap() {
 
           {/* Mobile Bottom Card for Selected Lot */}
           {selectedLotData && (
-            <div className="md:hidden absolute bottom-4 left-4 right-4 z-[1000]">
+            <div className="md:hidden absolute bottom-20 left-3 right-3 z-[1000]">
               <Card className="shadow-lg">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">

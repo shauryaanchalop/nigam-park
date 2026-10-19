@@ -213,7 +213,7 @@ export default function AttendantCheckIn() {
         </div>
       </div>
 
-      <main className="p-4 max-w-2xl mx-auto space-y-4 pb-24 md:pb-6">
+      <main className="p-4 max-w-2xl mx-auto space-y-4 pb-28 md:pb-8">
         <BackButton inline to="/dashboard" label="Back to Dashboard" />
         {/* Today's Stats */}
         <div className="grid grid-cols-3 gap-3">
