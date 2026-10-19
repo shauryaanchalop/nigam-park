@@ -4,19 +4,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { ParkingIncident, IncidentStatus } from '@/types/incidents';
 import { toast } from 'sonner';
 import { 
-  AlertTriangle, 
+  ShieldAlert, 
   Video, 
   CheckCircle, 
   Clock, 
-  ShieldAlert, 
   X, 
   Maximize2, 
-  Flame, 
   Car,
-  Loader2
+  Loader2,
+  AlertOctagon,
+  HelpCircle,
+  Camera
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -73,7 +73,6 @@ export function CommissionerAlertBanner({
 
     setIsUpdating(true);
     try {
-      // 1. Call Supabase to update status in parking_incidents
       const { error } = await supabase
         .from('parking_incidents')
         .update({ 
@@ -84,7 +83,6 @@ export function CommissionerAlertBanner({
 
       if (error) {
         console.error('[CommissionerAlertBanner] Supabase update error:', error);
-        // Fallback for mock/simulation records in dev/test mode
         if (incidentId.startsWith('mock-')) {
           console.warn('[CommissionerAlertBanner] Handled mock incident locally:', incidentId);
         } else {
@@ -92,10 +90,8 @@ export function CommissionerAlertBanner({
         }
       }
 
-      // 2. Immediately update local component state so the UI reflects the change
       setCurrentIncident((prev) => (prev ? { ...prev, status: newStatus } : null));
 
-      // 3. Trigger parent callbacks if wired
       onStatusChange?.(incidentId, newStatus);
       if (newStatus === 'INVESTIGATING') {
         onAcknowledge?.(incidentId);
@@ -105,7 +101,7 @@ export function CommissionerAlertBanner({
 
       const statusLabels: Record<IncidentStatus, string> = {
         UNRESOLVED: 'Unresolved',
-        INVESTIGATING: 'Investigating',
+        INVESTIGATING: 'Under Investigation',
         RESOLVED: 'Resolved',
         FALSE_ALARM: 'False Alarm',
       };
@@ -126,7 +122,6 @@ export function CommissionerAlertBanner({
     if (onFocusCamera) {
       onFocusCamera(currentIncident.camera_id);
     }
-    // Navigate to vision dashboard with deep-link query params if not already there
     if (!location.pathname.includes('/vision-dashboard')) {
       navigate(`/vision-dashboard?camera=${encodeURIComponent(currentIncident.camera_id)}&incident=${encodeURIComponent(currentIncident.id)}`);
     }
@@ -138,267 +133,273 @@ export function CommissionerAlertBanner({
     second: '2-digit',
   });
 
-  const getBannerGradient = () => {
+  const getThemeStyles = () => {
     switch (currentIncident.status) {
       case 'INVESTIGATING':
-        return 'from-amber-950/95 via-yellow-950/90 to-amber-900/95 border-yellow-500';
+        return {
+          wrapperBorder: 'border-t-2 border-t-amber-500 border-b border-b-amber-500/20',
+          glow: 'bg-[radial-gradient(ellipse_60%_80%_at_20%_-10%,rgba(245,158,11,0.08),transparent_70%)]',
+          badgeBg: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+          dotColor: 'bg-amber-500',
+          iconColor: 'text-amber-400',
+          statusLabel: 'INVESTIGATING',
+        };
       case 'RESOLVED':
-        return 'from-emerald-950/95 via-teal-950/90 to-emerald-900/95 border-emerald-500';
+        return {
+          wrapperBorder: 'border-t-2 border-t-emerald-500 border-b border-b-emerald-500/20',
+          glow: 'bg-[radial-gradient(ellipse_60%_80%_at_20%_-10%,rgba(16,185,129,0.08),transparent_70%)]',
+          badgeBg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
+          dotColor: 'bg-emerald-500',
+          iconColor: 'text-emerald-400',
+          statusLabel: 'RESOLVED',
+        };
       case 'FALSE_ALARM':
-        return 'from-zinc-950/95 via-zinc-900/90 to-zinc-950/95 border-zinc-500';
+        return {
+          wrapperBorder: 'border-t-2 border-t-slate-500 border-b border-b-slate-700/40',
+          glow: 'bg-[radial-gradient(ellipse_60%_80%_at_20%_-10%,rgba(148,163,184,0.05),transparent_70%)]',
+          badgeBg: 'bg-slate-800/80 border-slate-700 text-slate-300',
+          dotColor: 'bg-slate-400',
+          iconColor: 'text-slate-400',
+          statusLabel: 'FALSE ALARM',
+        };
       case 'UNRESOLVED':
       default:
-        return 'from-red-950/95 via-destructive/95 to-red-900/95 border-red-500';
+        return {
+          wrapperBorder: 'border-t-2 border-t-rose-500 border-b border-b-rose-500/20',
+          glow: 'bg-[radial-gradient(ellipse_60%_80%_at_20%_-10%,rgba(244,63,94,0.10),transparent_70%)]',
+          badgeBg: 'bg-rose-500/10 border-rose-500/30 text-rose-400',
+          dotColor: 'bg-rose-500',
+          iconColor: 'text-rose-400',
+          statusLabel: 'CRITICAL ALERT',
+        };
     }
   };
 
-  const renderStatusBadge = () => {
-    switch (currentIncident.status) {
-      case 'INVESTIGATING':
-        return (
-          <Badge className="bg-yellow-500 text-black border-yellow-400 font-bold uppercase tracking-wider text-[11px] px-2 py-0.5">
-            INVESTIGATING: {currentIncident.incident_type.replace(/_/g, ' ')}
-          </Badge>
-        );
-      case 'RESOLVED':
-        return (
-          <Badge className="bg-emerald-600 text-white border-emerald-400 font-bold uppercase tracking-wider text-[11px] px-2 py-0.5">
-            RESOLVED: {currentIncident.incident_type.replace(/_/g, ' ')}
-          </Badge>
-        );
-      case 'FALSE_ALARM':
-        return (
-          <Badge className="bg-zinc-600 text-white border-zinc-400 font-bold uppercase tracking-wider text-[11px] px-2 py-0.5">
-            FALSE ALARM: {currentIncident.incident_type.replace(/_/g, ' ')}
-          </Badge>
-        );
-      case 'UNRESOLVED':
-      default:
-        return (
-          <Badge variant="destructive" className="bg-red-600 text-white border-red-400 font-bold uppercase tracking-wider text-[11px] px-2 py-0.5 animate-pulse">
-            CRITICAL: {currentIncident.incident_type.replace(/_/g, ' ')}
-          </Badge>
-        );
-    }
-  };
+  const theme = getThemeStyles();
+  const incidentTypeName = currentIncident.incident_type.replace(/_/g, ' ');
 
   return (
     <>
-      {/* Sticky top pulsing critical alert banner */}
       <aside 
-        aria-label="Critical Incident Alert"
-        className={`sticky top-0 z-[100] w-full bg-gradient-to-r ${getBannerGradient()} backdrop-blur-md border-b-2 shadow-2xl text-white px-3 sm:px-6 py-3 transition-all duration-300 animate-in slide-in-from-top-4 relative`}
+        aria-label="Incident Alert Banner"
+        className={`sticky top-0 z-[100] w-full bg-slate-950/95 dark:bg-slate-950/95 backdrop-blur-xl ${theme.wrapperBorder} shadow-lg shadow-black/20 text-slate-100 transition-all duration-300 animate-in slide-in-from-top-2 relative`}
       >
-        {/* Floating Close Button for Mobile Accessibility */}
-        <button
-          onClick={handleDismiss}
-          className="absolute top-2 right-2 sm:hidden text-white/80 hover:text-white p-1.5 rounded-full bg-black/40 hover:bg-black/60 transition-colors z-30"
-          title="Dismiss banner"
-          aria-label="Dismiss banner"
-        >
-          <X className="w-4 h-4" />
-        </button>
+        {/* Subtle Ambient Radial Highlight */}
+        <div className={`pointer-events-none absolute inset-0 ${theme.glow}`} />
 
-        <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-3 pr-6 sm:pr-0">
-          
-          {/* Left: Icon + Main Alert Information */}
-          <div className="flex items-start sm:items-center gap-3 w-full lg:w-auto">
-            <div className="relative flex-shrink-0 mt-0.5 sm:mt-0">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                currentIncident.status === 'INVESTIGATING'
-                  ? 'bg-yellow-600/90 border-2 border-yellow-400'
-                  : currentIncident.status === 'RESOLVED'
-                  ? 'bg-emerald-600/90 border-2 border-emerald-400'
-                  : currentIncident.status === 'FALSE_ALARM'
-                  ? 'bg-zinc-700/90 border-2 border-zinc-400'
-                  : 'bg-red-600/90 border-2 border-red-400 animate-pulse'
-              }`}>
-                {currentIncident.status === 'INVESTIGATING' ? (
-                  <ShieldAlert className="w-5 h-5 text-white" />
-                ) : currentIncident.status === 'RESOLVED' ? (
-                  <CheckCircle className="w-5 h-5 text-white" />
-                ) : currentIncident.status === 'FALSE_ALARM' ? (
-                  <AlertTriangle className="w-5 h-5 text-zinc-200" />
-                ) : (
-                  <Flame className="w-6 h-6 text-white" />
-                )}
-              </div>
-              {currentIncident.status === 'UNRESOLVED' && (
-                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500"></span>
-                </span>
-              )}
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                {renderStatusBadge()}
-                <span className="text-xs bg-black/40 border border-white/20 px-2 py-0.5 rounded font-mono text-white/90">
-                  {currentIncident.camera_id}
-                </span>
-                <span className="text-xs text-white/80 flex items-center gap-1 font-mono">
-                  <Clock className="w-3 h-3" />
-                  {formattedTime}
-                </span>
-              </div>
-
-              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm text-white/90 font-medium">
-                <span className="font-semibold text-white truncate max-w-[280px] sm:max-w-none">
-                  {currentIncident.lot_zone}
-                </span>
-                {currentIncident.iou_score && (
-                  <span className="text-white/80 font-mono">
-                    Overlap IoU: {(currentIncident.iou_score * 100).toFixed(0)}%
-                  </span>
-                )}
-                {currentIncident.involved_plates && currentIncident.involved_plates.length > 0 && (
-                  <span className="inline-flex items-center gap-1 text-yellow-300 font-mono text-xs bg-black/30 px-1.5 py-0.5 rounded">
-                    <Car className="w-3 h-3" />
-                    {currentIncident.involved_plates.join(' ↔ ')}
+        <div className="container mx-auto px-3 sm:px-6 py-2.5 sm:py-3 relative z-10">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 sm:gap-4">
+            
+            {/* Left Column: Severity, Details, Metadata */}
+            <div className="flex items-start sm:items-center gap-3 w-full lg:w-auto min-w-0">
+              
+              {/* Status Indicator Icon */}
+              <div className="relative flex-shrink-0 mt-0.5 sm:mt-0">
+                <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center shadow-inner">
+                  {currentIncident.status === 'INVESTIGATING' ? (
+                    <ShieldAlert className={`w-4 h-4 ${theme.iconColor}`} />
+                  ) : currentIncident.status === 'RESOLVED' ? (
+                    <CheckCircle className={`w-4 h-4 ${theme.iconColor}`} />
+                  ) : currentIncident.status === 'FALSE_ALARM' ? (
+                    <HelpCircle className={`w-4 h-4 ${theme.iconColor}`} />
+                  ) : (
+                    <AlertOctagon className={`w-4 h-4 ${theme.iconColor}`} />
+                  )}
+                </div>
+                {currentIncident.status === 'UNRESOLVED' && (
+                  <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
                   </span>
                 )}
               </div>
-            </div>
 
-            {/* Thumbnail preview on desktop */}
-            {currentIncident.snapshot_url && (
-              <div 
-                onClick={() => setSnapshotDialogOpen(true)}
-                className="hidden xl:block relative w-16 h-11 rounded border border-white/30 overflow-hidden cursor-pointer group flex-shrink-0"
-                title="Click to view full collision snapshot"
-              >
-                <img 
-                  src={
-                    currentIncident.snapshot_url && !currentIncident.snapshot_url.includes('unsplash')
-                      ? currentIncident.snapshot_url
-                      : '/parking-crash.jpg'
-                  } 
-                  alt="Incident snapshot" 
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = '/parking-crash.jpg';
-                  }}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300 rounded"
-                />
-                <div className="absolute inset-0 bg-black/30 group-hover:bg-transparent transition-colors flex items-center justify-center">
-                  <Maximize2 className="w-3.5 h-3.5 text-white/80 drop-shadow" />
+              {/* Information Text */}
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  {/* Status & Type Pill */}
+                  <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase border ${theme.badgeBg}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${theme.dotColor}`} />
+                    {theme.statusLabel} • {incidentTypeName}
+                  </span>
+
+                  {/* Camera ID */}
+                  <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-300 bg-slate-900/90 border border-slate-800 px-1.5 py-0.5 rounded">
+                    <Camera className="w-3 h-3 text-slate-400" />
+                    {currentIncident.camera_id}
+                  </span>
+
+                  {/* Timestamp */}
+                  <span className="text-[11px] text-slate-400 flex items-center gap-1 font-mono">
+                    <Clock className="w-3 h-3 text-slate-500" />
+                    {formattedTime}
+                  </span>
+                </div>
+
+                {/* Subtitle with Zone, Overlap, Plates */}
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-slate-300">
+                  <span className="font-semibold text-slate-100 truncate max-w-[240px] sm:max-w-none">
+                    {currentIncident.lot_zone}
+                  </span>
+
+                  {currentIncident.iou_score && (
+                    <span className="text-slate-400 text-[11px] font-mono">
+                      Overlap: <span className="text-rose-300 font-semibold">{(currentIncident.iou_score * 100).toFixed(0)}% IoU</span>
+                    </span>
+                  )}
+
+                  {currentIncident.involved_plates && currentIncident.involved_plates.length > 0 && (
+                    <span className="inline-flex items-center gap-1 text-amber-300 font-mono text-[11px] bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded">
+                      <Car className="w-3 h-3 text-amber-400/80" />
+                      {currentIncident.involved_plates.join(' ↔ ')}
+                    </span>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Right: Commissioner Actions */}
-          {/* Right: Commissioner Actions */}
-          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full lg:w-auto justify-end">
-            {currentIncident.snapshot_url && (
+              {/* Clickable Snapshot Thumbnail on Desktop */}
+              {currentIncident.snapshot_url && (
+                <div 
+                  onClick={() => setSnapshotDialogOpen(true)}
+                  className="hidden md:flex relative w-12 h-8 rounded border border-slate-800 hover:border-slate-600 overflow-hidden cursor-pointer group flex-shrink-0 transition-colors shadow-sm"
+                  title="Click to view collision frame snapshot"
+                >
+                  <img 
+                    src={
+                      currentIncident.snapshot_url && !currentIncident.snapshot_url.includes('unsplash')
+                        ? currentIncident.snapshot_url
+                        : '/parking-crash.jpg'
+                    } 
+                    alt="Incident snapshot thumbnail" 
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = '/parking-crash.jpg';
+                    }}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                  />
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors flex items-center justify-center">
+                    <Maximize2 className="w-3 h-3 text-white/90" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right Column: High-Value Actions */}
+            <div className="flex flex-wrap items-center gap-1.5 w-full lg:w-auto justify-end pt-1 lg:pt-0 border-t border-slate-800/80 lg:border-t-0">
+              
+              {/* Snapshot Button (Mobile/Tablet) */}
+              {currentIncident.snapshot_url && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSnapshotDialogOpen(true)}
+                  className="h-8 px-2.5 text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-800 md:hidden"
+                >
+                  <Maximize2 className="w-3 h-3 mr-1" />
+                  Snapshot
+                </Button>
+              )}
+
+              {/* Primary Call-to-Action: Live CCTV Feed */}
               <Button
+                variant="default"
+                size="sm"
+                onClick={handleAccessCCTV}
+                className="h-8 px-3 text-xs font-semibold bg-rose-600 hover:bg-rose-500 text-white shadow-sm border border-rose-500/50 gap-1.5"
+              >
+                <Video className="w-3.5 h-3.5 text-white" />
+                Live CCTV Feed
+              </Button>
+
+              {/* Workflow Action 1: Mark Investigating */}
+              <Button
+                id="btn-mark-investigating"
                 variant="outline"
                 size="sm"
-                onClick={() => setSnapshotDialogOpen(true)}
-                className="bg-black/30 hover:bg-black/50 text-white border-white/20 text-xs h-9 sm:h-8 px-2 sm:px-3 w-full sm:w-auto"
+                disabled={isUpdating || currentIncident.status === 'INVESTIGATING'}
+                onClick={() => handleUpdateStatus('INVESTIGATING')}
+                className={`h-8 px-2.5 text-xs font-medium border transition-colors gap-1.5 ${
+                  currentIncident.status === 'INVESTIGATING'
+                    ? 'bg-amber-500/15 text-amber-300 border-amber-500/40 cursor-default'
+                    : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-800 hover:border-slate-700'
+                }`}
               >
-                <Maximize2 className="w-3.5 h-3.5 mr-1" />
-                Snapshot
+                {isUpdating ? (
+                  <Loader2 className="w-3 h-3 animate-spin text-slate-400" />
+                ) : (
+                  <ShieldAlert className="w-3 h-3 text-amber-400" />
+                )}
+                <span>{currentIncident.status === 'INVESTIGATING' ? 'Investigating' : 'Investigate'}</span>
               </Button>
-            )}
 
-            <Button
-              variant="default"
-              size="sm"
-              onClick={handleAccessCCTV}
-              className="col-span-2 sm:col-span-1 bg-white hover:bg-neutral-100 text-neutral-900 font-bold border border-white/40 text-xs sm:text-sm h-9 sm:h-8 px-3 shadow-md w-full sm:w-auto"
-            >
-              <Video className="w-4 h-4 mr-1.5 text-red-600 animate-pulse" />
-              Access Live CCTV Feed
-            </Button>
+              {/* Workflow Action 2: Resolve */}
+              <Button
+                id="btn-mark-resolved"
+                variant="outline"
+                size="sm"
+                disabled={isUpdating || currentIncident.status === 'RESOLVED'}
+                onClick={() => handleUpdateStatus('RESOLVED')}
+                className={`h-8 px-2.5 text-xs font-medium border transition-colors gap-1.5 ${
+                  currentIncident.status === 'RESOLVED'
+                    ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40 cursor-default'
+                    : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                {isUpdating ? (
+                  <Loader2 className="w-3 h-3 animate-spin text-slate-400" />
+                ) : (
+                  <CheckCircle className="w-3 h-3 text-emerald-400" />
+                )}
+                <span>{currentIncident.status === 'RESOLVED' ? 'Resolved' : 'Resolve'}</span>
+              </Button>
 
-            {/* 1. Mark Investigating Button */}
-            <Button
-              id="btn-mark-investigating"
-              variant="outline"
-              size="sm"
-              disabled={isUpdating || currentIncident.status === 'INVESTIGATING'}
-              onClick={() => handleUpdateStatus('INVESTIGATING')}
-              className={`text-xs h-9 sm:h-8 px-2 sm:px-3 font-semibold transition-all w-full sm:w-auto ${
-                currentIncident.status === 'INVESTIGATING'
-                  ? 'bg-yellow-500/30 text-yellow-200 border-yellow-400 cursor-default ring-1 ring-yellow-400/50'
-                  : 'bg-red-900/60 hover:bg-yellow-950/80 hover:border-yellow-400/70 text-white border-red-500/50'
-              }`}
-            >
-              {isUpdating ? (
-                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-              ) : (
-                <ShieldAlert className="w-3.5 h-3.5 mr-1.5 text-yellow-400" />
-              )}
-              {currentIncident.status === 'INVESTIGATING' ? 'Under Investigation' : 'Mark Investigating'}
-            </Button>
+              {/* Workflow Action 3: False Alarm */}
+              <Button
+                id="btn-mark-false-alarm"
+                variant="outline"
+                size="sm"
+                disabled={isUpdating || currentIncident.status === 'FALSE_ALARM'}
+                onClick={() => handleUpdateStatus('FALSE_ALARM')}
+                className={`h-8 px-2.5 text-xs font-medium border transition-colors gap-1.5 ${
+                  currentIncident.status === 'FALSE_ALARM'
+                    ? 'bg-slate-800 text-slate-300 border-slate-700 cursor-default'
+                    : 'bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                {isUpdating ? (
+                  <Loader2 className="w-3 h-3 animate-spin text-slate-400" />
+                ) : (
+                  <HelpCircle className="w-3 h-3 text-slate-400" />
+                )}
+                <span className="hidden sm:inline">False Alarm</span>
+                <span className="sm:hidden">False</span>
+              </Button>
 
-            {/* 2. Resolve Button */}
-            <Button
-              id="btn-mark-resolved"
-              variant="outline"
-              size="sm"
-              disabled={isUpdating || currentIncident.status === 'RESOLVED'}
-              onClick={() => handleUpdateStatus('RESOLVED')}
-              className={`text-xs h-9 sm:h-8 px-2 sm:px-3 font-semibold transition-all w-full sm:w-auto ${
-                currentIncident.status === 'RESOLVED'
-                  ? 'bg-emerald-500/30 text-emerald-200 border-emerald-400 cursor-default ring-1 ring-emerald-400/50'
-                  : 'bg-red-900/40 hover:bg-emerald-950/80 hover:border-emerald-400/70 text-white border-red-500/30'
-              }`}
-            >
-              {isUpdating ? (
-                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-              ) : (
-                <CheckCircle className="w-3.5 h-3.5 mr-1.5 text-emerald-400" />
-              )}
-              {currentIncident.status === 'RESOLVED' ? 'Resolved' : 'Resolve'}
-            </Button>
-
-            {/* 3. False Alarm Button */}
-            <Button
-              id="btn-mark-false-alarm"
-              variant="outline"
-              size="sm"
-              disabled={isUpdating || currentIncident.status === 'FALSE_ALARM'}
-              onClick={() => handleUpdateStatus('FALSE_ALARM')}
-              className={`col-span-2 sm:col-span-1 text-xs h-9 sm:h-8 px-2 sm:px-3 font-semibold transition-all w-full sm:w-auto ${
-                currentIncident.status === 'FALSE_ALARM'
-                  ? 'bg-zinc-700/60 text-zinc-300 border-zinc-400 cursor-default ring-1 ring-zinc-400/50'
-                  : 'bg-red-900/30 hover:bg-zinc-900/80 hover:border-zinc-400/70 text-white border-red-500/20'
-              }`}
-            >
-              {isUpdating ? (
-                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-              ) : (
-                <AlertTriangle className="w-3.5 h-3.5 mr-1.5 text-orange-400" />
-              )}
-              {currentIncident.status === 'FALSE_ALARM' ? 'Marked False Alarm' : 'False Alarm'}
-            </Button>
-
-            <button
-              onClick={handleDismiss}
-              className="text-white/70 hover:text-white p-1 rounded-md hover:bg-black/30 transition-colors ml-1"
-              title="Dismiss banner"
-              aria-label="Dismiss banner"
-            >
-              <X className="w-4 h-4" />
-            </button>
+              {/* Dismiss Action */}
+              <button
+                onClick={handleDismiss}
+                className="text-slate-400 hover:text-slate-100 p-1.5 rounded-md hover:bg-slate-800/80 transition-colors ml-0.5"
+                title="Dismiss alert banner"
+                aria-label="Dismiss alert banner"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </aside>
 
-      {/* Full Resolution Snapshot Modal */}
+      {/* High-Resolution Snapshot Inspection Dialog */}
       <Dialog open={snapshotDialogOpen} onOpenChange={setSnapshotDialogOpen}>
-        <DialogContent className="max-w-3xl bg-card border-red-500/50 p-4 sm:p-6">
+        <DialogContent className="max-w-2xl bg-slate-950 border-slate-800 text-slate-100 p-5">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-destructive">
-              <AlertTriangle className="w-5 h-5 text-red-500" />
-              Collision Frame Snapshot — {currentIncident.camera_id}
+            <DialogTitle className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+              <Camera className="w-4 h-4 text-rose-400" />
+              Incident Frame Evidence — {currentIncident.camera_id}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="relative aspect-video rounded-lg overflow-hidden border-2 border-red-500/60 bg-black">
+          <div className="space-y-3.5 mt-1">
+            <div className="relative aspect-video rounded-lg overflow-hidden border border-slate-800 bg-black shadow-inner">
               <img
                 src={
                   currentIncident.snapshot_url && !currentIncident.snapshot_url.includes('unsplash')
@@ -409,81 +410,72 @@ export function CommissionerAlertBanner({
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = '/parking-crash.jpg';
                 }}
-                className="w-full h-full object-cover rounded-md"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute top-2 left-2 bg-black/80 text-red-400 text-xs font-mono px-2 py-1 rounded border border-red-500/40">
-                REC • {currentIncident.camera_id} • {formattedTime}
+              <div className="absolute top-2 left-2 bg-slate-950/90 text-rose-400 text-[11px] font-mono px-2 py-0.5 rounded border border-rose-500/30 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                EVIDENCE CAPTURE • {currentIncident.camera_id} • {formattedTime}
               </div>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-              <div className="p-2.5 rounded bg-muted/60 border">
-                <span className="text-muted-foreground block">Incident Type</span>
-                <span className="font-semibold">{currentIncident.incident_type}</span>
+              <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-slate-400 block text-[11px]">Type</span>
+                <span className="font-semibold text-slate-200">{incidentTypeName}</span>
               </div>
-              <div className="p-2.5 rounded bg-muted/60 border">
-                <span className="text-muted-foreground block">Zone</span>
-                <span className="font-semibold truncate">{currentIncident.lot_zone}</span>
+              <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-slate-400 block text-[11px]">Zone</span>
+                <span className="font-semibold text-slate-200 truncate block">{currentIncident.lot_zone}</span>
               </div>
-              <div className="p-2.5 rounded bg-muted/60 border">
-                <span className="text-muted-foreground block">IoU Overlap</span>
-                <span className="font-semibold font-mono text-destructive">
+              <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-slate-400 block text-[11px]">IoU Overlap</span>
+                <span className="font-semibold font-mono text-rose-400">
                   {currentIncident.iou_score ? (currentIncident.iou_score * 100).toFixed(1) + '%' : 'N/A'}
                 </span>
               </div>
-              <div className="p-2.5 rounded bg-muted/60 border">
-                <span className="text-muted-foreground block">Status</span>
-                <span className="font-semibold">{currentIncident.status}</span>
+              <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-slate-400 block text-[11px]">Status</span>
+                <span className="font-semibold text-slate-200">{currentIncident.status}</span>
               </div>
             </div>
 
             {currentIncident.notes && (
-              <p className="text-xs text-muted-foreground bg-muted/40 p-2.5 rounded border italic">
+              <p className="text-xs text-slate-400 bg-slate-900 p-2.5 rounded-lg border border-slate-800 italic">
                 "{currentIncident.notes}"
               </p>
             )}
 
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t">
-              <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-800">
+              <div className="flex items-center gap-1.5">
                 <Button
                   size="sm"
                   variant="outline"
                   disabled={isUpdating || currentIncident.status === 'INVESTIGATING'}
                   onClick={() => handleUpdateStatus('INVESTIGATING')}
-                  className="text-xs h-8"
+                  className="text-xs h-7.5 bg-slate-900 border-slate-800 text-slate-300"
                 >
-                  <ShieldAlert className="w-3.5 h-3.5 mr-1 text-yellow-500" />
-                  Mark Investigating
+                  <ShieldAlert className="w-3 h-3 mr-1 text-amber-400" />
+                  Investigate
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   disabled={isUpdating || currentIncident.status === 'RESOLVED'}
                   onClick={() => handleUpdateStatus('RESOLVED')}
-                  className="text-xs h-8"
+                  className="text-xs h-7.5 bg-slate-900 border-slate-800 text-slate-300"
                 >
-                  <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-500" />
+                  <CheckCircle className="w-3 h-3 mr-1 text-emerald-400" />
                   Resolve
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={isUpdating || currentIncident.status === 'FALSE_ALARM'}
-                  onClick={() => handleUpdateStatus('FALSE_ALARM')}
-                  className="text-xs h-8"
-                >
-                  <AlertTriangle className="w-3.5 h-3.5 mr-1 text-orange-500" />
-                  False Alarm
                 </Button>
               </div>
 
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setSnapshotDialogOpen(false)}>
+                <Button variant="ghost" size="sm" onClick={() => setSnapshotDialogOpen(false)} className="text-xs h-7.5 text-slate-400">
                   Close
                 </Button>
-                <Button size="sm" variant="destructive" onClick={() => { setSnapshotDialogOpen(false); handleAccessCCTV(); }}>
-                  <Video className="w-4 h-4 mr-1.5" />
-                  Focus Camera Feed
+                <Button size="sm" onClick={() => { setSnapshotDialogOpen(false); handleAccessCCTV(); }} className="text-xs h-7.5 bg-rose-600 hover:bg-rose-500 text-white">
+                  <Video className="w-3.5 h-3.5 mr-1" />
+                  Live CCTV
                 </Button>
               </div>
             </div>
