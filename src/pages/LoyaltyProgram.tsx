@@ -32,24 +32,13 @@ export default function LoyaltyProgram() {
   const { data: account, isLoading: accountLoading } = useMyLoyaltyAccount();
   const { data: transactions, isLoading: txLoading } = useMyLoyaltyTransactions();
 
-  const isLoading = tiersLoading || accountLoading;
+  const isLoading = (tiersLoading || accountLoading) && !tiers;
 
   const currentTier = account?.loyalty_tiers;
   const nextTier = tiers?.find(t => t.min_points > (account?.lifetime_points || 0));
   const progressToNext = nextTier 
-    ? ((account?.lifetime_points || 0) / nextTier.min_points) * 100 
+    ? Math.min(Math.round(((account?.lifetime_points || 0) / nextTier.min_points) * 100), 100)
     : 100;
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <GovHeader title="Loyalty Program" subtitle="Loading..." />
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
-          <Skeleton className="h-96" />
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">

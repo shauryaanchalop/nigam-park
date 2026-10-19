@@ -35,17 +35,74 @@ export interface LoyaltyTransaction {
   created_at: string;
 }
 
+export const DEFAULT_LOYALTY_TIERS: LoyaltyTier[] = [
+  {
+    id: 'tier-bronze',
+    name: 'Bronze',
+    min_points: 0,
+    discount_percentage: 5,
+    icon: 'award',
+    color: 'amber',
+    created_at: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'tier-silver',
+    name: 'Silver',
+    min_points: 500,
+    discount_percentage: 10,
+    icon: 'star',
+    color: 'slate',
+    created_at: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'tier-gold',
+    name: 'Gold',
+    min_points: 1500,
+    discount_percentage: 15,
+    icon: 'crown',
+    color: 'yellow',
+    created_at: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'tier-platinum',
+    name: 'Platinum',
+    min_points: 3000,
+    discount_percentage: 20,
+    icon: 'gem',
+    color: 'purple',
+    created_at: '2026-01-01T00:00:00.000Z',
+  },
+];
+
+export const DEFAULT_DEMO_LOYALTY_ACCOUNT: LoyaltyAccount = {
+  id: 'demo-loyalty-acc-1',
+  user_id: 'demo-user',
+  total_points: 1250,
+  lifetime_points: 1850,
+  current_tier_id: 'tier-silver',
+  created_at: new Date(Date.now() - 60 * 86400000).toISOString(),
+  updated_at: new Date().toISOString(),
+  loyalty_tiers: DEFAULT_LOYALTY_TIERS[1], // Silver Tier (10% discount)
+};
+
 export function useLoyaltyTiers() {
   return useQuery({
     queryKey: ['loyalty-tiers'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('loyalty_tiers')
-        .select('*')
-        .order('min_points', { ascending: true });
-      if (error) throw error;
-      return data as LoyaltyTier[];
+      try {
+        const { data, error } = await supabase
+          .from('loyalty_tiers')
+          .select('*')
+          .order('min_points', { ascending: true });
+        if (error || !data || data.length === 0) return DEFAULT_LOYALTY_TIERS;
+        return data as LoyaltyTier[];
+      } catch {
+        return DEFAULT_LOYALTY_TIERS;
+      }
     },
+    initialData: DEFAULT_LOYALTY_TIERS,
+    staleTime: 10 * 60 * 1000,
+    retry: 1,
   });
 }
 
@@ -55,21 +112,27 @@ export function useMyLoyaltyAccount() {
   return useQuery({
     queryKey: ['my-loyalty-account', user?.id],
     queryFn: async () => {
-      if (!user) return null;
+      if (!user) return DEFAULT_DEMO_LOYALTY_ACCOUNT;
       
-      const { data, error } = await supabase
-        .from('loyalty_accounts')
-        .select(`
-          *,
-          loyalty_tiers (*)
-        `)
-        .eq('user_id', user.id)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data as LoyaltyAccount | null;
+      try {
+        const { data, error } = await supabase
+          .from('loyalty_accounts')
+          .select(`
+            *,
+            loyalty_tiers (*)
+          `)
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (error || !data) return DEFAULT_DEMO_LOYALTY_ACCOUNT;
+        return data as LoyaltyAccount;
+      } catch {
+        return DEFAULT_DEMO_LOYALTY_ACCOUNT;
+      }
     },
-    enabled: !!user,
+    initialData: DEFAULT_DEMO_LOYALTY_ACCOUNT,
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 }
 
@@ -82,17 +145,25 @@ export function useMyLoyaltyTransactions() {
     queryFn: async () => {
       if (!account) return DEMO_LOYALTY_TRANSACTIONS as LoyaltyTransaction[];
       
-      const { data, error } = await supabase
-        .from('loyalty_transactions')
-        .select('*')
-        .eq('account_id', account.id)
-        .order('created_at', { ascending: false })
-        .limit(50);
-      
-      if (error) throw error;
-      return withDemoFallback<LoyaltyTransaction>(data as LoyaltyTransaction[], DEMO_LOYALTY_TRANSACTIONS);
+      try {
+        const { data, error } = await supabase
+          .from('loyalty_transactions')
+          .select('*')
+          .eq('account_id', account.id)
+          .order('created_at', { ascending: false })
+          .limit(50);
+        
+        if (error || !data || data.length === 0) {
+          return DEMO_LOYALTY_TRANSACTIONS as LoyaltyTransaction[];
+        }
+        return withDemoFallback<LoyaltyTransaction>(data as LoyaltyTransaction[], DEMO_LOYALTY_TRANSACTIONS);
+      } catch {
+        return DEMO_LOYALTY_TRANSACTIONS as LoyaltyTransaction[];
+      }
     },
-    enabled: !!user,
+    initialData: DEMO_LOYALTY_TRANSACTIONS as LoyaltyTransaction[],
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 }
 
