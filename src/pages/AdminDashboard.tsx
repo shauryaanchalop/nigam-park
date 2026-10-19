@@ -251,7 +251,7 @@ export default function AdminDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="h-[280px] sm:h-[300px] overflow-hidden">
+                <div className="h-[320px] sm:h-[360px] overflow-hidden flex flex-col">
                   <VigilanceFeed />
                 </div>
               </CardContent>

@@ -49,7 +49,29 @@ export default function RealTimeAnalytics() {
   const [isConnected, setIsConnected] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [liveMetrics, setLiveMetrics] = useState<LiveMetric[]>([]);
-  const [recentChanges, setRecentChanges] = useState<any[]>([]);
+  const [recentChanges, setRecentChanges] = useState<any[]>([
+    { type: 'occupancy', message: 'Vehicle entered Connaught Place - Block A (Bay 14)', time: new Date(Date.now() - 12000) },
+    { type: 'revenue', message: 'New FASTag payment: ₹60 collected at Karol Bagh', time: new Date(Date.now() - 35000) },
+    { type: 'occupancy', message: 'Spot released at Lajpat Nagar Central Market', time: new Date(Date.now() - 75000) },
+    { type: 'revenue', message: 'UPI payment: ₹120 received at Chandni Chowk', time: new Date(Date.now() - 130000) },
+    { type: 'alert', message: 'Overstay flagged: DL 01 AB 1234 exceeded slot time', time: new Date(Date.now() - 210000) },
+  ]);
+
+  // Periodic simulation for live activity in prototype demo
+  useEffect(() => {
+    const simInterval = setInterval(() => {
+      const demoEvents = [
+        { type: 'occupancy', message: 'Vehicle entered Nehru Place Outer (Bay 22)' },
+        { type: 'revenue', message: 'New payment: ₹40 FASTag auto-debit' },
+        { type: 'occupancy', message: 'Spot cleared at Karol Bagh Market (Slot 8)' },
+        { type: 'revenue', message: 'UPI QR Payment received: ₹80' },
+        { type: 'occupancy', message: 'Vehicle entry detected via ANPR at CP Block A' },
+      ];
+      const pick = demoEvents[Math.floor(Math.random() * demoEvents.length)];
+      setRecentChanges(prev => [{ ...pick, time: new Date() }, ...prev.slice(0, 8)]);
+    }, 8000);
+    return () => clearInterval(simInterval);
+  }, []);
 
   // Fetch current stats
   const { data: currentStats, refetch: refetchStats } = useQuery({
