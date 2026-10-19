@@ -266,7 +266,9 @@ export default function AdminDashboard() {
         </div>
 
         {/* Revenue Target Widget */}
-        <RevenueTargetWidget />
+        <div className="mb-6 sm:mb-8">
+          <RevenueTargetWidget />
+        </div>
 
         {/* Surge Revenue Impact Widget */}
         <div className="mb-6">
