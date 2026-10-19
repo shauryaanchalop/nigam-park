@@ -79,7 +79,17 @@ export const DEFAULT_MOCK_INCIDENTS: ParkingIncident[] = [
 export function useIncidentAlerts() {
   const queryClient = useQueryClient();
   const [activeIncident, setActiveIncident] = useState<ParkingIncident | null>(null);
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const audioEnabledRef = useRef(true);
+
+  // Dismiss an incident so it does not auto-reopen
+  const dismissIncident = useCallback((id?: string) => {
+    const targetId = id || activeIncident?.id;
+    if (targetId) {
+      setDismissedIds((prev) => new Set([...prev, targetId]));
+    }
+    setActiveIncident(null);
+  }, [activeIncident]);
 
   // Fetch recent incidents
   const { data: incidents = DEFAULT_MOCK_INCIDENTS, isLoading, error, refetch } = useQuery({
@@ -106,15 +116,17 @@ export function useIncidentAlerts() {
     staleTime: 5000,
   });
 
-  // Auto-set the first unresolved incident as active on load
+  // Auto-set the first unresolved incident as active on load, only if not previously dismissed
   useEffect(() => {
     if (!activeIncident && incidents.length > 0) {
-      const firstUnresolved = incidents.find((i) => i.status === 'UNRESOLVED');
+      const firstUnresolved = incidents.find(
+        (i) => i.status === 'UNRESOLVED' && !dismissedIds.has(i.id)
+      );
       if (firstUnresolved) {
         setActiveIncident(firstUnresolved);
       }
     }
-  }, [incidents, activeIncident]);
+  }, [incidents, activeIncident, dismissedIds]);
 
   // Subscribe to real-time events on parking_incidents
   useEffect(() => {
@@ -385,6 +397,8 @@ export function useIncidentAlerts() {
     investigatingIncidents,
     activeIncident,
     setActiveIncident,
+    dismissIncident,
+    dismissedIds,
     isLoading,
     error,
     refetch,

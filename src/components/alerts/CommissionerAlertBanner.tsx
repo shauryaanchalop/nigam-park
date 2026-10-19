@@ -46,13 +46,23 @@ export function CommissionerAlertBanner({
   const [snapshotDialogOpen, setSnapshotDialogOpen] = useState(false);
   const [currentIncident, setCurrentIncident] = useState<ParkingIncident | null>(incident);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   // Synchronize internal state whenever the incoming incident prop changes
   useEffect(() => {
     setCurrentIncident(incident);
+    setIsDismissed(false);
   }, [incident]);
 
-  if (!currentIncident) return null;
+  const handleDismiss = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    e?.preventDefault();
+    setIsDismissed(true);
+    setCurrentIncident(null);
+    onDismiss?.();
+  };
+
+  if (!currentIncident || isDismissed) return null;
 
   /**
    * Async handler to update incident status in Supabase and immediately reflect in local UI state
@@ -177,9 +187,19 @@ export function CommissionerAlertBanner({
       {/* Sticky top pulsing critical alert banner */}
       <aside 
         aria-label="Critical Incident Alert"
-        className={`sticky top-0 z-[100] w-full bg-gradient-to-r ${getBannerGradient()} backdrop-blur-md border-b-2 shadow-2xl text-white px-3 sm:px-6 py-3 transition-all duration-300 animate-in slide-in-from-top-4`}
+        className={`sticky top-0 z-[100] w-full bg-gradient-to-r ${getBannerGradient()} backdrop-blur-md border-b-2 shadow-2xl text-white px-3 sm:px-6 py-3 transition-all duration-300 animate-in slide-in-from-top-4 relative`}
       >
-        <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-3">
+        {/* Floating Close Button for Mobile Accessibility */}
+        <button
+          onClick={handleDismiss}
+          className="absolute top-2 right-2 sm:hidden text-white/80 hover:text-white p-1.5 rounded-full bg-black/40 hover:bg-black/60 transition-colors z-30"
+          title="Dismiss banner"
+          aria-label="Dismiss banner"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-3 pr-6 sm:pr-0">
           
           {/* Left: Icon + Main Alert Information */}
           <div className="flex items-start sm:items-center gap-3 w-full lg:w-auto">
@@ -356,7 +376,7 @@ export function CommissionerAlertBanner({
             </Button>
 
             <button
-              onClick={onDismiss}
+              onClick={handleDismiss}
               className="text-white/70 hover:text-white p-1 rounded-md hover:bg-black/30 transition-colors ml-1"
               title="Dismiss banner"
               aria-label="Dismiss banner"

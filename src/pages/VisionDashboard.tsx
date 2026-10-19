@@ -29,6 +29,7 @@ export default function VisionDashboard() {
   const {
     activeIncident,
     setActiveIncident,
+    dismissIncident,
     acknowledgeIncident,
     resolveIncident,
     unresolvedIncidents,
@@ -131,7 +132,13 @@ export default function VisionDashboard() {
         onStatusChange={(id, newStatus) => {
           setActiveIncident((prev) => (prev?.id === id ? { ...prev, status: newStatus } : prev));
         }}
-        onDismiss={() => setActiveIncident(null)}
+        onDismiss={() => {
+          if (activeIncident?.id) {
+            dismissIncident(activeIncident.id);
+          } else {
+            setActiveIncident(null);
+          }
+        }}
         onFocusCamera={handleFocusCamera}
       />
 

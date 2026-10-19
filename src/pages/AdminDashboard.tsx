@@ -47,6 +47,7 @@ export default function AdminDashboard() {
   const { 
     activeIncident, 
     setActiveIncident, 
+    dismissIncident,
     acknowledgeIncident, 
     resolveIncident, 
     unresolvedIncidents 
@@ -87,7 +88,13 @@ export default function AdminDashboard() {
         incident={activeIncident}
         onAcknowledge={(id) => acknowledgeIncident.mutate(id)}
         onResolve={(id) => resolveIncident.mutate({ id, status: 'RESOLVED' })}
-        onDismiss={() => setActiveIncident(null)}
+        onDismiss={() => {
+          if (activeIncident?.id) {
+            dismissIncident(activeIncident.id);
+          } else {
+            setActiveIncident(null);
+          }
+        }}
         onFocusCamera={(camId) => navigate(`/vision-dashboard?camera=${encodeURIComponent(camId)}&incident=${activeIncident?.id || ''}`)}
       />
 
