@@ -170,12 +170,12 @@ export default function MyReservations() {
     );
   }
 
-  const activeReservations = reservations.filter(
-    (r) => ['confirmed', 'pending', 'checked_in'].includes(r.status)
-  );
-  const pastReservations = reservations.filter(
-    (r) => ['completed', 'cancelled', 'expired'].includes(r.status)
-  );
+  const activeReservations = [...reservations]
+    .filter((r) => ['confirmed', 'pending', 'checked_in'].includes(r.status))
+    .sort((a, b) => a.reservation_date.localeCompare(b.reservation_date));
+  const pastReservations = [...reservations]
+    .filter((r) => ['completed', 'cancelled', 'expired'].includes(r.status))
+    .sort((a, b) => b.reservation_date.localeCompare(a.reservation_date));
 
   return (
     <div className="min-h-screen bg-background">

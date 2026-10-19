@@ -21,10 +21,18 @@ export function useOccupancyForecasts(parkingLotId?: string) {
         }
 
         const { data, error } = await query;
-        if (error || !data || data.length === 0) return DEMO_OCCUPANCY_FORECASTS as OccupancyForecast[];
+        if (error || !data || data.length === 0) {
+          const fallback = parkingLotId
+            ? DEMO_OCCUPANCY_FORECASTS.filter(f => f.parking_lot_id === parkingLotId)
+            : DEMO_OCCUPANCY_FORECASTS;
+          return (fallback.length > 0 ? fallback : DEMO_OCCUPANCY_FORECASTS) as OccupancyForecast[];
+        }
         return withDemoFallback(data as OccupancyForecast[], DEMO_OCCUPANCY_FORECASTS);
       } catch {
-        return DEMO_OCCUPANCY_FORECASTS as OccupancyForecast[];
+        const fallback = parkingLotId
+          ? DEMO_OCCUPANCY_FORECASTS.filter(f => f.parking_lot_id === parkingLotId)
+          : DEMO_OCCUPANCY_FORECASTS;
+        return (fallback.length > 0 ? fallback : DEMO_OCCUPANCY_FORECASTS) as OccupancyForecast[];
       }
     },
   });

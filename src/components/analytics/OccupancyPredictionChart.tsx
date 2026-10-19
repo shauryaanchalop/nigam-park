@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useParkingLots } from '@/hooks/useParkingLots';
 import { format, addHours } from 'date-fns';
+import { DEMO_OCCUPANCY_FORECASTS, withDemoFallback } from '@/lib/demoData';
 import {
   AreaChart,
   Area,
@@ -34,20 +35,32 @@ export function OccupancyPredictionChart() {
   const { data: forecasts, isLoading } = useQuery({
     queryKey: ['occupancy-forecasts', selectedLotId],
     queryFn: async () => {
-      let query = supabase
-        .from('occupancy_forecasts')
-        .select('*')
-        .gte('forecast_time', new Date().toISOString())
-        .order('forecast_time', { ascending: true })
-        .limit(48);
+      try {
+        let query = supabase
+          .from('occupancy_forecasts')
+          .select('*')
+          .gte('forecast_time', new Date().toISOString())
+          .order('forecast_time', { ascending: true })
+          .limit(48);
 
-      if (selectedLotId !== 'all') {
-        query = query.eq('parking_lot_id', selectedLotId);
+        if (selectedLotId !== 'all') {
+          query = query.eq('parking_lot_id', selectedLotId);
+        }
+
+        const { data, error } = await query;
+        if (error || !data || data.length === 0) {
+          const fallback = selectedLotId === 'all'
+            ? DEMO_OCCUPANCY_FORECASTS
+            : DEMO_OCCUPANCY_FORECASTS.filter(f => f.parking_lot_id === selectedLotId);
+          return (fallback.length > 0 ? fallback : DEMO_OCCUPANCY_FORECASTS) as OccupancyForecast[];
+        }
+        return withDemoFallback(data as OccupancyForecast[], DEMO_OCCUPANCY_FORECASTS);
+      } catch {
+        const fallback = selectedLotId === 'all'
+          ? DEMO_OCCUPANCY_FORECASTS
+          : DEMO_OCCUPANCY_FORECASTS.filter(f => f.parking_lot_id === selectedLotId);
+        return (fallback.length > 0 ? fallback : DEMO_OCCUPANCY_FORECASTS) as OccupancyForecast[];
       }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data as OccupancyForecast[];
     },
   });
 

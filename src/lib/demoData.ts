@@ -411,263 +411,150 @@ export const DEMO_CAMERAS: CameraWithEvents[] = [
   },
 ];
 
-export const DEMO_RESERVATIONS = [
-  {
-    id: 'res-demo-future-1',
-    user_id: 'demo',
-    lot_id: 'cp-block-a',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(1),
-    start_time: '14:00:00',
-    end_time: '18:00:00',
-    amount: 160,
-    status: 'confirmed',
-    created_at: daysAgo(0.1),
+export const DEMO_RESERVATIONS = (() => {
+  const lots = [
+    { id: 'cp-block-a', name: 'Connaught Place Block A', zone: 'New Delhi', rate: 40 },
+    { id: 'kb-market', name: 'Karol Bagh Market', zone: 'Central Delhi', rate: 30 },
+    { id: 'np-it', name: 'Nehru Place IT Hub', zone: 'South-East Delhi', rate: 35 },
+    { id: 'cc-metro', name: 'Chandni Chowk Metro', zone: 'Old Delhi', rate: 20 },
+    { id: 'ln-central', name: 'Lajpat Nagar Central', zone: 'South Delhi', rate: 25 },
+    { id: 'sn-market', name: 'Sarojini Nagar Market', zone: 'South-West Delhi', rate: 25 },
+    { id: 'hk-village', name: 'Hauz Khas Village', zone: 'South Delhi', rate: 50 },
+    { id: 'aero-hub', name: 'Aerocity Express Terminal', zone: 'IGI Airport Zone', rate: 60 },
+  ];
+
+  const vehicles = ['DL01AB1234', 'DL03CD5678', 'DL08EF9012', 'DL04GH3456'];
+  const timeSlots = [
+    { start: '09:00:00', end: '13:00:00', hours: 4 },
+    { start: '10:00:00', end: '14:00:00', hours: 4 },
+    { start: '11:00:00', end: '15:00:00', hours: 4 },
+    { start: '13:00:00', end: '17:00:00', hours: 4 },
+    { start: '14:00:00', end: '18:00:00', hours: 4 },
+    { start: '16:00:00', end: '20:00:00', hours: 4 },
+    { start: '18:00:00', end: '22:00:00', hours: 4 },
+  ];
+
+  const list: Array<{
+    id: string;
+    user_id: string;
+    lot_id: string;
+    vehicle_number: string;
+    reservation_date: string;
+    start_time: string;
+    end_time: string;
+    amount: number;
+    status: string;
+    created_at: string;
+    checked_in_at?: string;
     parking_lots: {
-      name: 'Connaught Place Block A',
-      zone: 'New Delhi',
+      name: string;
+      zone: string;
+    };
+  }> = [];
+
+  // Today (day 0) active reservations
+  list.push(
+    {
+      id: 'res-demo-today-1',
+      user_id: 'demo',
+      lot_id: 'cp-block-a',
+      vehicle_number: 'DL01AB1234',
+      reservation_date: futureDateStr(0),
+      start_time: '14:00:00',
+      end_time: '18:00:00',
+      amount: 160,
+      status: 'confirmed',
+      created_at: daysAgo(0.1),
+      parking_lots: { name: 'Connaught Place Block A', zone: 'New Delhi' },
     },
-  },
-  {
-    id: 'res-demo-future-2',
-    user_id: 'demo',
-    lot_id: 'kb-market',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(1),
-    start_time: '10:00:00',
-    end_time: '13:00:00',
-    amount: 90,
-    status: 'confirmed',
-    created_at: daysAgo(0.2),
-    parking_lots: {
-      name: 'Karol Bagh Market',
-      zone: 'Central Delhi',
-    },
-  },
-  {
-    id: 'res-demo-future-3',
-    user_id: 'demo',
-    lot_id: 'np-it',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(2),
-    start_time: '11:00:00',
-    end_time: '16:00:00',
-    amount: 175,
-    status: 'confirmed',
-    created_at: daysAgo(0.3),
-    parking_lots: {
-      name: 'Nehru Place IT Hub',
-      zone: 'South-East Delhi',
-    },
-  },
-  {
-    id: 'res-demo-future-4',
-    user_id: 'demo',
-    lot_id: 'cc-metro',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(3),
-    start_time: '12:00:00',
-    end_time: '15:00:00',
-    amount: 60,
-    status: 'confirmed',
-    created_at: daysAgo(0.4),
-    parking_lots: {
-      name: 'Chandni Chowk Metro',
-      zone: 'Old Delhi',
-    },
-  },
-  {
-    id: 'res-demo-future-5',
-    user_id: 'demo',
-    lot_id: 'ln-central',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(4),
-    start_time: '15:00:00',
-    end_time: '19:00:00',
-    amount: 100,
-    status: 'confirmed',
-    created_at: daysAgo(0.5),
-    parking_lots: {
-      name: 'Lajpat Nagar Central',
-      zone: 'South Delhi',
-    },
-  },
-  {
-    id: 'res-demo-future-6',
-    user_id: 'demo',
-    lot_id: 'sn-market',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(5),
-    start_time: '13:00:00',
-    end_time: '17:00:00',
-    amount: 100,
-    status: 'confirmed',
-    created_at: daysAgo(0.6),
-    parking_lots: {
-      name: 'Sarojini Nagar Market',
-      zone: 'South-West Delhi',
-    },
-  },
-  {
-    id: 'res-demo-future-7',
-    user_id: 'demo',
-    lot_id: 'cp-block-a',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(7),
-    start_time: '10:00:00',
-    end_time: '14:00:00',
-    amount: 160,
-    status: 'confirmed',
-    created_at: daysAgo(0.7),
-    parking_lots: {
-      name: 'Connaught Place Block A',
-      zone: 'New Delhi',
-    },
-  },
-  {
-    id: 'res-demo-future-8',
-    user_id: 'demo',
-    lot_id: 'np-it',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(10),
-    start_time: '12:00:00',
-    end_time: '16:00:00',
-    amount: 140,
-    status: 'confirmed',
-    created_at: daysAgo(0.8),
-    parking_lots: {
-      name: 'Nehru Place IT Hub',
-      zone: 'South-East Delhi',
-    },
-  },
-  {
-    id: 'res-demo-future-9',
-    user_id: 'demo',
-    lot_id: 'kb-market',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(14),
-    start_time: '16:00:00',
-    end_time: '20:00:00',
-    amount: 120,
-    status: 'confirmed',
-    created_at: daysAgo(0.9),
-    parking_lots: {
-      name: 'Karol Bagh Market',
-      zone: 'Central Delhi',
-    },
-  },
-  {
-    id: 'res-demo-future-10',
-    user_id: 'demo',
-    lot_id: 'cc-metro',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(21),
-    start_time: '11:00:00',
-    end_time: '15:00:00',
-    amount: 80,
-    status: 'confirmed',
-    created_at: daysAgo(1),
-    parking_lots: {
-      name: 'Chandni Chowk Metro',
-      zone: 'Old Delhi',
-    },
-  },
-  {
-    id: 'res-demo-future-11',
-    user_id: 'demo',
-    lot_id: 'ln-central',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(30),
-    start_time: '14:00:00',
-    end_time: '18:00:00',
-    amount: 100,
-    status: 'confirmed',
-    created_at: daysAgo(1.2),
-    parking_lots: {
-      name: 'Lajpat Nagar Central',
-      zone: 'South Delhi',
-    },
-  },
-  {
-    id: 'res-demo-today-1',
-    user_id: 'demo',
-    lot_id: 'cp-block-a',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(0),
-    start_time: '14:00:00',
-    end_time: '18:00:00',
-    amount: 160,
-    status: 'confirmed',
-    created_at: daysAgo(0.1),
-    parking_lots: {
-      name: 'Connaught Place Block A',
-      zone: 'New Delhi',
-    },
-  },
-  {
-    id: 'res-demo-today-2',
-    user_id: 'demo',
-    lot_id: 'cc-metro',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: futureDateStr(0),
-    start_time: '10:00:00',
-    end_time: '13:00:00',
-    amount: 60,
-    status: 'checked_in',
-    checked_in_at: daysAgo(0.05),
-    parking_lots: {
-      name: 'Chandni Chowk Metro',
-      zone: 'Old Delhi',
-    },
-  },
-  {
-    id: 'res-demo-past-1',
-    user_id: 'demo',
-    lot_id: 'np-it',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: daysAgo(1).split('T')[0],
-    start_time: '11:00:00',
-    end_time: '15:00:00',
-    amount: 140,
-    status: 'completed',
-    checked_in_at: daysAgo(1.2),
-    parking_lots: {
-      name: 'Nehru Place IT Hub',
-      zone: 'South-East Delhi',
-    },
-  },
-  {
-    id: 'res-demo-past-2',
-    user_id: 'demo',
-    lot_id: 'kb-market',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: daysAgo(3).split('T')[0],
-    start_time: '16:00:00',
-    end_time: '19:00:00',
-    amount: 90,
-    status: 'completed',
-    checked_in_at: daysAgo(3.1),
-    parking_lots: {
-      name: 'Karol Bagh Market',
-      zone: 'Central Delhi',
-    },
-  },
-  {
-    id: 'res-demo-past-3',
-    user_id: 'demo',
-    lot_id: 'ln-central',
-    vehicle_number: 'DL01AB1234',
-    reservation_date: daysAgo(5).split('T')[0],
-    start_time: '12:00:00',
-    end_time: '14:00:00',
-    amount: 50,
-    status: 'cancelled',
-    parking_lots: {
-      name: 'Lajpat Nagar Central',
-      zone: 'South Delhi',
-    },
-  },
-];
+    {
+      id: 'res-demo-today-2',
+      user_id: 'demo',
+      lot_id: 'cc-metro',
+      vehicle_number: 'DL01AB1234',
+      reservation_date: futureDateStr(0),
+      start_time: '10:00:00',
+      end_time: '13:00:00',
+      amount: 60,
+      status: 'checked_in',
+      created_at: daysAgo(0.05),
+      checked_in_at: daysAgo(0.05),
+      parking_lots: { name: 'Chandni Chowk Metro', zone: 'Old Delhi' },
+    }
+  );
+
+  // Every single day from day 1 to day 90 in the future
+  for (let d = 1; d <= 90; d++) {
+    const lot1 = lots[d % lots.length];
+    const lot2 = lots[(d + 3) % lots.length];
+    const slot1 = timeSlots[d % timeSlots.length];
+    const slot2 = timeSlots[(d + 2) % timeSlots.length];
+    const veh1 = vehicles[d % vehicles.length];
+    const veh2 = vehicles[(d + 1) % vehicles.length];
+
+    list.push({
+      id: `res-demo-future-${d}-a`,
+      user_id: 'demo',
+      lot_id: lot1.id,
+      vehicle_number: veh1,
+      reservation_date: futureDateStr(d),
+      start_time: slot1.start,
+      end_time: slot1.end,
+      amount: slot1.hours * lot1.rate,
+      status: 'confirmed',
+      created_at: daysAgo(Math.max(0.05, 0.5 - d * 0.005)),
+      parking_lots: {
+        name: lot1.name,
+        zone: lot1.zone,
+      },
+    });
+
+    // Add second reservation every 2nd day
+    if (d % 2 === 0) {
+      list.push({
+        id: `res-demo-future-${d}-b`,
+        user_id: 'demo',
+        lot_id: lot2.id,
+        vehicle_number: veh2,
+        reservation_date: futureDateStr(d),
+        start_time: slot2.start,
+        end_time: slot2.end,
+        amount: slot2.hours * lot2.rate,
+        status: 'confirmed',
+        created_at: daysAgo(Math.max(0.05, 0.6 - d * 0.005)),
+        parking_lots: {
+          name: lot2.name,
+          zone: lot2.zone,
+        },
+      });
+    }
+  }
+
+  // Past reservations (past 30 days)
+  for (let p = 1; p <= 30; p += 2) {
+    const lot = lots[p % lots.length];
+    const slot = timeSlots[p % timeSlots.length];
+    list.push({
+      id: `res-demo-past-${p}`,
+      user_id: 'demo',
+      lot_id: lot.id,
+      vehicle_number: 'DL01AB1234',
+      reservation_date: daysAgo(p).split('T')[0],
+      start_time: slot.start,
+      end_time: slot.end,
+      amount: slot.hours * lot.rate,
+      status: p === 5 ? 'cancelled' : 'completed',
+      created_at: daysAgo(p + 0.5),
+      checked_in_at: p === 5 ? undefined : daysAgo(p + 0.1),
+      parking_lots: {
+        name: lot.name,
+        zone: lot.zone,
+      },
+    });
+  }
+
+  return list;
+})();
 
 export const DEMO_FINES = [
   {
@@ -833,8 +720,8 @@ export const DEMO_ATTENDANT_SHIFTS = (() => {
     profiles: { full_name: string };
   }> = [];
 
-  // Generate shifts for every day from 7 days ago to 60 days into the future
-  for (let d = -7; d <= 60; d++) {
+  // Generate shifts for every day from 14 days ago to 90 days into the future
+  for (let d = -14; d <= 90; d++) {
     const dateStr = futureDateStr(d);
     const morningAttendant = ATTENDANT_POOL[Math.abs(d) % ATTENDANT_POOL.length];
     const eveningAttendant = ATTENDANT_POOL[(Math.abs(d) + 1) % ATTENDANT_POOL.length];
@@ -891,40 +778,67 @@ export const DEMO_ATTENDANT_SHIFTS = (() => {
 })();
 
 export const DEMO_REVENUE_FORECASTS = (() => {
+  const lots = ['cp-block-a', 'kb-market', 'np-it', 'cc-metro', 'ln-central', 'sn-market'];
+  const baseRevs: Record<string, number> = {
+    'cp-block-a': 56000,
+    'kb-market': 42000,
+    'np-it': 48000,
+    'cc-metro': 31000,
+    'ln-central': 37000,
+    'sn-market': 39000,
+  };
+
   const forecasts = [];
-  for (let i = 0; i < 30; i++) {
+  // Generate forecasts for every day from today to 90 days into the future
+  for (let i = 0; i < 90; i++) {
     const date = futureDateStr(i);
     const dayOfWeek = new Date(Date.now() + i * 86400000).getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const baseRev = isWeekend ? 74000 : 56000;
-    const predicted = Math.round(baseRev + Math.sin(i * 1.5) * 7000);
-    forecasts.push({
-      id: `rev-fc-${i}`,
-      lot_id: 'cp-block-a',
-      forecast_date: date,
-      predicted_revenue: predicted,
-      confidence_score: 0.94,
-      created_at: daysAgo(1),
+
+    lots.forEach((lotId) => {
+      const base = baseRevs[lotId] || 45000;
+      const weekendMultiplier = isWeekend ? 1.35 : 1.0;
+      const seasonalWave = Math.sin((i + lotId.length) * 0.8) * 5500;
+      const predicted = Math.round((base * weekendMultiplier) + seasonalWave);
+
+      forecasts.push({
+        id: `rev-fc-${lotId}-${i}`,
+        lot_id: lotId,
+        forecast_date: date,
+        predicted_revenue: predicted,
+        confidence_score: Number((0.92 + (Math.sin(i) * 0.05)).toFixed(2)),
+        created_at: daysAgo(1),
+      });
     });
   }
   return forecasts;
 })();
 
 export const DEMO_OCCUPANCY_FORECASTS = (() => {
+  const lots = ['cp-block-a', 'kb-market', 'np-it', 'cc-metro', 'ln-central', 'sn-market'];
   const list = [];
-  for (let d = 0; d < 7; d++) {
+
+  // Generate hourly occupancy forecasts for every day for the next 90 days
+  for (let d = 0; d < 90; d++) {
     for (let h = 8; h <= 22; h += 2) {
       const dt = new Date(Date.now() + d * 86400000);
       dt.setHours(h, 0, 0, 0);
       const isPeak = (h >= 11 && h <= 14) || (h >= 17 && h <= 20);
-      const predictedOcc = isPeak ? 82 + (h % 5) : 48 + (h % 7);
-      list.push({
-        id: `occ-fc-${d}-${h}`,
-        parking_lot_id: 'cp-block-a',
-        forecast_time: dt.toISOString(),
-        predicted_occupancy: Math.min(96, predictedOcc),
-        confidence_score: 0.94,
-        created_at: daysAgo(1),
+
+      lots.forEach((lotId, lIdx) => {
+        const lotOffset = lIdx * 3;
+        const predictedOcc = isPeak 
+          ? 78 + ((h + lotOffset) % 18) 
+          : 42 + ((h + lotOffset) % 24);
+
+        list.push({
+          id: `occ-fc-${lotId}-${d}-${h}`,
+          parking_lot_id: lotId,
+          forecast_time: dt.toISOString(),
+          predicted_occupancy: Math.min(98, predictedOcc),
+          confidence_score: Number((0.91 + (Math.cos(d + h) * 0.06)).toFixed(2)),
+          created_at: daysAgo(1),
+        });
       });
     }
   }
