@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface ChargingSession {
   id: string;
@@ -96,7 +97,8 @@ const mockSessions: ChargingSession[] = [
 export function EVBatteryStatus() {
   const { isHindi } = useLanguage();
   const [sessions, setSessions] = useState<ChargingSession[]>(mockSessions);
-  const [selectedSession, setSelectedSession] = useState<ChargingSession | null>(null);
+  const [selectedSessionId, setSelectedSessionId] = useState<string>(mockSessions[0].id);
+  const session = sessions.find(s => s.id === selectedSessionId) || sessions[0];
 
   // Simulate real-time battery updates
   useEffect(() => {
@@ -201,19 +203,50 @@ export function EVBatteryStatus() {
           </p>
         </div>
 
-        {/* Charging Sessions */}
-        <div className="space-y-4">
-          {sessions.map(session => (
-            <div 
-              key={session.id}
-              className={`p-4 rounded-xl border-2 transition-all ${
-                session.status === 'charging' 
-                  ? 'border-warning/50 bg-warning/5' 
-                  : session.status === 'completed'
-                    ? 'border-success/50 bg-success/5'
-                    : 'border-border bg-card'
-              }`}
+        {/* Vehicle Selector Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+          <span className="text-muted-foreground mr-1 text-[11px] font-medium">Vehicle:</span>
+          {sessions.map(s => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => setSelectedSessionId(s.id)}
+              className={cn(
+                "px-2.5 py-1 rounded-md transition-all font-medium border text-xs flex items-center gap-1.5 whitespace-nowrap",
+                s.id === selectedSessionId 
+                  ? "bg-primary text-primary-foreground border-primary shadow-xs" 
+                  : "bg-muted/50 text-muted-foreground border-border/50 hover:text-foreground"
+              )}
             >
+              <Car className="w-3 h-3" />
+              <span>{s.vehicleName}</span>
+              <Badge 
+                variant="outline" 
+                className={cn(
+                  "text-[10px] py-0 px-1 h-3.5 leading-none", 
+                  s.id === selectedSessionId
+                    ? "border-primary-foreground/30 text-primary-foreground"
+                    : s.status === 'charging' 
+                    ? 'border-amber-500/40 text-amber-500' 
+                    : 'border-emerald-500/40 text-emerald-500'
+                )}
+              >
+                {Math.round(s.batteryLevel)}%
+              </Badge>
+            </button>
+          ))}
+        </div>
+
+        {/* Selected Charging Session */}
+        <div 
+          className={`p-4 rounded-xl border-2 transition-all ${
+            session.status === 'charging' 
+              ? 'border-warning/50 bg-warning/5' 
+              : session.status === 'completed'
+                ? 'border-success/50 bg-success/5'
+                : 'border-border bg-card'
+          }`}
+        >
               {/* Header */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -377,8 +410,6 @@ export function EVBatteryStatus() {
                 </div>
               )}
             </div>
-          ))}
-        </div>
 
         {/* Summary Stats */}
         <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-muted/50">
