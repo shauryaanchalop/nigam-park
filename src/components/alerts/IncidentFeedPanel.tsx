@@ -15,7 +15,8 @@ import {
   RefreshCw,
   ShieldCheck,
   ShieldAlert,
-  HelpCircle
+  HelpCircle,
+  AlertOctagon
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -102,8 +103,8 @@ export function IncidentFeedPanel({ onFocusCamera, compact = false }: IncidentFe
       <CardHeader className="pb-3 border-b bg-card/60">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 sm:p-2 rounded-lg bg-red-500/10 text-red-500">
-              <Flame className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
+            <div className="p-1.5 sm:p-2 rounded-lg bg-rose-500/10 text-rose-500">
+              <AlertOctagon className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500" />
             </div>
             <div>
               <CardTitle className="text-base sm:text-lg flex items-center gap-2">

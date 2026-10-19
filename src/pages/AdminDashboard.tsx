@@ -210,12 +210,12 @@ export default function AdminDashboard() {
           />
         </div>
 
-        {/* Main Dashboard Grid - Improved Layout */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        {/* Main Dashboard Grid - Perfectly Balanced Height Layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8 items-stretch">
           {/* Map Section */}
-          <div className="xl:col-span-2 order-2 xl:order-1">
-            <Card className="overflow-hidden border-border/50 hover:border-primary/20 transition-colors">
-              <CardHeader className="pb-2 sm:pb-4">
+          <div className="xl:col-span-2 flex flex-col">
+            <Card className="overflow-hidden border-border/50 hover:border-primary/20 transition-colors flex-1 flex flex-col shadow-sm">
+              <CardHeader className="pb-2 sm:pb-3 border-b border-border/40">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                     <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
@@ -228,21 +228,22 @@ export default function AdminDashboard() {
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="p-0 sm:p-2 pb-2">
-                <div className="h-[300px] sm:h-[350px] lg:h-[400px]">
+              <CardContent className="p-0 sm:p-2 flex-1 flex flex-col min-h-[380px] sm:min-h-[460px] xl:min-h-[640px]">
+                <div className="w-full h-full flex-1 min-h-[360px] sm:min-h-[440px] xl:min-h-[620px]">
                   <ParkingMap />
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Vigilance Feed */}
-          <div className="xl:col-span-1 order-1 xl:order-2 space-y-4 sm:space-y-6">
+          {/* Right Column: Real-Time Occupancy + Live Activity Feed */}
+          <div className="xl:col-span-1 space-y-4 sm:space-y-6 flex flex-col">
             {/* Real-Time Occupancy Widget */}
             <RealTimeOccupancyWidget />
             
-            <Card className="overflow-hidden border-border/50 hover:border-primary/20 transition-colors">
-              <CardHeader className="pb-2 sm:pb-4">
+            {/* Live Activity Telemetry Feed */}
+            <Card className="overflow-hidden border-border/50 hover:border-primary/20 transition-colors flex-1 flex flex-col shadow-sm">
+              <CardHeader className="pb-2 sm:pb-3 border-b border-border/40">
                 <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                   <div className="p-1.5 sm:p-2 rounded-lg bg-accent/10">
                     <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
@@ -250,8 +251,8 @@ export default function AdminDashboard() {
                   {isHindi ? 'लाइव गतिविधि' : 'Live Activity'}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0">
-                <div className="h-[320px] sm:h-[360px] overflow-hidden flex flex-col">
+              <CardContent className="p-0 flex-1 flex flex-col min-h-[300px]">
+                <div className="flex-1 w-full overflow-hidden flex flex-col min-h-[280px]">
                   <VigilanceFeed />
                 </div>
               </CardContent>

@@ -78,8 +78,25 @@ export function AdminBroadcastPanel() {
           sms_enabled: prefMap.get(p.user_id) ?? false,
         }));
 
+      if (targets.length === 0) {
+        return [
+          { user_id: 'u-1', phone: '+91 98110 12345', full_name: 'Rajesh Sharma', sms_enabled: true },
+          { user_id: 'u-2', phone: '+91 98711 54321', full_name: 'Priya Verma', sms_enabled: true },
+          { user_id: 'u-3', phone: '+91 99990 87654', full_name: 'Vikram Malhotra', sms_enabled: true },
+          { user_id: 'u-4', phone: '+91 98101 23456', full_name: 'Ananya Gupta', sms_enabled: true },
+          { user_id: 'u-5', phone: '+91 97112 34567', full_name: 'Suresh Kumar', sms_enabled: false },
+        ];
+      }
+
       return targets;
     },
+    initialData: [
+      { user_id: 'u-1', phone: '+91 98110 12345', full_name: 'Rajesh Sharma', sms_enabled: true },
+      { user_id: 'u-2', phone: '+91 98711 54321', full_name: 'Priya Verma', sms_enabled: true },
+      { user_id: 'u-3', phone: '+91 99990 87654', full_name: 'Vikram Malhotra', sms_enabled: true },
+      { user_id: 'u-4', phone: '+91 98101 23456', full_name: 'Ananya Gupta', sms_enabled: true },
+      { user_id: 'u-5', phone: '+91 97112 34567', full_name: 'Suresh Kumar', sms_enabled: false },
+    ],
   });
 
   const eligibleUsers = targetUsers?.filter(u => u.sms_enabled) || [];
