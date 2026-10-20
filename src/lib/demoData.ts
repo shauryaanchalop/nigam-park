@@ -1077,3 +1077,334 @@ export function withDemoFallback<T>(rows: T[] | undefined | null, demo: unknown[
   return demo as T[];
 }
 
+export const DEMO_OCCUPANCY_ANALYTICS = [
+  { lotName: 'Connaught Place Block A', zone: 'New Delhi', occupancy: 156, capacity: 200, percentage: 78 },
+  { lotName: 'Karol Bagh Market', zone: 'Central Delhi', occupancy: 87, capacity: 150, percentage: 58 },
+  { lotName: 'Lajpat Nagar Central', zone: 'South Delhi', occupancy: 45, capacity: 120, percentage: 38 },
+  { lotName: 'Chandni Chowk Metro', zone: 'Old Delhi', occupancy: 72, capacity: 80, percentage: 90 },
+  { lotName: 'Nehru Place IT Hub', zone: 'South-East Delhi', occupancy: 98, capacity: 180, percentage: 54 },
+  { lotName: 'Sarojini Nagar Market', zone: 'South-West Delhi', occupancy: 89, capacity: 100, percentage: 89 },
+  { lotName: 'Saket City Centre Gate 2', zone: 'South Delhi', occupancy: 185, capacity: 220, percentage: 84 },
+];
+
+export const DEMO_SUMMARY_STATS = {
+  todayRevenue: 142850,
+  yesterdayRevenue: 125100,
+  weekRevenue: 986400,
+  avgDailyRevenue: 140914,
+  revenueChange: 14,
+  transactionsToday: 1428,
+  transactionsWeek: 9840,
+};
+
+export const DEMO_OVERSTAY_RECORDS = [
+  {
+    id: 'ov-1',
+    vehicle_number: 'DL 01 AB 1234',
+    amount: 450,
+    entry_time: daysAgo(0.35),
+    exit_time: null,
+    created_at: daysAgo(0.08),
+    parking_lots: { name: 'Connaught Place Block A', zone: 'New Delhi' },
+  },
+  {
+    id: 'ov-2',
+    vehicle_number: 'HR 26 DQ 5678',
+    amount: 300,
+    entry_time: daysAgo(0.42),
+    exit_time: null,
+    created_at: daysAgo(0.14),
+    parking_lots: { name: 'Karol Bagh Market', zone: 'Central Delhi' },
+  },
+  {
+    id: 'ov-3',
+    vehicle_number: 'UP 16 CD 7823',
+    amount: 600,
+    entry_time: daysAgo(0.55),
+    exit_time: null,
+    created_at: daysAgo(0.22),
+    parking_lots: { name: 'Nehru Place IT Hub', zone: 'South-East Delhi' },
+  },
+  {
+    id: 'ov-4',
+    vehicle_number: 'DL 03 EF 9012',
+    amount: 250,
+    entry_time: daysAgo(0.38),
+    exit_time: null,
+    created_at: daysAgo(0.28),
+    parking_lots: { name: 'Chandni Chowk Metro', zone: 'Old Delhi' },
+  },
+  {
+    id: 'ov-5',
+    vehicle_number: 'DL 08 QR 3344',
+    amount: 400,
+    entry_time: daysAgo(0.62),
+    exit_time: null,
+    created_at: daysAgo(0.32),
+    parking_lots: { name: 'Sarojini Nagar Market', zone: 'South-West Delhi' },
+  },
+  {
+    id: 'ov-6',
+    vehicle_number: 'HR 55 HC 3344',
+    amount: 350,
+    entry_time: daysAgo(0.48),
+    exit_time: null,
+    created_at: daysAgo(0.38),
+    parking_lots: { name: 'Lajpat Nagar Central', zone: 'South Delhi' },
+  },
+];
+
+export function generateDemoRevenueAnalytics(timeRange: 'daily' | 'weekly' | 'monthly') {
+  const now = new Date();
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  if (timeRange === 'daily') {
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(now.getTime() - (6 - i) * 86400000);
+      const dayOfWeek = d.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const baseFastag = isWeekend ? 88000 : 72000;
+      const baseUpi = isWeekend ? 38000 : 31000;
+      const baseCash = 14000;
+      const baseOverstay = isWeekend ? 6500 : 4200;
+      const jitter = ((i * 13) % 7 - 3) * 1200;
+
+      const fastag = Math.round(baseFastag + jitter);
+      const upi = Math.round(baseUpi + jitter * 0.4);
+      const cash = Math.round(baseCash + jitter * 0.2);
+      const overstayFee = Math.round(baseOverstay + jitter * 0.1);
+      const revenue = fastag + upi + cash + overstayFee;
+
+      return {
+        date: d.toISOString().split('T')[0],
+        displayDate: `${monthNames[d.getMonth()]} ${d.getDate()}`,
+        revenue,
+        transactions: Math.round(revenue / 95),
+        fastag,
+        cash,
+        upi,
+        overstayFee,
+      };
+    });
+  }
+
+  if (timeRange === 'weekly') {
+    return Array.from({ length: 4 }, (_, i) => {
+      const d = new Date(now.getTime() - (3 - i) * 7 * 86400000);
+      const fastag = 490000 + i * 18000;
+      const upi = 215000 + i * 9000;
+      const cash = 92000 - i * 3000;
+      const overstayFee = 32000 + i * 2500;
+      const revenue = fastag + upi + cash + overstayFee;
+
+      return {
+        date: d.toISOString().split('T')[0],
+        displayDate: `Week ${40 + i}`,
+        revenue,
+        transactions: Math.round(revenue / 92),
+        fastag,
+        cash,
+        upi,
+        overstayFee,
+      };
+    });
+  }
+
+  // Monthly
+  return Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    const fastag = 2100000 + i * 95000;
+    const upi = 920000 + i * 48000;
+    const cash = 380000 - i * 15000;
+    const overstayFee = 145000 + i * 11000;
+    const revenue = fastag + upi + cash + overstayFee;
+
+    return {
+      date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+      displayDate: `${monthNames[d.getMonth()]} ${d.getFullYear()}`,
+      revenue,
+      transactions: Math.round(revenue / 90),
+      fastag,
+      cash,
+      upi,
+      overstayFee,
+    };
+  });
+}
+
+export function generateDemoReservationStats(timeRange: 'daily' | 'weekly' | 'monthly') {
+  if (timeRange === 'daily') {
+    return {
+      total: 184,
+      confirmed: 42,
+      checkedIn: 28,
+      completed: 106,
+      cancelled: 8,
+      totalRevenue: 34800,
+    };
+  }
+  if (timeRange === 'weekly') {
+    return {
+      total: 1240,
+      confirmed: 180,
+      checkedIn: 95,
+      completed: 915,
+      cancelled: 50,
+      totalRevenue: 248000,
+    };
+  }
+  return {
+    total: 5480,
+    confirmed: 420,
+    checkedIn: 180,
+    completed: 4620,
+    cancelled: 260,
+    totalRevenue: 1096000,
+  };
+}
+
+export function generateDemoOverstayTrends(range: 'weekly' | 'monthly') {
+  const now = new Date();
+  const days = range === 'weekly' ? 7 : 30;
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  const data = Array.from({ length: days }, (_, i) => {
+    const d = new Date(now.getTime() - (days - 1 - i) * 86400000);
+    const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+    const count = Math.round((isWeekend ? 12 : 7) + ((i * 5) % 4));
+    const amount = count * (380 + ((i * 37) % 120));
+
+    return {
+      date: d.toISOString().split('T')[0],
+      displayDate: range === 'weekly' ? daysOfWeek[d.getDay()] : `${monthNames[d.getMonth()]} ${d.getDate()}`,
+      amount,
+      count,
+    };
+  });
+
+  const totalAmount = data.reduce((sum, d) => sum + d.amount, 0);
+  const totalCount = data.reduce((sum, d) => sum + d.count, 0);
+  const avgPerDay = data.length > 0 ? Math.round(totalAmount / data.length) : 0;
+
+  return {
+    data,
+    totalAmount,
+    totalCount,
+    avgPerDay,
+  };
+}
+
+export const DEMO_HISTORICAL_REVENUE_14D = Array.from({ length: 14 }, (_, i) => {
+  const d = new Date(Date.now() - (13 - i) * 86400000);
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return {
+    stat_date: d.toISOString().split('T')[0],
+    date: `${monthNames[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}`,
+    revenue: Math.round(124000 + Math.sin(i * 0.8) * 18000 + ((i * 17) % 7) * 2000),
+  };
+});
+
+export const DEMO_USAGE_STATS_168H = (() => {
+  const list = [];
+  const now = new Date();
+  for (let d = 0; d < 7; d++) {
+    const date = new Date(now.getTime() - (6 - d) * 86400000);
+    const dayOfWeek = date.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+    for (let h = 0; h < 24; h++) {
+      let occ = 12;
+      if (h >= 7 && h <= 9) occ = isWeekend ? 35 : 62;
+      else if (h >= 10 && h <= 13) occ = isWeekend ? 88 : 82;
+      else if (h >= 14 && h <= 16) occ = isWeekend ? 72 : 64;
+      else if (h >= 17 && h <= 20) occ = isWeekend ? 94 : 88;
+      else if (h >= 21 && h <= 23) occ = 32;
+
+      occ = Math.min(98, Math.max(5, occ + ((h + d) % 7 - 3)));
+
+      list.push({
+        id: `usage-h-${d}-${h}`,
+        lot_id: 'cp-block-a',
+        stat_date: date.toISOString().split('T')[0],
+        hour_of_day: h,
+        avg_occupancy: occ,
+        peak_occupancy: Math.min(100, occ + 6),
+        total_vehicles: Math.round(occ * 1.8),
+        revenue: occ * 40,
+      });
+    }
+  }
+  return list;
+})();
+
+export const DEMO_REALTIME_GATE_EVENTS = [
+  {
+    id: 'gt-1',
+    plate: 'DL 01 AB 1234',
+    lot: 'Connaught Place Block A',
+    gate: 'Gate 2 - Barrier Entry',
+    mode: 'FASTag Auto-Debit',
+    type: 'ENTRY',
+    amount: '₹40',
+    status: 'VERIFIED',
+    iou: '98.4%',
+  },
+  {
+    id: 'gt-2',
+    plate: 'HR 26 DQ 5678',
+    lot: 'Karol Bagh Market',
+    gate: 'Main Entry Lane 1',
+    mode: 'ANPR Barrier Lift',
+    type: 'ENTRY',
+    amount: '₹30',
+    status: 'VERIFIED',
+    iou: '96.8%',
+  },
+  {
+    id: 'gt-3',
+    plate: 'UP 16 CD 7823',
+    lot: 'Nehru Place IT Hub',
+    gate: 'Outer Plaza Gate 3',
+    mode: 'UPI Dynamic QR',
+    type: 'EXIT',
+    amount: '₹70',
+    status: 'SUCCESS',
+    iou: '99.1%',
+  },
+  {
+    id: 'gt-4',
+    plate: 'DL 03 EF 9012',
+    lot: 'Chandni Chowk Metro',
+    gate: 'North Ramp Exit',
+    mode: 'FASTag Exit',
+    type: 'EXIT',
+    amount: '₹60',
+    status: 'SUCCESS',
+    iou: '97.5%',
+  },
+  {
+    id: 'gt-5',
+    plate: 'DL 08 QR 3344',
+    lot: 'Sarojini Nagar Market',
+    gate: 'Gate 1 Automated',
+    mode: 'Overstay Flagged',
+    type: 'ALERT',
+    amount: '₹350 penalty',
+    status: 'FLAGGED',
+    iou: '95.2%',
+  },
+  {
+    id: 'gt-6',
+    plate: 'HR 55 HC 3344',
+    lot: 'Lajpat Nagar Central',
+    gate: 'South Entry Gate',
+    mode: 'FASTag RFID',
+    type: 'ENTRY',
+    amount: '₹25',
+    status: 'VERIFIED',
+    iou: '98.9%',
+  },
+];
+
+

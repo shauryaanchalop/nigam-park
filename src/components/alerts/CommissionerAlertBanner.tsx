@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ParkingIncident, IncidentStatus } from '@/types/incidents';
 import { toast } from 'sonner';
+import { isIncidentDismissed, saveDismissedIncidentId, setBannerDismissedForSession } from '@/lib/incidentAlertSession';
 import { 
   ShieldAlert, 
   Video, 
@@ -44,19 +45,35 @@ export function CommissionerAlertBanner({
   const navigate = useNavigate();
   const location = useLocation();
   const [snapshotDialogOpen, setSnapshotDialogOpen] = useState(false);
-  const [currentIncident, setCurrentIncident] = useState<ParkingIncident | null>(incident);
+  const [currentIncident, setCurrentIncident] = useState<ParkingIncident | null>(() => {
+    if (incident && !isIncidentDismissed(incident.id)) {
+      return incident;
+    }
+    return null;
+  });
   const [isUpdating, setIsUpdating] = useState(false);
-  const [isDismissed, setIsDismissed] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(() => {
+    return incident ? isIncidentDismissed(incident.id) : false;
+  });
 
   // Synchronize internal state whenever the incoming incident prop changes
   useEffect(() => {
-    setCurrentIncident(incident);
-    setIsDismissed(false);
+    if (!incident || isIncidentDismissed(incident.id)) {
+      setIsDismissed(true);
+      setCurrentIncident(null);
+    } else {
+      setCurrentIncident(incident);
+      setIsDismissed(false);
+    }
   }, [incident]);
 
   const handleDismiss = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     e?.preventDefault();
+    if (currentIncident?.id) {
+      saveDismissedIncidentId(currentIncident.id);
+    }
+    setBannerDismissedForSession(true);
     setIsDismissed(true);
     setCurrentIncident(null);
     onDismiss?.();
@@ -91,6 +108,10 @@ export function CommissionerAlertBanner({
       }
 
       setCurrentIncident((prev) => (prev ? { ...prev, status: newStatus } : null));
+
+      if (newStatus === 'RESOLVED' || newStatus === 'FALSE_ALARM') {
+        saveDismissedIncidentId(incidentId);
+      }
 
       onStatusChange?.(incidentId, newStatus);
       if (newStatus === 'INVESTIGATING') {

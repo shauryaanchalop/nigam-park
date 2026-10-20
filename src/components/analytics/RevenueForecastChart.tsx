@@ -5,6 +5,7 @@ import { TrendingUp, TrendingDown, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { format, addDays } from 'date-fns';
+import { DEMO_REVENUE_FORECASTS, DEMO_HISTORICAL_REVENUE_14D, withDemoFallback } from '@/lib/demoData';
 import {
   LineChart,
   Line,
@@ -31,28 +32,42 @@ export function RevenueForecastChart() {
   const { data: forecasts, isLoading } = useQuery({
     queryKey: ['revenue-forecasts'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('revenue_forecasts')
-        .select('*')
-        .order('forecast_date', { ascending: true })
-        .limit(30);
-      
-      if (error) throw error;
-      return data as RevenueForecast[];
+      try {
+        const { data, error } = await supabase
+          .from('revenue_forecasts')
+          .select('*')
+          .order('forecast_date', { ascending: true })
+          .limit(30);
+        
+        if (error || !data || data.length === 0) {
+          return withDemoFallback([], DEMO_REVENUE_FORECASTS.slice(0, 30)) as RevenueForecast[];
+        }
+        return data as RevenueForecast[];
+      } catch (err) {
+        console.warn('[RevenueForecastChart] Using demo fallback:', err);
+        return withDemoFallback([], DEMO_REVENUE_FORECASTS.slice(0, 30)) as RevenueForecast[];
+      }
     },
   });
 
   const { data: historicalRevenue } = useQuery({
     queryKey: ['historical-revenue'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('lot_usage_stats')
-        .select('stat_date, revenue')
-        .order('stat_date', { ascending: true })
-        .limit(14);
-      
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase
+          .from('lot_usage_stats')
+          .select('stat_date, revenue')
+          .order('stat_date', { ascending: true })
+          .limit(14);
+        
+        if (error || !data || data.length === 0) {
+          return DEMO_HISTORICAL_REVENUE_14D;
+        }
+        return data;
+      } catch (err) {
+        console.warn('[RevenueForecastChart] Using demo historical revenue fallback:', err);
+        return DEMO_HISTORICAL_REVENUE_14D;
+      }
     },
   });
 

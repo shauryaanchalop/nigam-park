@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AccessibilityProvider } from "@/components/ui/AccessibilityWrapper";
+import { IncidentAlertProvider } from "@/contexts/IncidentAlertContext";
 import { MobileNav } from "@/components/ui/MobileNav";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -75,60 +76,62 @@ const App = () => {
       <LanguageProvider>
         <AccessibilityProvider>
           <AuthProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <RouteSEO />
-              <div className="pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0 min-h-screen">
-                <Routes>
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/dashboard" element={<Index />} />
-                  <Route path="/citizen" element={<CitizenPortal />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/admin/users" element={<AdminUserManagement />} />
-                  <Route path="/admin/analytics" element={<AdminAnalytics />} />
-                  <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
-                  <Route path="/admin/fines" element={<AdminFines />} />
-                  <Route path="/admin/shifts" element={<ShiftScheduling />} />
-                  <Route path="/my-reservations" element={<MyReservations />} />
-                  <Route path="/parking-history" element={<ParkingHistory />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/vision-dashboard" element={<VisionDashboard />} />
-                  <Route path="/fraud-hunter" element={<FraudHunter />} />
-                  <Route path="/loyalty" element={<LoyaltyProgram />} />
-                  <Route path="/live-map" element={<LiveParkingMap />} />
-                  <Route path="/kiosk" element={<KioskMode />} />
-                  <Route path="/attendant/performance" element={<AttendantPerformance />} />
-                  <Route path="/notifications" element={<NotificationPreferences />} />
-                  <Route path="/admin/realtime" element={<RealTimeAnalytics />} />
-                  <Route path="/report-violation" element={<ReportViolation />} />
-                  <Route path="/lot/:lotId" element={<LotDetails />} />
-                  <Route path="/parking/:zoneSlug" element={<ZoneParkingPage />} />
-                  <Route path="/blog" element={<BlogIndex />} />
-                  <Route path="/blog/:slug" element={<BlogPost />} />
-                  <Route path="/faq" element={<FAQPage />} />
-                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                  <Route path="/terms" element={<TermsOfService />} />
-                  <Route path="/contact" element={<ContactPage />} />
-                  <Route path="/monthly-pass" element={<MonthlyPassPage />} />
-                  <Route path="/referral" element={<ReferralPage />} />
-                  <Route path="/business" element={<BusinessAccountPage />} />
-                  <Route path="/admin/violations" element={<AdminViolations />} />
-                  <Route path="/admin/reviews" element={<ReviewModeration />} />
-                  <Route path="/attendant/checkin" element={<AttendantCheckIn />} />
-                  <Route path="/install" element={<InstallApp />} />
-                  <Route path="/admin/surge-pricing" element={<AdminSurgePricing />} />
-                  <Route path="/wallet" element={<WalletPage />} />
-                  <Route path="/transparency" element={<TransparencyPage />} />
-                  <Route path="/home" element={<Landing />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </div>
-              <BackButton />
-              <MobileNav />
-              <ParkingAssistant />
-            </BrowserRouter>
+            <IncidentAlertProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <RouteSEO />
+                <div className="pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0 min-h-screen">
+                  <Routes>
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/dashboard" element={<Index />} />
+                    <Route path="/citizen" element={<CitizenPortal />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/admin/users" element={<AdminUserManagement />} />
+                    <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                    <Route path="/admin/parking-lots" element={<AdminParkingLots />} />
+                    <Route path="/admin/fines" element={<AdminFines />} />
+                    <Route path="/admin/shifts" element={<ShiftScheduling />} />
+                    <Route path="/my-reservations" element={<MyReservations />} />
+                    <Route path="/parking-history" element={<ParkingHistory />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/vision-dashboard" element={<VisionDashboard />} />
+                    <Route path="/fraud-hunter" element={<FraudHunter />} />
+                    <Route path="/loyalty" element={<LoyaltyProgram />} />
+                    <Route path="/live-map" element={<LiveParkingMap />} />
+                    <Route path="/kiosk" element={<KioskMode />} />
+                    <Route path="/attendant/performance" element={<AttendantPerformance />} />
+                    <Route path="/notifications" element={<NotificationPreferences />} />
+                    <Route path="/admin/realtime" element={<RealTimeAnalytics />} />
+                    <Route path="/report-violation" element={<ReportViolation />} />
+                    <Route path="/lot/:lotId" element={<LotDetails />} />
+                    <Route path="/parking/:zoneSlug" element={<ZoneParkingPage />} />
+                    <Route path="/blog" element={<BlogIndex />} />
+                    <Route path="/blog/:slug" element={<BlogPost />} />
+                    <Route path="/faq" element={<FAQPage />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/terms" element={<TermsOfService />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/monthly-pass" element={<MonthlyPassPage />} />
+                    <Route path="/referral" element={<ReferralPage />} />
+                    <Route path="/business" element={<BusinessAccountPage />} />
+                    <Route path="/admin/violations" element={<AdminViolations />} />
+                    <Route path="/admin/reviews" element={<ReviewModeration />} />
+                    <Route path="/attendant/checkin" element={<AttendantCheckIn />} />
+                    <Route path="/install" element={<InstallApp />} />
+                    <Route path="/admin/surge-pricing" element={<AdminSurgePricing />} />
+                    <Route path="/wallet" element={<WalletPage />} />
+                    <Route path="/transparency" element={<TransparencyPage />} />
+                    <Route path="/home" element={<Landing />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </div>
+                <BackButton />
+                <MobileNav />
+                <ParkingAssistant />
+              </BrowserRouter>
+            </IncidentAlertProvider>
           </AuthProvider>
         </AccessibilityProvider>
       </LanguageProvider>

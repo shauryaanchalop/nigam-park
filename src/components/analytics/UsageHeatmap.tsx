@@ -5,6 +5,7 @@ import { Flame, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { DEMO_USAGE_STATS_168H, withDemoFallback } from '@/lib/demoData';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
@@ -24,19 +25,26 @@ export function UsageHeatmap({ lotId }: { lotId?: string }) {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['lot-usage-heatmap', lotId],
     queryFn: async () => {
-      let query = supabase
-        .from('lot_usage_stats')
-        .select('*')
-        .order('stat_date', { ascending: false })
-        .limit(168); // 7 days * 24 hours
+      try {
+        let query = supabase
+          .from('lot_usage_stats')
+          .select('*')
+          .order('stat_date', { ascending: false })
+          .limit(168); // 7 days * 24 hours
 
-      if (lotId) {
-        query = query.eq('lot_id', lotId);
+        if (lotId) {
+          query = query.eq('lot_id', lotId);
+        }
+
+        const { data, error } = await query;
+        if (error || !data || data.length === 0) {
+          return withDemoFallback([], DEMO_USAGE_STATS_168H) as LotUsageStat[];
+        }
+        return data as LotUsageStat[];
+      } catch (err) {
+        console.warn('[UsageHeatmap] Using demo fallback:', err);
+        return withDemoFallback([], DEMO_USAGE_STATS_168H) as LotUsageStat[];
       }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data as LotUsageStat[];
     },
   });
 

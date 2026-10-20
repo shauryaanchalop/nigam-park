@@ -33,6 +33,7 @@ export default function VisionDashboard() {
     dismissIncident,
     acknowledgeIncident,
     resolveIncident,
+    updateIncidentStatus,
     unresolvedIncidents,
     incidents,
   } = useIncidentAlerts();
@@ -91,6 +92,16 @@ export default function VisionDashboard() {
     }
   }, [deepLinkCameraId, handleFocusCamera]);
 
+  // Set active incident if explicitly deep-linked
+  useEffect(() => {
+    if (deepLinkIncidentId && incidents.length > 0) {
+      const match = incidents.find((i) => i.id === deepLinkIncidentId);
+      if (match) {
+        setActiveIncident(match);
+      }
+    }
+  }, [deepLinkIncidentId, incidents, setActiveIncident]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -129,15 +140,18 @@ export default function VisionDashboard() {
       <CommissionerAlertBanner
         incident={activeIncident}
         onAcknowledge={(id) => acknowledgeIncident.mutate(id)}
-        onResolve={(id) => resolveIncident.mutate({ id, status: 'RESOLVED' })}
+        onResolve={(id) => {
+          resolveIncident.mutate({ id, status: 'RESOLVED' });
+          dismissIncident(id);
+        }}
         onStatusChange={(id, newStatus) => {
-          setActiveIncident((prev) => (prev?.id === id ? { ...prev, status: newStatus } : prev));
+          updateIncidentStatus(id, newStatus);
         }}
         onDismiss={() => {
           if (activeIncident?.id) {
             dismissIncident(activeIncident.id);
           } else {
-            setActiveIncident(null);
+            dismissIncident();
           }
         }}
         onFocusCamera={handleFocusCamera}
