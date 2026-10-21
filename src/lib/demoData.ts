@@ -1407,4 +1407,81 @@ export const DEMO_REALTIME_GATE_EVENTS = [
   },
 ];
 
+export interface DemoZoneConfig {
+  zone: string;
+  lot_count: number;
+  total_capacity: number;
+  current_occupancy: number;
+  baseDailyRevenue: number;
+  baseDailySessions: number;
+}
+
+export const DEMO_MCD_ZONE_CONFIGS: DemoZoneConfig[] = [
+  { zone: 'Central Delhi', lot_count: 24, total_capacity: 3450, current_occupancy: 2580, baseDailyRevenue: 142000, baseDailySessions: 3550 },
+  { zone: 'New Delhi', lot_count: 32, total_capacity: 4800, current_occupancy: 4120, baseDailyRevenue: 215000, baseDailySessions: 5380 },
+  { zone: 'South Delhi', lot_count: 28, total_capacity: 3900, current_occupancy: 3080, baseDailyRevenue: 178000, baseDailySessions: 4450 },
+  { zone: 'South-East Delhi', lot_count: 22, total_capacity: 3100, current_occupancy: 2290, baseDailyRevenue: 135000, baseDailySessions: 3380 },
+  { zone: 'South-West Delhi', lot_count: 26, total_capacity: 3600, current_occupancy: 2740, baseDailyRevenue: 148000, baseDailySessions: 3700 },
+  { zone: 'Old Delhi / City-SP', lot_count: 19, total_capacity: 2400, current_occupancy: 2180, baseDailyRevenue: 122000, baseDailySessions: 3050 },
+  { zone: 'North Delhi / Civil Lines', lot_count: 18, total_capacity: 2250, current_occupancy: 1510, baseDailyRevenue: 94000, baseDailySessions: 2350 },
+  { zone: 'West Delhi', lot_count: 25, total_capacity: 3300, current_occupancy: 2410, baseDailyRevenue: 132000, baseDailySessions: 3300 },
+  { zone: 'Rohini Zone', lot_count: 21, total_capacity: 2950, current_occupancy: 2090, baseDailyRevenue: 116000, baseDailySessions: 2900 },
+  { zone: 'Shahdara South', lot_count: 20, total_capacity: 2700, current_occupancy: 1940, baseDailyRevenue: 105000, baseDailySessions: 2620 },
+  { zone: 'Shahdara North', lot_count: 16, total_capacity: 2100, current_occupancy: 1390, baseDailyRevenue: 82000, baseDailySessions: 2050 },
+  { zone: 'Najafgarh Zone', lot_count: 14, total_capacity: 1850, current_occupancy: 1180, baseDailyRevenue: 68000, baseDailySessions: 1700 },
+];
+
+export function getDemoZoneTransparency(days = 30) {
+  const safeDays = Math.max(1, Math.min(days, 365));
+  return DEMO_MCD_ZONE_CONFIGS.map((z) => {
+    const revMultiplier = 1 + ((z.lot_count % 5) - 2) * 0.02;
+    const sessMultiplier = 1 + ((z.total_capacity % 7) - 3) * 0.015;
+    return {
+      zone: z.zone,
+      lot_count: z.lot_count,
+      total_capacity: z.total_capacity,
+      current_occupancy: z.current_occupancy,
+      occupancy_percent: Number(((z.current_occupancy / z.total_capacity) * 100).toFixed(1)),
+      total_revenue: Math.round(z.baseDailyRevenue * safeDays * revMultiplier),
+      transaction_count: Math.round(z.baseDailySessions * safeDays * sessMultiplier),
+    };
+  });
+}
+
+export function getDemoDailyTransparency(days = 14) {
+  const safeDays = Math.max(1, Math.min(days, 90));
+  const rows: { day: string; total_revenue: number; transaction_count: number }[] = [];
+  const now = new Date();
+
+  for (let i = safeDays - 1; i >= 0; i--) {
+    const d = new Date(now.getTime() - i * 86400000);
+    const dayStr = d.toISOString().split('T')[0];
+    const dayOfWeek = d.getDay();
+    
+    let dayFactor = 1.0;
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      dayFactor = 1.18;
+    } else if (dayOfWeek === 5) {
+      dayFactor = 1.12;
+    } else if (dayOfWeek === 1) {
+      dayFactor = 1.05;
+    } else {
+      dayFactor = 0.96;
+    }
+
+    const wave = Math.sin(i * 0.9) * 0.06;
+    const baseRev = 1437000;
+    const baseTx = 35700;
+
+    rows.push({
+      day: dayStr,
+      total_revenue: Math.round(baseRev * (dayFactor + wave)),
+      transaction_count: Math.round(baseTx * (dayFactor + wave * 0.8)),
+    });
+  }
+
+  return rows;
+}
+
+
 
