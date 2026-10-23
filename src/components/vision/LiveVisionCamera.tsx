@@ -313,39 +313,24 @@ export function LiveVisionCamera() {
     setUploadedImage('/cctv-parking.jpg');
     setBoxes([
       {
-        label: 'DL01AB1234',
-        confidence: 0.96,
+        label: 'MH 12RN 8834',
+        confidence: 0.98,
         box: [0.15, 0.45, 0.22, 0.28],
         kind: 'plate',
         status: 'CLEAR',
-        quality: { blur: 0.08, glare: 0.12, occlusion: 0.05 },
+        quality: { blur: 0.05, glare: 0.06, occlusion: 0.02 },
       },
       {
-        label: 'White Sedan',
-        confidence: 0.94,
+        label: 'Private Vehicle',
+        confidence: 0.96,
         box: [0.12, 0.35, 0.32, 0.48],
         kind: 'object',
         status: 'CLEAR',
       },
-      {
-        label: 'HR26DK4589',
-        confidence: 0.91,
-        box: [0.55, 0.42, 0.20, 0.25],
-        kind: 'plate',
-        status: 'CLEAR',
-        quality: { blur: 0.10, glare: 0.05, occlusion: 0.15 },
-      },
-      {
-        label: 'Silver SUV',
-        confidence: 0.93,
-        box: [0.52, 0.30, 0.35, 0.52],
-        kind: 'object',
-        status: 'CLEAR',
-      },
     ]);
-    setSummary('2 vehicles & 2 number plates detected with 94% average confidence.');
+    setSummary('1 private vehicle and license plate MH 12RN 8834 detected with 97% confidence.');
     setFrameQuality('HD (1080p, Good Lighting)');
-    setQuality({ blur: 0.09, glare: 0.08, occlusion: 0.10 });
+    setQuality({ blur: 0.05, glare: 0.06, occlusion: 0.02 });
     setError('');
   };
 

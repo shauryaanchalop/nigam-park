@@ -17,16 +17,9 @@ interface Detection {
 }
 
 const DEMO_VEHICLES = [
-  { number: 'DL01AB1234', status: 'approved' as const, reason: 'Valid reservation found' },
-  { number: 'HR26CX5678', status: 'approved' as const, reason: 'Payment confirmed' },
-  { number: 'UP16DY9012', status: 'fraud' as const, reason: 'No payment record - Unauthorized entry' },
-  { number: 'DL02EZ3456', status: 'warning' as const, reason: 'Expired reservation - Overstay detected' },
-  { number: 'RJ14FA7890', status: 'approved' as const, reason: 'FASTag payment verified' },
-  { number: 'DL03GB1122', status: 'fraud' as const, reason: 'Blacklisted vehicle - Multiple violations' },
-  { number: 'HR55HC3344', status: 'approved' as const, reason: 'Monthly pass holder' },
-  { number: 'UP32ID5566', status: 'warning' as const, reason: 'Payment pending - Grace period' },
-  { number: 'DL04JE7788', status: 'approved' as const, reason: 'VIP vehicle registered' },
-  { number: 'MP09KF9900', status: 'fraud' as const, reason: 'Fake number plate detected' },
+  { number: 'MH 12RN 8834', status: 'approved' as const, reason: 'Private vehicle verified - Valid parking reservation' },
+  { number: 'MH 12RN 8834', status: 'approved' as const, reason: 'Private vehicle verified - FASTag touchless auto-payment confirmed' },
+  { number: 'MH 12RN 8834', status: 'approved' as const, reason: 'Private vehicle verified - Bay A-12 allocated' },
 ];
 
 const CAMERAS = ['CAM-A1', 'CAM-A2', 'CAM-B1', 'CAM-B2', 'CAM-C1'];
