@@ -33,6 +33,7 @@ if __name__ == "__main__":
     parser.add_argument("--smoothing-factor", type=float, default=0.65, help="EMA bounding box smoothing factor alpha (default: 0.65)")
     parser.add_argument("--iou-threshold", type=float, default=0.22, help="Collision IoU overlap threshold (default: 0.22)")
     parser.add_argument("--persistence-frames", type=int, default=5, help="Consecutive frames required for collision confirmation (default: 5)")
+    parser.add_argument("--single-image", action="store_true", help="Process input as single image without multi-frame Kalman tracking")
 
     args = parser.parse_args()
 
@@ -46,5 +47,6 @@ if __name__ == "__main__":
         min_confidence=args.min_confidence,
         smoothing_factor=args.smoothing_factor,
         iou_threshold=args.iou_threshold,
-        persistence_frames=args.persistence_frames
+        persistence_frames=args.persistence_frames,
+        is_single_image=args.single_image if args.single_image else None
     )
